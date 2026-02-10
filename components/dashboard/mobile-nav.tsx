@@ -1,11 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useState } from "react"
 import { Calendar, Key, LayoutDashboard, LogOut, Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { HuDyLogo } from "@/components/hudy-logo"
+import { createClient } from "@/lib/supabase/client"
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -16,6 +17,13 @@ const navItems = [
 export function DashboardMobileNav() {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push("/login")
+  }
 
   return (
     <div className="lg:hidden">
@@ -51,13 +59,14 @@ export function DashboardMobileNav() {
               })}
             </nav>
             <div className="mt-4 border-t border-border pt-4">
-              <Link
-                href="/login"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
               >
                 <LogOut className="h-4 w-4" />
                 {"로그아웃"}
-              </Link>
+              </button>
             </div>
           </div>
         </div>

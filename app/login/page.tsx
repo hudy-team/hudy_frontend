@@ -2,8 +2,12 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { HuDyLogo } from "@/components/hudy-logo"
+import { createClient } from "@/lib/supabase/client"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
 
 function GithubIcon({ className }: { className?: string }) {
   return (
@@ -26,9 +30,61 @@ function GoogleIcon({ className }: { className?: string }) {
 
 export default function LoginPage() {
   const router = useRouter()
+  const [email, setEmail] = useState("")
+  const [isLoadingOAuth, setIsLoadingOAuth] = useState<"google" | "github" | null>(null)
+  const [isLoadingMagicLink, setIsLoadingMagicLink] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const handleLogin = () => {
-    router.push("/dashboard")
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) router.push("/dashboard")
+    })
+
+    // Check for error in URL params
+    const urlParams = new URLSearchParams(window.location.search)
+    const errorParam = urlParams.get("error")
+    if (errorParam === "auth") {
+      setError("인증에 실패했습니다. 다시 시도해주세요.")
+    }
+  }, [router])
+
+  const handleOAuthLogin = async (provider: "google" | "github") => {
+    setIsLoadingOAuth(provider)
+    setError(null)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      })
+      if (error) throw error
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "인증에 실패했습니다.")
+      setIsLoadingOAuth(null)
+    }
+  }
+
+  const handleMagicLink = async () => {
+    if (!email) {
+      setError("이메일을 입력해주세요.")
+      return
+    }
+    setIsLoadingMagicLink(true)
+    setError(null)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+      })
+      if (error) throw error
+      toast.success("매직 링크가 이메일로 전송되었습니다.")
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "매직 링크 전송에 실패했습니다.")
+    } finally {
+      setIsLoadingMagicLink(false)
+    }
   }
 
   return (
@@ -45,14 +101,25 @@ export default function LoginPage() {
         </div>
 
         <div className="rounded-xl border border-border bg-card p-6">
+          {error && (
+            <div className="mb-4 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-500">
+              {error}
+            </div>
+          )}
+
           <div className="flex flex-col gap-3">
             <Button
               variant="outline"
               size="lg"
               className="w-full gap-3 bg-transparent"
-              onClick={handleLogin}
+              onClick={() => handleOAuthLogin("google")}
+              disabled={isLoadingOAuth !== null || isLoadingMagicLink}
             >
-              <GoogleIcon className="h-5 w-5" />
+              {isLoadingOAuth === "google" ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <GoogleIcon className="h-5 w-5" />
+              )}
               <span>Google로 계속하기</span>
             </Button>
 
@@ -60,9 +127,14 @@ export default function LoginPage() {
               variant="outline"
               size="lg"
               className="w-full gap-3 bg-transparent"
-              onClick={handleLogin}
+              onClick={() => handleOAuthLogin("github")}
+              disabled={isLoadingOAuth !== null || isLoadingMagicLink}
             >
-              <GithubIcon className="h-5 w-5" />
+              {isLoadingOAuth === "github" ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <GithubIcon className="h-5 w-5" />
+              )}
               <span>GitHub로 계속하기</span>
             </Button>
           </div>
@@ -82,11 +154,27 @@ export default function LoginPage() {
                 id="email"
                 type="email"
                 placeholder="you@example.com"
-                className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleMagicLink()}
+                disabled={isLoadingOAuth !== null || isLoadingMagicLink}
+                className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
               />
             </div>
-            <Button size="lg" className="w-full" onClick={handleLogin}>
-              {"매직 링크로 로그인"}
+            <Button
+              size="lg"
+              className="w-full"
+              onClick={handleMagicLink}
+              disabled={isLoadingOAuth !== null || isLoadingMagicLink}
+            >
+              {isLoadingMagicLink ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {"전송 중..."}
+                </>
+              ) : (
+                "매직 링크로 로그인"
+              )}
             </Button>
           </div>
         </div>
