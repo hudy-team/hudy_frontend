@@ -95,7 +95,7 @@ export default function HolidaysPage() {
     }
 
     const dateObj = new Date(form.date)
-    const dayNames = ['일', '월', '화', '수', '목', '금', '토']
+    const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일']
 
     const holidayData = {
       user_id: user.id,
@@ -168,7 +168,7 @@ export default function HolidaysPage() {
   }
 
   const formatDateWithDay = (date: string, dayOfWeek: string) => {
-    return `${date} (${dayOfWeek}요일)`
+    return `${date} (${dayOfWeek})`
   }
 
   return (
