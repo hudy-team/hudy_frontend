@@ -80,7 +80,7 @@ export default function ApiKeysPage() {
       return
     }
 
-    const randomKey = 'hd_' + Array.from(crypto.getRandomValues(new Uint8Array(24)))
+    const randomKey = 'hd_live_' + Array.from(crypto.getRandomValues(new Uint8Array(24)))
       .map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 32)
 
     const { error } = await supabase.from('api_keys').insert({
