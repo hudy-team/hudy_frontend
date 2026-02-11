@@ -75,30 +75,31 @@ export default function DashboardPage() {
     return apiKeys.filter((k) => k.is_active).length
   }, [apiKeys])
 
-  // Get last 7 months of usage data for chart
+  // Get last 30 days of daily usage data for chart
   const chartData = useMemo(() => {
-    if (usageData.length === 0) return []
+    const now = new Date()
+    const days: { date: string; calls: number; label: string }[] = []
 
-    // Take last 7 months
-    const last7Months = usageData.slice(-7)
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i)
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
+      // 현재는 월별 데이터만 있으므로 일별은 0으로 표시
+      const dayNum = d.getDate()
+      const label = dayNum === 1 || i === 29 || i === 0
+        ? `${d.getMonth() + 1}/${dayNum}`
+        : dayNum % 7 === 0
+          ? `${dayNum}`
+          : ""
+      days.push({ date: key, calls: 0, label })
+    }
 
-    return last7Months.map((u) => ({
-      month: u.month,
-      calls: u.call_count,
-    }))
-  }, [usageData])
+    return days
+  }, [])
 
   const maxCalls = useMemo(() => {
-    if (chartData.length === 0) return 1
-    return Math.max(...chartData.map((d) => d.calls))
+    const max = Math.max(...chartData.map((d) => d.calls))
+    return max > 0 ? max : 1
   }, [chartData])
-
-  // Format month for display (2026-01 -> Jan)
-  const formatMonth = (month: string) => {
-    const [year, monthNum] = month.split("-")
-    const date = new Date(parseInt(year), parseInt(monthNum) - 1)
-    return date.toLocaleDateString("en-US", { month: "short" })
-  }
 
   // Format number with commas
   const formatNumber = (num: number) => {
@@ -182,31 +183,39 @@ export default function DashboardPage() {
       <div className="mb-8">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">API Calls (Monthly)</CardTitle>
+            <CardTitle className="text-base">API Calls (Daily)</CardTitle>
           </CardHeader>
           <CardContent>
-            {chartData.length === 0 ? (
-              <div className="flex items-center justify-center py-16 text-center">
-                <p className="text-sm text-muted-foreground">
-                  아직 API 사용 내역이 없습니다.
-                </p>
-              </div>
-            ) : (
-              <div className="flex items-end gap-3">
-                {chartData.map((d) => (
-                  <div key={d.month} className="flex flex-1 flex-col items-center gap-2">
-                    <span className="text-xs text-muted-foreground">
+            <div className="flex items-end gap-[3px]" style={{ height: 180 }}>
+              {chartData.map((d) => (
+                <div key={d.date} className="group relative flex flex-1 flex-col items-center justify-end h-full">
+                  {d.calls > 0 && (
+                    <span className="absolute -top-5 text-[10px] tabular-nums text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
                       {d.calls >= 1000 ? `${(d.calls / 1000).toFixed(1)}k` : d.calls}
                     </span>
-                    <div
-                      className="w-full rounded-t-md bg-primary/80 transition-all hover:bg-primary"
-                      style={{ height: `${(d.calls / maxCalls) * 160}px` }}
-                    />
-                    <span className="text-xs text-muted-foreground">{formatMonth(d.month)}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+                  )}
+                  <div
+                    className={`w-full rounded-sm transition-all ${
+                      d.calls > 0
+                        ? "bg-primary/70 group-hover:bg-primary"
+                        : "bg-muted/30"
+                    }`}
+                    style={{
+                      height: d.calls > 0
+                        ? `${Math.max((d.calls / maxCalls) * 140, 6)}px`
+                        : "3px",
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="mt-2 flex">
+              {chartData.map((d) => (
+                <div key={d.date} className="flex-1 text-center">
+                  <span className="text-[10px] text-muted-foreground">{d.label}</span>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </div>
