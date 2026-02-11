@@ -1,0 +1,10 @@
+현재 icon favicon 으로 등록
+
+---
+
+그리고 github login 셋팅했는데 다음에러 발생함.
+https://www.hudy.co.kr/login?error=auth#error=server_error&error_code=unexpected_failure&error_description=Error+getting+user+profile+from+external+provider&sb=
+
+---
+
+그렇게 했는데?
