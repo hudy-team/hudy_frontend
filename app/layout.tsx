@@ -11,6 +11,10 @@ const _jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-je
 export const metadata: Metadata = {
   title: 'HuDy - 대한민국 공휴일 API',
   description: '대한민국 공휴일을 쉽게 조회하고, 나만의 커스텀 공휴일을 추가하세요. 개발자를 위한 프리미엄 공휴일 API 서비스.',
+  icons: {
+    icon: '/hudy-icon.webp',
+    apple: '/hudy-icon.webp',
+  },
 }
 
 export const viewport: Viewport = {
