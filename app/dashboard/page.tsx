@@ -75,27 +75,21 @@ export default function DashboardPage() {
     return apiKeys.filter((k) => k.is_active).length
   }, [apiKeys])
 
-  // 이번 달 API 키별 사용량 데이터
-  const keyUsageData = useMemo(() => {
-    const now = new Date()
-    const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
-
-    return apiKeys.map((key) => {
-      const usage = usageData.find(
-        (u) => u.api_key_id === key.id && u.month.startsWith(currentMonthKey)
-      )
-      return {
-        name: key.name,
-        calls: usage?.call_count ?? 0,
-        isActive: key.is_active,
-      }
-    })
-  }, [apiKeys, usageData])
+  // 월별 총 사용량 (데이터가 있는 월만)
+  const chartData = useMemo(() => {
+    const monthMap = new Map<string, number>()
+    for (const u of usageData) {
+      monthMap.set(u.month, (monthMap.get(u.month) || 0) + u.call_count)
+    }
+    return Array.from(monthMap.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, calls]) => ({ month, calls }))
+  }, [usageData])
 
   const maxCalls = useMemo(() => {
-    const max = Math.max(...keyUsageData.map((d) => d.calls), 0)
+    const max = Math.max(...chartData.map((d) => d.calls), 0)
     return max > 0 ? max : 1
-  }, [keyUsageData])
+  }, [chartData])
 
   // Format number with commas
   const formatNumber = (num: number) => {
@@ -169,33 +163,27 @@ export default function DashboardPage() {
       <div className="mb-8">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">이번 달 API 키별 사용량</CardTitle>
+            <CardTitle className="text-base">월별 API 사용량</CardTitle>
           </CardHeader>
           <CardContent>
-            {keyUsageData.length === 0 ? (
+            {chartData.length === 0 ? (
               <p className="py-8 text-center text-sm text-muted-foreground">
-                API 키가 없습니다.
+                아직 사용량 데이터가 없습니다.
               </p>
             ) : (
-              <div className="space-y-4">
-                {keyUsageData.map((d) => (
-                  <div key={d.name} className="space-y-1.5">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-foreground">{d.name}</span>
-                      <span className="tabular-nums text-muted-foreground">
-                        {formatNumber(d.calls)} calls
-                      </span>
-                    </div>
-                    <div className="h-3 w-full overflow-hidden rounded-full bg-muted/40">
-                      <div
-                        className="h-full rounded-full bg-primary/80 transition-all"
-                        style={{
-                          width: d.calls > 0
-                            ? `${Math.max((d.calls / maxCalls) * 100, 3)}%`
-                            : "0%",
-                        }}
-                      />
-                    </div>
+              <div className="flex items-end gap-4" style={{ height: 180 }}>
+                {chartData.map((d) => (
+                  <div key={d.month} className="group flex flex-col items-center gap-2" style={{ width: Math.max(60, 100 / chartData.length) + "%" }}>
+                    <span className="text-xs tabular-nums text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                      {formatNumber(d.calls)}
+                    </span>
+                    <div
+                      className="w-full max-w-[80px] rounded-t-md bg-primary/70 group-hover:bg-primary transition-all"
+                      style={{
+                        height: `${Math.max((d.calls / maxCalls) * 140, 12)}px`,
+                      }}
+                    />
+                    <span className="text-xs text-muted-foreground">{d.month}</span>
                   </div>
                 ))}
               </div>
