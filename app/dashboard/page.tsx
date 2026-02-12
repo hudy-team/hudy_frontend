@@ -19,17 +19,17 @@ type ApiKey = {
   updated_at: string
 }
 
-type ApiUsage = {
+type ApiUsageDaily = {
   id: number
   api_key_id: string
-  month: string
+  date: string
   call_count: number
   updated_at: string
 }
 
 export default function DashboardPage() {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([])
-  const [usageData, setUsageData] = useState<ApiUsage[]>([])
+  const [usageData, setUsageData] = useState<ApiUsageDaily[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -48,11 +48,11 @@ export default function DashboardPage() {
         setApiKeys(keys || [])
       }
 
-      // Get API usage data for user's keys
+      // Get daily API usage data for user's keys
       const { data: usage, error: usageError } = await supabase
-        .from("api_usage")
+        .from("api_usage_daily")
         .select("*, api_keys!inner(user_id)")
-        .order("month", { ascending: true })
+        .order("date", { ascending: true })
 
       if (usageError) {
         console.error("Error fetching usage data:", usageError)
@@ -75,15 +75,15 @@ export default function DashboardPage() {
     return apiKeys.filter((k) => k.is_active).length
   }, [apiKeys])
 
-  // 월별 총 사용량 (데이터가 있는 월만)
+  // 일별 총 사용량 (데이터가 있는 날짜만)
   const chartData = useMemo(() => {
-    const monthMap = new Map<string, number>()
+    const dateMap = new Map<string, number>()
     for (const u of usageData) {
-      monthMap.set(u.month, (monthMap.get(u.month) || 0) + u.call_count)
+      dateMap.set(u.date, (dateMap.get(u.date) || 0) + u.call_count)
     }
-    return Array.from(monthMap.entries())
+    return Array.from(dateMap.entries())
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([month, calls]) => ({ month, calls }))
+      .map(([date, calls]) => ({ date, calls }))
   }, [usageData])
 
   const maxCalls = useMemo(() => {
@@ -163,7 +163,7 @@ export default function DashboardPage() {
       <div className="mb-8">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">월별 API 사용량</CardTitle>
+            <CardTitle className="text-base">일별 API 사용량</CardTitle>
           </CardHeader>
           <CardContent>
             {chartData.length === 0 ? (
@@ -171,19 +171,21 @@ export default function DashboardPage() {
                 아직 사용량 데이터가 없습니다.
               </p>
             ) : (
-              <div className="flex items-end gap-4" style={{ height: 180 }}>
+              <div className="flex items-end gap-2" style={{ height: 180 }}>
                 {chartData.map((d) => (
-                  <div key={d.month} className="group flex flex-col items-center gap-2" style={{ width: Math.max(60, 100 / chartData.length) + "%" }}>
-                    <span className="text-xs tabular-nums text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div key={d.date} className="group flex flex-1 flex-col items-center gap-2 max-w-[60px]">
+                    <span className="text-[10px] tabular-nums text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
                       {formatNumber(d.calls)}
                     </span>
                     <div
-                      className="w-full max-w-[80px] rounded-t-md bg-primary/70 group-hover:bg-primary transition-all"
+                      className="w-full rounded-t-md bg-primary/70 group-hover:bg-primary transition-all"
                       style={{
-                        height: `${Math.max((d.calls / maxCalls) * 140, 12)}px`,
+                        height: `${Math.max((d.calls / maxCalls) * 140, 8)}px`,
                       }}
                     />
-                    <span className="text-xs text-muted-foreground">{d.month}</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {d.date.slice(5)}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -209,7 +211,7 @@ export default function DashboardPage() {
                 <thead>
                   <tr className="border-b border-border text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                     <th className="pb-3 pr-4">API Key</th>
-                    <th className="pb-3 pr-4">Month</th>
+                    <th className="pb-3 pr-4">Date</th>
                     <th className="pb-3 pr-4 text-right">Call Count</th>
                   </tr>
                 </thead>
@@ -222,7 +224,7 @@ export default function DashboardPage() {
                           {apiKey?.name || "Unknown Key"}
                         </td>
                         <td className="py-3 pr-4 text-sm text-muted-foreground">
-                          {usage.month}
+                          {usage.date}
                         </td>
                         <td className="py-3 pr-4 text-right text-sm text-foreground">
                           {formatNumber(usage.call_count)}
