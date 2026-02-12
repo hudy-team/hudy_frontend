@@ -53,28 +53,28 @@ export function DocsSection() {
                   <span className="text-primary">{'"data"'}</span>: [
                 </div>
                 <div className="pl-8">{"{"}</div>
-                <div className="pl-8">
+                <div className="pl-12">
                   <span className="text-primary">{'"id"'}</span>: <span className="text-foreground">{'"1"'}</span>,
                 </div>
-                <div className="pl-8">
+                <div className="pl-12">
                   <span className="text-primary">{'"name"'}</span>: <span className="text-foreground">{'"신정"'}</span>,
                 </div>
-                <div className="pl-8">
+                <div className="pl-12">
                   <span className="text-primary">{'"date"'}</span>: <span className="text-foreground">{'"2026-01-01"'}</span>,
                 </div>
-                <div className="pl-8">
+                <div className="pl-12">
                   <span className="text-primary">{'"year"'}</span>: <span className="text-chart-4">{"2026"}</span>,
                 </div>
-                <div className="pl-8">
+                <div className="pl-12">
                   <span className="text-primary">{'"month"'}</span>: <span className="text-chart-4">{"1"}</span>,
                 </div>
-                <div className="pl-8">
+                <div className="pl-12">
                   <span className="text-primary">{'"day"'}</span>: <span className="text-chart-4">{"1"}</span>,
                 </div>
-                <div className="pl-8">
+                <div className="pl-12">
                   <span className="text-primary">{'"day_of_week"'}</span>: <span className="text-foreground">{'"수"'}</span>,
                 </div>
-                <div className="pl-8">
+                <div className="pl-12">
                   <span className="text-primary">{'"type"'}</span>: <span className="text-foreground">{'"public"'}</span>
                 </div>
                 <div className="pl-8">{"}"}</div>
