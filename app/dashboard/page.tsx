@@ -6,7 +6,7 @@ import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
-import { Activity, ArrowDown, ArrowUp, BarChart3, Clock, Zap } from "lucide-react"
+import { Activity, ArrowDown, ArrowUp, BarChart3 } from "lucide-react"
 import { useMemo } from "react"
 
 type ApiKey = {
@@ -75,39 +75,27 @@ export default function DashboardPage() {
     return apiKeys.filter((k) => k.is_active).length
   }, [apiKeys])
 
-  // 해당 월 1일 ~ 오늘까지의 일별 사용량 차트 데이터
-  const chartData = useMemo(() => {
+  // 이번 달 API 키별 사용량 데이터
+  const keyUsageData = useMemo(() => {
     const now = new Date()
-    const year = now.getFullYear()
-    const month = now.getMonth()
-    const today = now.getDate()
-    const days: { date: string; calls: number; label: string }[] = []
+    const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
 
-    // 현재 월의 총 호출 수
-    const currentMonthKey = `${year}-${String(month + 1).padStart(2, "0")}`
-    const currentMonthCalls = usageData
-      .filter((u) => u.month.startsWith(currentMonthKey))
-      .reduce((sum, u) => sum + u.call_count, 0)
-
-    // 일별로 균등 분배 (일별 데이터가 없으므로)
-    const dailyAvg = today > 0 ? Math.round(currentMonthCalls / today) : 0
-
-    for (let day = 1; day <= today; day++) {
-      const d = new Date(year, month, day)
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
-      const label = day === 1 || day === today || day % 5 === 0
-        ? `${month + 1}/${day}`
-        : ""
-      days.push({ date: key, calls: dailyAvg, label })
-    }
-
-    return days
-  }, [usageData])
+    return apiKeys.map((key) => {
+      const usage = usageData.find(
+        (u) => u.api_key_id === key.id && u.month.startsWith(currentMonthKey)
+      )
+      return {
+        name: key.name,
+        calls: usage?.call_count ?? 0,
+        isActive: key.is_active,
+      }
+    })
+  }, [apiKeys, usageData])
 
   const maxCalls = useMemo(() => {
-    const max = Math.max(...chartData.map((d) => d.calls))
+    const max = Math.max(...keyUsageData.map((d) => d.calls), 0)
     return max > 0 ? max : 1
-  }, [chartData])
+  }, [keyUsageData])
 
   // Format number with commas
   const formatNumber = (num: number) => {
@@ -121,8 +109,8 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">{"API 사용 현황을 확인하세요."}</p>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {[1, 2].map((i) => (
             <Card key={i}>
               <CardContent className="pt-6">
                 <div className="h-20 animate-pulse rounded bg-muted" />
@@ -165,24 +153,14 @@ export default function DashboardPage() {
         <p className="mt-1 text-sm text-muted-foreground">{"API 사용 현황을 확인하세요."}</p>
       </div>
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-8 grid gap-4 sm:grid-cols-2">
         <StatCard
-          title="Total Calls"
+          title="이번 달 총 호출"
           value={formatNumber(totalCalls)}
           icon={<BarChart3 className="h-4 w-4 text-primary" />}
         />
         <StatCard
-          title="Avg Response"
-          value="—"
-          icon={<Clock className="h-4 w-4 text-primary" />}
-        />
-        <StatCard
-          title="Success Rate"
-          value="—"
-          icon={<Zap className="h-4 w-4 text-primary" />}
-        />
-        <StatCard
-          title="Active Keys"
+          title="활성 키"
           value={activeKeys.toString()}
           icon={<Activity className="h-4 w-4 text-primary" />}
         />
@@ -191,39 +169,37 @@ export default function DashboardPage() {
       <div className="mb-8">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">이번 달 API 사용량</CardTitle>
+            <CardTitle className="text-base">이번 달 API 키별 사용량</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-end gap-[3px]" style={{ height: 180 }}>
-              {chartData.map((d) => (
-                <div key={d.date} className="group relative flex flex-1 flex-col items-center justify-end h-full">
-                  {d.calls > 0 && (
-                    <span className="absolute -top-5 text-[10px] tabular-nums text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-                      {d.calls >= 1000 ? `${(d.calls / 1000).toFixed(1)}k` : d.calls}
-                    </span>
-                  )}
-                  <div
-                    className={`w-full rounded-sm transition-all ${
-                      d.calls > 0
-                        ? "bg-primary/70 group-hover:bg-primary"
-                        : "bg-muted/50"
-                    }`}
-                    style={{
-                      height: d.calls > 0
-                        ? `${Math.max((d.calls / maxCalls) * 140, 8)}px`
-                        : "6px",
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
-            <div className="mt-2 flex">
-              {chartData.map((d) => (
-                <div key={d.date} className="flex-1 text-center">
-                  <span className="text-[10px] text-muted-foreground">{d.label}</span>
-                </div>
-              ))}
-            </div>
+            {keyUsageData.length === 0 ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                API 키가 없습니다.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {keyUsageData.map((d) => (
+                  <div key={d.name} className="space-y-1.5">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-foreground">{d.name}</span>
+                      <span className="tabular-nums text-muted-foreground">
+                        {formatNumber(d.calls)} calls
+                      </span>
+                    </div>
+                    <div className="h-3 w-full overflow-hidden rounded-full bg-muted/40">
+                      <div
+                        className="h-full rounded-full bg-primary/80 transition-all"
+                        style={{
+                          width: d.calls > 0
+                            ? `${Math.max((d.calls / maxCalls) * 100, 3)}%`
+                            : "0%",
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
