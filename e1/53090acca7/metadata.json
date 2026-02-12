@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "e153090acca7",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    ".omc/state/agent-replay-0d0ba663-d0c2-4f96-aa73-6af4c753b681.jsonl",
+    ".omc/state/subagent-tracking.json",
+    "app/api/dashboard/api-keys/[id]/token/route.ts",
+    "app/dashboard/api-keys/page.tsx",
+    "components/landing/docs-section.tsx",
+    "components/landing/hero-section.tsx",
+    "components/landing/pricing-section.tsx",
+    "lib/api-key-token.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/e1/53090acca7/0/metadata.json",
+      "transcript": "/e1/53090acca7/0/full.jsonl",
+      "context": "/e1/53090acca7/0/context.md",
+      "content_hash": "/e1/53090acca7/0/content_hash.txt",
+      "prompt": "/e1/53090acca7/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 54,
+    "cache_creation_tokens": 144353,
+    "cache_read_tokens": 1225902,
+    "output_tokens": 7718,
+    "api_call_count": 18
+  }
+}
