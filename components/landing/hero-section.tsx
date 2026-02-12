@@ -62,7 +62,7 @@ function CodePreview() {
         </div>
         <div className="pl-4 text-muted-foreground">
           <span className="text-chart-4">{"-H"}</span>{" "}
-          <span className="text-foreground">{'"Authorization: Bearer YOUR_API_TOKEN"'}</span>
+          <span className="text-foreground">{'"x-api-key: YOUR_API_KEY"'}</span>
         </div>
         <div className="mt-4 flex justify-center border-t border-border pt-4 text-muted-foreground">
           <div className="text-left text-muted-foreground">

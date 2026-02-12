@@ -23,8 +23,8 @@ export function DocsSection() {
           <div className="border-b border-border px-6 py-4">
             <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Authentication</h4>
             <div className="flex items-center gap-3 rounded-lg bg-secondary/50 px-4 py-3">
-              <span className="font-mono text-sm text-primary">Authorization</span>
-              <span className="text-sm text-muted-foreground">{"Bearer JWT를 전달합니다. (예: Authorization: Bearer &lt;token&gt;)"}</span>
+              <span className="font-mono text-sm text-primary">x-api-key</span>
+              <span className="text-sm text-muted-foreground">{"API 키를 전달합니다. (예: x-api-key: hd_live_xxxx)"}</span>
             </div>
           </div>
 
