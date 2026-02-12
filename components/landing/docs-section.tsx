@@ -13,26 +13,21 @@ export function DocsSection() {
         </div>
 
         <div className="mx-auto max-w-3xl overflow-hidden rounded-xl border border-border bg-card">
-          {/* Endpoint Header */}
           <div className="flex items-center gap-3 border-b border-border bg-secondary/50 px-6 py-4">
             <span className="inline-flex rounded bg-primary/10 px-2.5 py-1 font-mono text-xs font-semibold text-primary">
               GET
             </span>
-            <span className="font-mono text-sm text-foreground">
-              api.hudy.co.kr/v2/holidays
-            </span>
+            <span className="font-mono text-sm text-foreground">api.hudy.co.kr/v2/holidays</span>
           </div>
 
-          {/* Auth */}
           <div className="border-b border-border px-6 py-4">
             <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Authentication</h4>
             <div className="flex items-center gap-3 rounded-lg bg-secondary/50 px-4 py-3">
-              <span className="font-mono text-sm text-primary">x-api-key</span>
-              <span className="text-sm text-muted-foreground">{"Header로 API Key를 전달합니다."}</span>
+              <span className="font-mono text-sm text-primary">Authorization</span>
+              <span className="text-sm text-muted-foreground">{"Bearer JWT를 전달합니다. (예: Authorization: Bearer &lt;token&gt;)"}</span>
             </div>
           </div>
 
-          {/* Parameters */}
           <div className="px-6 py-4">
             <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Parameters</h4>
             <div className="flex flex-col gap-2">
@@ -43,24 +38,9 @@ export function DocsSection() {
                 </div>
                 <span className="text-sm text-muted-foreground">{"조회할 연도 (e.g. 2026)"}</span>
               </div>
-              <div className="flex items-start gap-4 rounded-lg bg-secondary/50 px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-sm text-primary">from</span>
-                  <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">optional</span>
-                </div>
-                <span className="text-sm text-muted-foreground">{"조회 시작일 (e.g. 2026-01-01)"}</span>
-              </div>
-              <div className="flex items-start gap-4 rounded-lg bg-secondary/50 px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-sm text-primary">to</span>
-                  <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">optional</span>
-                </div>
-                <span className="text-sm text-muted-foreground">{"조회 종료일 (e.g. 2026-12-31)"}</span>
-              </div>
             </div>
           </div>
 
-          {/* Example Response */}
           <div className="border-t border-border px-6 py-4">
             <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">Example Response</h4>
             <div className="rounded-lg bg-background p-4 font-mono text-sm leading-relaxed">
@@ -72,16 +52,32 @@ export function DocsSection() {
                 <div className="pl-4">
                   <span className="text-primary">{'"data"'}</span>: [
                 </div>
+                <div className="pl-8">{"{"}</div>
                 <div className="pl-8">
-                  {"{ "}
-                  <span className="text-primary">{'"date"'}</span>: <span className="text-foreground">{'"2026-01-01"'}</span>,{" "}
-                  <span className="text-primary">{'"name"'}</span>: <span className="text-foreground">{'"신정"'}</span>{" }"},
+                  <span className="text-primary">{'"id"'}</span>: <span className="text-foreground">{'"1"'}</span>,
                 </div>
                 <div className="pl-8">
-                  {"{ "}
-                  <span className="text-primary">{'"date"'}</span>: <span className="text-foreground">{'"2026-02-16"'}</span>,{" "}
-                  <span className="text-primary">{'"name"'}</span>: <span className="text-foreground">{'"설날"'}</span>{" }"}
+                  <span className="text-primary">{'"name"'}</span>: <span className="text-foreground">{'"신정"'}</span>,
                 </div>
+                <div className="pl-8">
+                  <span className="text-primary">{'"date"'}</span>: <span className="text-foreground">{'"2026-01-01"'}</span>,
+                </div>
+                <div className="pl-8">
+                  <span className="text-primary">{'"year"'}</span>: <span className="text-chart-4">{"2026"}</span>,
+                </div>
+                <div className="pl-8">
+                  <span className="text-primary">{'"month"'}</span>: <span className="text-chart-4">{"1"}</span>,
+                </div>
+                <div className="pl-8">
+                  <span className="text-primary">{'"day"'}</span>: <span className="text-chart-4">{"1"}</span>,
+                </div>
+                <div className="pl-8">
+                  <span className="text-primary">{'"day_of_week"'}</span>: <span className="text-foreground">{'"수"'}</span>,
+                </div>
+                <div className="pl-8">
+                  <span className="text-primary">{'"type"'}</span>: <span className="text-foreground">{'"public"'}</span>
+                </div>
+                <div className="pl-8">{"}"}</div>
                 <div className="pl-4">]</div>
                 <div>{"}"}</div>
               </div>

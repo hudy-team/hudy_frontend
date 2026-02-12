@@ -5,7 +5,7 @@ import { Check, Zap } from "lucide-react"
 const features = [
   "무제한 API 호출",
   "커스텀 공휴일 등록",
-  "x-api-key 기반 인증",
+  "x-api-key(JWT) 기반 인증",
   "대한민국 법정공휴일 전체 제공",
   "연도별 / 기간별 조회",
   "우선 기술 지원",

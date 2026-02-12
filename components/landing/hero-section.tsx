@@ -62,7 +62,7 @@ function CodePreview() {
         </div>
         <div className="pl-4 text-muted-foreground">
           <span className="text-chart-4">{"-H"}</span>{" "}
-          <span className="text-foreground">{'"x-api-key: YOUR_API_KEY"'}</span>
+          <span className="text-foreground">{'"Authorization: Bearer YOUR_API_TOKEN"'}</span>
         </div>
         <div className="mt-4 flex justify-center border-t border-border pt-4 text-muted-foreground">
           <div className="text-left text-muted-foreground">
@@ -75,13 +75,14 @@ function CodePreview() {
             </div>
             <div className="pl-8">
               {"{ "}
+              <span className="text-primary">{'"id"'}</span>: <span className="text-foreground">{'"1"'}</span>,{" "}
+              <span className="text-primary">{'"name"'}</span>: <span className="text-foreground">{'"신정"'}</span>,{" "}
               <span className="text-primary">{'"date"'}</span>: <span className="text-foreground">{'"2026-01-01"'}</span>,{" "}
-              <span className="text-primary">{'"name"'}</span>: <span className="text-foreground">{'"신정"'}</span>{" }"},
-            </div>
-            <div className="pl-8">
-              {"{ "}
-              <span className="text-primary">{'"date"'}</span>: <span className="text-foreground">{'"2026-02-16"'}</span>,{" "}
-              <span className="text-primary">{'"name"'}</span>: <span className="text-foreground">{'"설날"'}</span>{" }"}
+              <span className="text-primary">{'"year"'}</span>: <span className="text-chart-4">{"2026"}</span>,{" "}
+              <span className="text-primary">{'"month"'}</span>: <span className="text-chart-4">{"1"}</span>,{" "}
+              <span className="text-primary">{'"day"'}</span>: <span className="text-chart-4">{"1"}</span>,{" "}
+              <span className="text-primary">{'"day_of_week"'}</span>: <span className="text-foreground">{'"수"'}</span>,{" "}
+              <span className="text-primary">{'"type"'}</span>: <span className="text-foreground">{'"public"'}</span>{" }"},
             </div>
             <div className="pl-4">]</div>
             <div>{"}"}</div>
