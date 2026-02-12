@@ -75,26 +75,34 @@ export default function DashboardPage() {
     return apiKeys.filter((k) => k.is_active).length
   }, [apiKeys])
 
-  // Get last 30 days of daily usage data for chart
+  // 해당 월 1일 ~ 오늘까지의 일별 사용량 차트 데이터
   const chartData = useMemo(() => {
     const now = new Date()
+    const year = now.getFullYear()
+    const month = now.getMonth()
+    const today = now.getDate()
     const days: { date: string; calls: number; label: string }[] = []
 
-    for (let i = 29; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i)
+    // 현재 월의 총 호출 수
+    const currentMonthKey = `${year}-${String(month + 1).padStart(2, "0")}`
+    const currentMonthCalls = usageData
+      .filter((u) => u.month.startsWith(currentMonthKey))
+      .reduce((sum, u) => sum + u.call_count, 0)
+
+    // 일별로 균등 분배 (일별 데이터가 없으므로)
+    const dailyAvg = today > 0 ? Math.round(currentMonthCalls / today) : 0
+
+    for (let day = 1; day <= today; day++) {
+      const d = new Date(year, month, day)
       const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
-      // 현재는 월별 데이터만 있으므로 일별은 0으로 표시
-      const dayNum = d.getDate()
-      const label = dayNum === 1 || i === 29 || i === 0
-        ? `${d.getMonth() + 1}/${dayNum}`
-        : dayNum % 7 === 0
-          ? `${dayNum}`
-          : ""
-      days.push({ date: key, calls: 0, label })
+      const label = day === 1 || day === today || day % 5 === 0
+        ? `${month + 1}/${day}`
+        : ""
+      days.push({ date: key, calls: dailyAvg, label })
     }
 
     return days
-  }, [])
+  }, [usageData])
 
   const maxCalls = useMemo(() => {
     const max = Math.max(...chartData.map((d) => d.calls))
@@ -183,7 +191,7 @@ export default function DashboardPage() {
       <div className="mb-8">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">API Calls (Daily)</CardTitle>
+            <CardTitle className="text-base">이번 달 API 사용량</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-end gap-[3px]" style={{ height: 180 }}>
@@ -198,12 +206,12 @@ export default function DashboardPage() {
                     className={`w-full rounded-sm transition-all ${
                       d.calls > 0
                         ? "bg-primary/70 group-hover:bg-primary"
-                        : "bg-muted/30"
+                        : "bg-muted/50"
                     }`}
                     style={{
                       height: d.calls > 0
-                        ? `${Math.max((d.calls / maxCalls) * 140, 6)}px`
-                        : "3px",
+                        ? `${Math.max((d.calls / maxCalls) * 140, 8)}px`
+                        : "6px",
                     }}
                   />
                 </div>
