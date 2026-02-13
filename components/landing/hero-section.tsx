@@ -47,7 +47,7 @@ export function HeroSection() {
 
 function CodePreview() {
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card">
+    <div className="overflow-hidden rounded-xl border border-border bg-card text-left">
       <div className="flex items-center gap-2 border-b border-border px-4 py-3">
         <div className="h-3 w-3 rounded-full bg-destructive/60" />
         <div className="h-3 w-3 rounded-full bg-chart-4/60" />
