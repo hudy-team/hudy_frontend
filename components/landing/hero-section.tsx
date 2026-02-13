@@ -55,53 +55,36 @@ function CodePreview() {
         <span className="ml-3 text-xs text-muted-foreground font-mono">GET /v2/holidays</span>
       </div>
       <div className="p-5 font-mono text-sm leading-relaxed">
-        <div className="text-muted-foreground">
+        <div className="text-muted-foreground whitespace-nowrap overflow-x-auto">
           <span className="text-primary">{"curl"}</span>{" "}
-          <span className="text-foreground">{"https://api.hudy.co.kr/v2/holidays?year=2026"}</span>
-          {" \\"}
-        </div>
-        <div className="pl-4 text-muted-foreground">
+          <span className="text-foreground">{"https://api.hudy.co.kr/v2/holidays?year=2026"}</span>{" "}
           <span className="text-chart-4">{"-H"}</span>{" "}
           <span className="text-foreground">{'"x-api-key: YOUR_API_KEY"'}</span>
         </div>
-        <div className="mt-4 flex justify-center border-t border-border pt-4 text-muted-foreground">
-          <div className="text-left text-muted-foreground">
-            <div>{"{"}</div>
-            <div className="pl-4">
-              <span className="text-primary">{'"result"'}</span>: <span className="text-chart-4">{"true"}</span>,
-            </div>
-            <div className="pl-4">
-              <span className="text-primary">{'"data"'}</span>: [
-            </div>
-            <div className="pl-8">{"{"}</div>
-            <div className="pl-12">
-              <span className="text-primary">{'"id"'}</span>: <span className="text-foreground">{'"1"'}</span>,
-            </div>
-            <div className="pl-12">
-              <span className="text-primary">{'"name"'}</span>: <span className="text-foreground">{'"신정"'}</span>,
-            </div>
-            <div className="pl-12">
-              <span className="text-primary">{'"date"'}</span>: <span className="text-foreground">{'"2026-01-01"'}</span>,
-            </div>
-            <div className="pl-12">
-              <span className="text-primary">{'"year"'}</span>: <span className="text-chart-4">{"2026"}</span>,
-            </div>
-            <div className="pl-12">
-              <span className="text-primary">{'"month"'}</span>: <span className="text-chart-4">{"1"}</span>,
-            </div>
-            <div className="pl-12">
-              <span className="text-primary">{'"day"'}</span>: <span className="text-chart-4">{"1"}</span>,
-            </div>
-            <div className="pl-12">
-              <span className="text-primary">{'"day_of_week"'}</span>: <span className="text-foreground">{'"수"'}</span>,
-            </div>
-            <div className="pl-12">
-              <span className="text-primary">{'"type"'}</span>: <span className="text-foreground">{'"public"'}</span>
-            </div>
-            <div className="pl-8">{"}"}</div>
-            <div className="pl-4">]</div>
-            <div>{"}"}</div>
+        <div className="mt-4 border-t border-border pt-4 text-muted-foreground leading-loose">
+          <div>{"{"}</div>
+          <div className="pl-6">
+            <span className="text-primary">{'"result"'}</span>: <span className="text-chart-4">{"true"}</span>,
           </div>
+          <div className="pl-6">
+            <span className="text-primary">{'"data"'}</span>: [
+          </div>
+          <div className="pl-12">{"{"}</div>
+          <div className="pl-16">
+            <span className="text-primary">{'"id"'}</span>: <span className="text-foreground">{'"1"'}</span>,
+          </div>
+          <div className="pl-16">
+            <span className="text-primary">{'"name"'}</span>: <span className="text-foreground">{'"신정"'}</span>,
+          </div>
+          <div className="pl-16">
+            <span className="text-primary">{'"date"'}</span>: <span className="text-foreground">{'"2026-01-01"'}</span>,
+          </div>
+          <div className="pl-16">
+            <span className="text-primary">{'"type"'}</span>: <span className="text-foreground">{'"public"'}</span>
+          </div>
+          <div className="pl-12">{"}"}</div>
+          <div className="pl-6">{"]"}</div>
+          <div>{"}"}</div>
         </div>
       </div>
     </div>

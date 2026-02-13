@@ -14,7 +14,7 @@ const features = [
   {
     icon: Zap,
     title: "빠른 응답 속도",
-    description: "글로벌 CDN으로 어디서나 50ms 이내 응답. 대규모 트래픽에도 안정적으로 서비스합니다.",
+    description: "어디서나 100ms 이내 응답. 안정적인 인프라로 서비스합니다.",
   },
   {
     icon: Code2,
