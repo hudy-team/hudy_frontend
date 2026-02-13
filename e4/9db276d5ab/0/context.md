@@ -1,0 +1,28 @@
+# Session Context
+
+## User Prompts
+
+### Prompt 1
+
+랜딩페이지에서 최상단 example 을 좌측정렬로 바꿔줘 `curl https~ ` 이부분은 한줄로 해주고 아래 응답은 좌측정렬 인데 indent 조금 널널 하게 줘 너무 따닥따닥 붙은 json 같음. 그리고 중간에 < 50ms 100ms 로 수정하고, 3,200+ active deveolopers 부분은 거짓말이니까 없애줘
+
+### Prompt 2
+
+[Request interrupted by user]
+
+### Prompt 3
+
+랜딩페이지에서 최상단 example 을 좌측정렬로 바꿔줘 `curl https~ ` 이부분은 한줄로 해주고 아래 응답은 좌측정렬 인데 indent 조금 널널 하게 줘 너무 따닥따닥 붙은 json 같음. 그리고 중간에 < 50ms 100ms 로 수정하고, 3,200+ active deveolopers 부분은 거짓말이니까 없애고 다른 거짓말 아닌 적절한 다른 수치값이나 내용으로 바꿔줘
+
+### Prompt 4
+
+커밋 푸시
+
+### Prompt 5
+
+상단 example 의 응답부분이 가운대정렬에 인덴트가 다 깨져있음
+
+### Prompt 6
+
+커밋 푸시
+
