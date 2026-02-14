@@ -17,6 +17,12 @@ export function Footer() {
           <Link href="#docs" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
             API Docs
           </Link>
+          <Link href="/terms" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+            이용약관
+          </Link>
+          <Link href="/privacy" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+            개인정보처리방침
+          </Link>
         </div>
 
         <p className="text-sm text-muted-foreground">
