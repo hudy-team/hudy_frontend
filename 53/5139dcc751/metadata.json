@@ -1,0 +1,40 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "535139dcc751",
+  "strategy": "manual-commit",
+  "branch": "dev",
+  "checkpoints_count": 4,
+  "files_touched": [
+    ".env.example",
+    ".env.local",
+    ".omc/state/agent-replay-620884cb-39b1-44aa-82e2-c4d546261fd0.jsonl",
+    ".omc/state/subagent-tracking.json",
+    "app/api/webhook/route.ts",
+    "app/checkout/checkout-client.tsx",
+    "app/checkout/page.tsx",
+    "app/checkout/success/page.tsx",
+    "app/dashboard/billing/page.tsx",
+    "lib/paddle/cancel-subscription.ts",
+    "lib/paddle/get-customer-id.ts",
+    "lib/paddle/get-paddle-instance.ts",
+    "lib/paddle/get-subscription.ts",
+    "lib/paddle/pricing-config.ts",
+    "lib/paddle/process-webhook.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/53/5139dcc751/0/metadata.json",
+      "transcript": "/53/5139dcc751/0/full.jsonl",
+      "context": "/53/5139dcc751/0/context.md",
+      "content_hash": "/53/5139dcc751/0/content_hash.txt",
+      "prompt": "/53/5139dcc751/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 145,
+    "cache_creation_tokens": 177238,
+    "cache_read_tokens": 4882763,
+    "output_tokens": 15917,
+    "api_call_count": 50
+  }
+}
