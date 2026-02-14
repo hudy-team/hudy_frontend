@@ -1,0 +1,326 @@
+현재 휴디 bm 관련해서 브레인 스토밍중인데, gpt 가 답변한 내용 보고 별로인 부분과 괜찮은부분 한번 뽑아봐
+나는 일단 월한도가 너무 높은거 아닌가 싶긴함
+
+응, 네가 말한 방향이 **현실적으로 제일 “맞는 모양”**이야.
+
+공휴일은 “1회 받아서 DB에 저장”이 가능한 데이터라서 ‘조회 무제한’만으로는 구독 유지 근거가 약해지기 쉬워.
+그래서 월 구독은 유지하되, 아래 2가지를 같이 가져가야 (1) 매출 누수 방지 + (2) 구독 유지 이유 강화가 동시에 돼.
+
+⸻
+
+결론부터: “월 구독 유지 + 월 한도(쿼터) + 레이트리밋 + 부가 API(영업일/변경동기화)”가 베스트 조합
+
+1) 월 한도(쿼터) 설정은 거의 필수에 가까움
+
+지금이 $3 “무제한”이면 키 공유/남용이 생길 때 너의 비용이 매출을 이기는 구간이 빨리 와.
+
+공휴일 API는 정상 사용 패턴이 진짜 작아서, ‘정상 고객은 전혀 불편하지 않게’ 쿼터를 둘 수 있어.
+
+추천 시작값(예시, 넉넉하게):
+    •    월 요청 한도: 50,000 ~ 200,000
+    •    공휴일은 보통 “연 1회 동기화 + 가끔 확인”이라 이 정도면 사실상 무제한 체감.
+    •    레이트리밋(RPS): 1~5 rps (버스트 제한)
+    •    RPM: 60~300 rpm
+    •    초과 시: 429 + Retry-After + 대시보드에 “초과 원인/해결법(캐시 권장)” 표시
+
+포인트: “무제한” 문구를 계속 쓰고 싶다면
+무제한(공정 사용 정책 / Fair Use) 로 가되, 실제론 쿼터/레이트리밋이 있는 구조가 운영 측면에서 안전해.
+다만 개발자 제품은 신뢰가 중요해서, 나는 명시적 쿼터 표기를 더 추천해.
+
+⸻
+
+“그럼 사람들이 저장해두고 해지하지 않나?”를 해결하는 핵심: ‘변경을 안전하게 받는 경험’을 팔기
+
+월 구독이 성립하려면, 사용자가 “저장해도 끝이 아니라”를 느껴야 해.
+그걸 가장 깔끔하게 만드는 건 ‘변경 동기화’ 기능이야.
+
+2) 변경 동기화(업데이트 수신)를 제품의 중심 가치로 만들기
+
+추천 기능(개발 난이도 대비 효과 큼):
+    •    캘린더 버전 엔드포인트
+    •    GET /calendar/version?calendar_id=...
+    •    응답: version, updated_at
+    •    클라이언트는 하루 1번만 체크해도 됨(트래픽/비용도 줄고, 고객은 “항상 최신” 안심)
+    •    ETag / If-None-Match (304 Not Modified)
+    •    변경 없으면 304로 응답 → 서버 비용 급감 + 고객은 “구독 중인 최신 데이터”라는 명분 유지
+    •    변경 피드(차등 동기화)
+    •    GET /calendar/changes?since=version 또는 since=timestamp
+    •    “임시공휴일 추가/삭제, 대체공휴일 변경” 같은 이벤트를 로그처럼 제공
+    •    사용자는 자기 DB에 반영하면서도 “HuDy가 최신성 책임져준다”를 체감
+    •    (상위 기능) Webhook/메일 알림
+    •    변경이 생기면 “당겨오지 않아도” 알려줌
+    •    이건 구독 유지 이유가 매우 강해짐(특히 B2B)
+
+이렇게 하면 “1번 받아 저장”이 아니라,
+**“저장하되, HuDy로 계속 안전하게 동기화한다”**가 돼.
+
+⸻
+
+키 공유/남용 문제는 “월 한도”만으로도 꽤 해결되지만, 이것까지 하면 더 강해짐
+
+3) 공유를 ‘막는 것’보다, ‘정상 과금으로 흡수’하는 구조가 최종적으로 이김
+
+단일 $3 플랜만 두면 공유 욕구가 생길 때 선택지가 “공유”밖에 없어서 누수가 생겨.
+
+그래서 플랜은 꼭 복잡하지 않아도, 최소 이렇게는 추천해:
+    •    Personal($3): 1~2개의 API Key 제공(예: dev/prod) + 월 쿼터
+    •    Team(상위 플랜): 키 여러 개 + 멤버/워크스페이스 + IP allowlist 같은 보안 옵션
+
+Team 플랜을 바로 런칭하기 부담되면
+우선은 “추가 키 팩(월 $X)” 같은 형태로만 시작해도 좋아.
+(공유되는 순간 가장 먼저 필요한 게 ‘키 분리’니까.)
+
+4) “공유 탐지”는 아주 단순한 규칙만 있어도 효과 있음
+    •    동일 키로 짧은 시간에 서로 다른 IP가 과하게 많이 등장
+    •    국가/ASN이 급격히 바뀜
+    •    평소 대비 호출량이 급증
+
+→ 자동으로 “보안 알림 메일” + “일시 제한” + “Team/추가키 안내”
+이렇게만 해도 누수 방지가 꽤 돼.
+
+⸻
+
+부가 API 개발 방향: “영업일/마감일 계산”은 구독 유지에 직결됨
+
+5) 영업일 관련 API는 추가하면 ‘돈 낼 이유’가 확 세짐
+
+공휴일 리스트는 저장으로 대체되지만, 이런 건 계속 쓰게 돼:
+    •    is_business_day(date, calendar_id)
+    •    next_business_day(date, calendar_id)
+    •    add_business_days(date, n, calendar_id)
+    •    diff_business_days(from, to, calendar_id)
+    •    shift_if_holiday(date, rule=next|prev, calendar_id) (마감일 규칙)
+
+그리고 여기서 커스텀 휴일이 결합되면 “회사별 캘린더”가 되고,
+이건 DB에 그냥 저장하는 수준에서 끝이 아니라 업무 로직 핵심으로 들어가.
+
+⸻
+
+추천 운영/제품 전략 (지금 상태에서 가장 안전한 1장짜리 로드맵)
+    1.    월 구독 유지 (현재 가격/포지셔닝 유지 가능)
+    2.    “무제한” → 명시적 월 쿼터 + 레이트리밋으로 전환
+    3.    ETag/버전/변경 피드로 “최신성”을 구독 가치로 고정
+    4.    영업일 API를 1순위로 추가 (구독 유지/업셀에 직결)
+    5.    공유/팀 수요가 보이면 **Team(키 다수/워크스페이스/보안 옵션)**을 추가
+
+⸻
+
+너한테 제일 중요한 체크포인트 2개만 짚으면
+    •    (A) 단일 $3 무제한은 장기적으로 비용/남용 리스크가 큼 → 쿼터는 거의 필수
+    •    (B) 공휴일 “리스트 조회”가 아니라 “최신 동기화 + 영업일 로직”이 구독의 이유
+
+⸻
+
+원하면 내가 “너무 복잡하지 않게” 다음을 바로 제안해줄게:
+    •    $3 플랜에 넣을 권장 쿼터/RPS 구체 수치(초기값 + 로그 보고 조정법)
+    •    version / changes / business-day 엔드포인트 설계(요청/응답 예시까지)
+    •    키 공유 감지 룰(운영 정책 문구 포함)
+
+지금 말해준 상황만으로도 월 구독 유지 전략은 충분히 성립해. 쿼터 + 업데이트 동기화 + 영업일 API 이 3개가 핵심이야.
+
+---
+
+버전 태그도 굳이? 그냥 어차피 조회하면 최신화 되어있을텐데 이미. api 호출도 쿼터 높은편이고, 굳이 version check -> api 호출 2단계를 할까?
+
+---
+
+애초에 그냥 무료플랜을 안두고싶어
+
+---
+
+그럼 그냥 정리해서 api 키는 1개 이상 발급 못하도록 막자. 그리고 월쿼터는 5천회로, 레이트리밋은 일단 제외
+
+---
+
+[Request interrupted by user]
+
+---
+
+그럼 그냥 정리해서 api 키는 1개 이상 발급 못하도록 막자. 그리고 월쿼터는 5천회로, 레이트리밋은 일단 제외
+
+---
+
+api 키 발급 시 기존 api 키 만료시켜버리는 로직 넣으면 될듯?
+
+---
+
+[Request interrupted by user]
+
+---
+
+api 키 발급 시 기존 api 키 만료 + 삭제시켜버리는 로직 넣으면 될듯?
+
+---
+
+기존에는 없었을거임 모달 ㄱㄱ
+
+---
+
+[Request interrupted by user for tool use]
+
+---
+
+api 키 발급 시 기존 키 삭제,무효화 + 월한도 기능 + 관련 UI 기능 (랜딩페이지 내 월한도 내용) 병렬로 진행 ulw
+
+---
+
+# Ultrawork Skill
+
+Activates maximum performance mode with parallel agent orchestration.
+
+## When Activated
+
+This skill enhances Claude's capabilities by:
+
+1. **Parallel Execution**: Running multiple agents simultaneously for independent tasks
+2. **Aggressive Delegation**: Routing tasks to specialist agents immediately
+3. **Background Operations**: Using `run_in_background: true` for long operations
+4. **Persistence Enforcement**: Never stopping until all tasks are verified complete
+5. **Smart Model Routing**: Using tiered agents to save tokens
+
+## DELEGATION ENFORCEMENT (CRITICAL)
+
+**YOU ARE AN ORCHESTRATOR, NOT AN IMPLEMENTER.**
+
+| Action | YOU Do | DELEGATE |
+|--------|--------|----------|
+| Read files for context | ✓ | |
+| Track progress (TODO) | ✓ | |
+| Spawn parallel agents | ✓ | |
+| **ANY code change** | ✗ NEVER | executor-low/executor/executor-high |
+| **UI work** | ✗ NEVER | designer/designer-high |
+| **Docs** | ✗ NEVER | writer |
+
+**Path Exception**: Only write to `.omc/`, `.claude/`, `CLAUDE.md`, `AGENTS.md`
+
+The PreToolUse hook will warn you if you attempt direct code changes.
+
+## Smart Model Routing (CRITICAL - SAVE TOKENS)
+
+**Choose tier based on task complexity: LOW (haiku) → MEDIUM (sonnet) → HIGH (opus)**
+
+### Available Agents by Tier
+
+| Domain | LOW (Haiku) | MEDIUM (Sonnet) | HIGH (Opus) |
+|--------|-------------|-----------------|-------------|
+| **Analysis** | `architect-low` | `architect-medium` | `architect` |
+| **Execution** | `executor-low` | `executor` | `executor-high` |
+| **Search** | `explore` | `explore-medium` | - |
+| **Research** | `researcher-low` | `researcher` | - |
+| **Frontend** | `designer-low` | `designer` | `designer-high` |
+| **Docs** | `writer` | - | - |
+| **Visual** | - | `vision` | - |
+| **Planning** | - | - | `planner`, `critic`, `analyst` |
+| **Testing** | - | `qa-tester` | - |
+
+### Tier Selection Guide
+
+| Task Complexity | Tier | Examples |
+|-----------------|------|----------|
+| Simple lookups | LOW | "What does this function return?", "Find where X is defined" |
+| Standard work | MEDIUM | "Add error handling", "Implement this feature" |
+| Complex analysis | HIGH | "Debug this race condition", "Refactor auth module across 5 files" |
+
+### Routing Examples
+
+**CRITICAL: Always pass `model` parameter explicitly - Claude Code does NOT auto-apply models from agent definitions!**
+
+```
+// Simple question → LOW tier (saves tokens!)
+Task(subagent_type="architect-low", model="haiku", prompt="What does this function return?")
+
+// Standard implementation → MEDIUM tier
+Task(subagent_type="executor", model="sonnet", prompt="Add error handling to login")
+
+// Complex refactoring → HIGH tier
+Task(subagent_type="executor-high", model="opus", prompt="Refactor auth module using JWT across 5 files")
+
+// Quick file lookup → LOW tier
+Task(subagent_type="explore", model="haiku", prompt="Find where UserService is defined")
+
+// Thorough search → MEDIUM tier
+Task(subagent_type="explore-medium", model="sonnet", prompt="Find all authentication patterns in the codebase")
+```
+
+## Background Execution Rules
+
+**Run in Background** (set `run_in_background: true`):
+- Package installation (npm install, pip install, cargo build, etc.)
+- Build processes (project build command, make, etc.)
+- Test suites (project test command, etc.)
+- Docker operations: docker build, docker pull
+
+**Run Blocking** (foreground):
+- Quick status checks: git status, ls, pwd
+- File reads (NOT edits - delegate edits to executor)
+- Simple commands
+
+## Verification Checklist
+
+Before stopping, verify:
+- [ ] TODO LIST: Zero pending/in_progress tasks
+- [ ] FUNCTIONALITY: All requested features work
+- [ ] TESTS: All tests pass (if applicable)
+- [ ] ERRORS: Zero unaddressed errors
+
+**If ANY checkbox is unchecked, CONTINUE WORKING.**
+
+
+ARGUMENTS: api 키 발급 시 기존 키 삭제,무효화 + 월한도 기능 + 관련 UI 기능 (랜딩페이지 내 월한도 내용) 병렬로 진행
+
+---
+
+Stop hook feedback:
+[ULTRAWORK #1/50] Mode active. Continue working - create Tasks to track your progress.
+Task: api 키 발급 시 기존 키 삭제,무효화 + 월한도 기능 + 관련 UI 기능 (랜딩페이지 내 월한도 내용) 병렬로 진행 ulw
+
+---
+
+Stop hook feedback:
+[ULTRAWORK #2/50] Mode active. Continue working - create Tasks to track your progress.
+Task: api 키 발급 시 기존 키 삭제,무효화 + 월한도 기능 + 관련 UI 기능 (랜딩페이지 내 월한도 내용) 병렬로 진행 ulw
+
+---
+
+커밋 푸시
+
+---
+
+We’ve provisionally approved your domain
+
+Good news — your domain, hudy.co.kr, has been provisionally approved.
+
+Before we can enable payouts, we just need a few updates to your website.
+
+You can continue with the rest of account setup while these changes are made.
+
+What needs updating
+
+During our review, we noticed a few items that need to be adjusted before payouts can be enabled:
+
+Your refund window is less than the required 14 day minimum.
+Your refund policy contains qualifiers or exceptions, which Paddle does not support. Please amend your policy to match Paddle's refund policy.
+We could not access and review content on your Homepage/Footer verification page for this url: https://hudy.co.kr/. Please check the page is accessible, otherwise provide an alternative URL.
+We could not access and review content on your Homepage/Footer page for this url: https://hudy.co.kr/. Please check the page is accessible, otherwise provide an alternative URL.
+Your refund window is less than the required 14 day minimum.
+Your legal business name, HuDy, was not found in your Terms and Conditions.
+Your refund policy contains qualifiers or exceptions, which Paddle does not support. Please amend your policy to match Paddle's refund policy.
+For more detail on what’s required, see our domain review guide.
+
+Once you’ve made these changes, we will monitor and proactively reach out to you at a later stage if needed.
+
+한글로번역
+
+paddle 환불관련 이용약관 수정필요한 부분 수정
+
+---
+
+ㅇㅇ
+
+---
+
+api docs 에서 day of week '요일' 이제 붙어서 응답할꺼임
+
+---
+
+ㅇ
