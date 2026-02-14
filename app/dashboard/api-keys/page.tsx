@@ -81,10 +81,7 @@ export default function ApiKeysPage() {
   }
 
   const maskValue = (value: string) => {
-    if (value.length <= 12) {
-      return `${value.slice(0, 4)}••••${value.slice(-4)}`
-    }
-    return `${value.slice(0, 8)}••••••••${value.slice(-4)}`
+    return "•".repeat(value.length)
   }
 
   const copyKey = async (apiKey: ApiKey) => {
