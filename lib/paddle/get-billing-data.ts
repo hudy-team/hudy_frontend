@@ -38,11 +38,12 @@ export async function getBillingData(): Promise<BillingData> {
     return { subscription: null, transactions: [], customerId: null }
   }
 
-  // 1. Get subscription from DB
+  // 1. Get active subscription from DB (filter by status to avoid canceled duplicates)
   const { data: subData } = await supabase
     .from("subscriptions")
     .select("*")
     .eq("user_id", user.id)
+    .eq("status", "active")
     .order("created_at", { ascending: false })
     .limit(1)
     .single()
@@ -65,13 +66,17 @@ export async function getBillingData(): Promise<BillingData> {
       const paddle = getPaddleInstance()
       const paddleSub = await paddle.subscriptions.get(subData.paddle_subscription_id)
 
+      // Detect scheduled cancellation from Paddle API
+      const scheduledChange = (paddleSub as any).scheduledChange
+      const isScheduledCancel = scheduledChange?.action === "cancel"
+
       subscription = {
         id: subData.id,
         paddleSubscriptionId: subData.paddle_subscription_id,
         status: subData.status,
         startsAt: subData.starts_at,
-        endsAt: subData.ends_at,
-        canceledAt: subData.canceled_at,
+        endsAt: isScheduledCancel ? scheduledChange.effectiveAt : subData.ends_at,
+        canceledAt: isScheduledCancel ? (subData.canceled_at || new Date().toISOString()) : subData.canceled_at,
         nextBilledAt: (paddleSub as any).nextBilledAt || null,
         currentPeriodStart: (paddleSub as any).currentBillingPeriod?.startsAt || null,
         currentPeriodEnd: (paddleSub as any).currentBillingPeriod?.endsAt || null,
