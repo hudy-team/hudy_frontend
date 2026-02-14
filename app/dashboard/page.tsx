@@ -31,6 +31,7 @@ export default function DashboardPage() {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([])
   const [usageData, setUsageData] = useState<ApiUsageDaily[]>([])
   const [loading, setLoading] = useState(true)
+  const MONTHLY_QUOTA = 5000
 
   useEffect(() => {
     async function fetchData() {
@@ -69,6 +70,14 @@ export default function DashboardPage() {
   // Compute stats from real data
   const totalCalls = useMemo(() => {
     return usageData.reduce((sum, u) => sum + u.call_count, 0)
+  }, [usageData])
+
+  const monthlyUsage = useMemo(() => {
+    const now = new Date()
+    const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
+    return usageData
+      .filter((u) => u.date.startsWith(yearMonth))
+      .reduce((sum, u) => sum + u.call_count, 0)
   }, [usageData])
 
   const activeKeys = useMemo(() => {
@@ -149,9 +158,10 @@ export default function DashboardPage() {
 
       <div className="mb-8 grid gap-4 sm:grid-cols-2">
         <StatCard
-          title="이번 달 총 호출"
-          value={formatNumber(totalCalls)}
+          title="이번 달 API 사용량"
+          value={`${formatNumber(monthlyUsage)} / ${formatNumber(MONTHLY_QUOTA)}`}
           icon={<BarChart3 className="h-4 w-4 text-primary" />}
+          quota={{ used: monthlyUsage, limit: MONTHLY_QUOTA }}
         />
         <StatCard
           title="활성 키"
@@ -248,12 +258,14 @@ function StatCard({
   change,
   trend,
   icon,
+  quota,
 }: {
   title: string
   value: string
   change?: string
   trend?: "up" | "down"
   icon: React.ReactNode
+  quota?: { used: number; limit: number }
 }) {
   return (
     <Card>
@@ -277,6 +289,21 @@ function StatCard({
             </span>
           )}
         </div>
+        {quota && (
+          <div className="mt-3">
+            <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className={`h-full rounded-full transition-all ${
+                  quota.used / quota.limit > 0.9 ? "bg-destructive" : "bg-primary"
+                }`}
+                style={{ width: `${Math.min((quota.used / quota.limit) * 100, 100)}%` }}
+              />
+            </div>
+            <p className="mt-1.5 text-xs text-muted-foreground">
+              {Math.round((quota.used / quota.limit) * 100)}% 사용
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   )

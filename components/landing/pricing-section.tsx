@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Check, Zap } from "lucide-react"
 
 const features = [
-  "무제한 API 호출",
+  "월 5,000회 API 호출",
   "커스텀 공휴일 등록",
   "x-api-key 기반 인증",
   "대한민국 법정공휴일 전체 제공",

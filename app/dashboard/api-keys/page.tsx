@@ -4,7 +4,17 @@ import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Copy, Eye, EyeOff, Key, Plus, RefreshCw, Trash2, Power } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Copy, Eye, EyeOff, Key, Plus, RefreshCw, Power } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 
@@ -25,6 +35,7 @@ export default function ApiKeysPage() {
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
   const [recyclingIds, setRecyclingIds] = useState<Set<string>>(new Set())
+  const [showReplaceDialog, setShowReplaceDialog] = useState(false)
 
   const fetchKeys = useCallback(async () => {
     setLoading(true)
@@ -83,6 +94,17 @@ export default function ApiKeysPage() {
 
   const createKey = async () => {
     if (!newKeyName.trim()) return
+
+    // Check if keys already exist - show confirmation dialog
+    if (keys.length > 0) {
+      setShowReplaceDialog(true)
+      return
+    }
+
+    await performCreateKey()
+  }
+
+  const performCreateKey = async () => {
     setCreating(true)
 
     const supabase = createClient()
@@ -97,6 +119,22 @@ export default function ApiKeysPage() {
       return
     }
 
+    // Delete all existing keys first
+    if (keys.length > 0) {
+      const { error: deleteError } = await supabase
+        .from("api_keys")
+        .delete()
+        .eq("user_id", user.id)
+
+      if (deleteError) {
+        toast.error("기존 키 삭제 중 오류가 발생했습니다.")
+        console.error(deleteError)
+        setCreating(false)
+        setShowReplaceDialog(false)
+        return
+      }
+    }
+
     const { error } = await supabase
       .from("api_keys")
       .insert({
@@ -109,6 +147,7 @@ export default function ApiKeysPage() {
       toast.error("API 키 생성 중 오류가 발생했습니다.")
       console.error(error)
       setCreating(false)
+      setShowReplaceDialog(false)
       return
     }
 
@@ -117,6 +156,7 @@ export default function ApiKeysPage() {
     setNewKeyName("")
     setShowCreate(false)
     setCreating(false)
+    setShowReplaceDialog(false)
   }
 
   const recycleKey = async (id: string) => {
@@ -160,19 +200,6 @@ export default function ApiKeysPage() {
       console.error(error)
     } else {
       toast.success(currentActive ? "API 키가 비활성화되었습니다." : "API 키가 활성화되었습니다.")
-      await fetchKeys()
-    }
-  }
-
-  const deleteKey = async (id: string) => {
-    const supabase = createClient()
-    const { error } = await supabase.from("api_keys").delete().eq("id", id)
-
-    if (error) {
-      toast.error("API 키 삭제 중 오류가 발생했습니다.")
-      console.error(error)
-    } else {
-      toast.success("API 키가 삭제되었습니다.")
       await fetchKeys()
     }
   }
@@ -340,14 +367,6 @@ export default function ApiKeysPage() {
                       >
                         <RefreshCw className={`h-4 w-4 ${isRecycling ? "animate-spin" : ""}`} />
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => deleteKey(apiKey.id)}
-                        className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                        aria-label="키 삭제"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
                     </div>
                   </div>
                 </CardContent>
@@ -356,6 +375,26 @@ export default function ApiKeysPage() {
           })}
         </div>
       )}
+
+      <AlertDialog open={showReplaceDialog} onOpenChange={setShowReplaceDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>API 키 재발급</AlertDialogTitle>
+            <AlertDialogDescription>
+              새 키를 발급하면 기존 API 키가 즉시 만료 및 삭제됩니다. 기존 키를 사용 중인 서비스에 영향을 줄 수 있습니다. 계속하시겠습니까?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>취소</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={performCreateKey}
+            >
+              재발급
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
