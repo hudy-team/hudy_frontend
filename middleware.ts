@@ -1,7 +1,12 @@
 import { updateSession } from '@/lib/supabase/middleware'
-import { type NextRequest } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  // Webhook 경로는 인증 없이 통과
+  if (request.nextUrl.pathname.startsWith('/api/webhook')) {
+    return NextResponse.next()
+  }
+
   return await updateSession(request)
 }
 
