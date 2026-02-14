@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "7e6e57a5bff1",
+  "session_id": "620884cb-39b1-44aa-82e2-c4d546261fd0",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-14T16:26:50.234567Z",
+  "branch": "main",
+  "checkpoints_count": 0,
+  "files_touched": [
+    ".env.example",
+    ".env.local",
+    "lib/paddle/get-billing-data.ts",
+    "lib/paddle/get-subscription.ts",
+    "lib/paddle/process-webhook.ts",
+    "middleware.ts"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "3ff80b18-c2b9-4bbe-a3e8-4f52730d01b6",
+  "checkpoint_transcript_start": 1043,
+  "transcript_lines_at_start": 1043,
+  "token_usage": {
+    "input_tokens": 24,
+    "cache_creation_tokens": 14597,
+    "cache_read_tokens": 1167384,
+    "output_tokens": 3968,
+    "api_call_count": 8
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-14T16:26:49.986293Z",
+    "agent_lines": 150,
+    "human_added": 300,
+    "human_modified": 9,
+    "human_removed": 0,
+    "total_committed": 459,
+    "agent_percentage": 32.6797385620915
+  }
+}
