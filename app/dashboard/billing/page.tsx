@@ -2,13 +2,22 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { format } from "date-fns"
+import { format, differenceInDays } from "date-fns"
 import { ko } from "date-fns/locale"
-import { CreditCard, Calendar, Zap, AlertTriangle } from "lucide-react"
+import { CreditCard, Calendar, Zap, AlertTriangle, Clock, FileText, ExternalLink, Loader2, Check } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,207 +29,343 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { getSubscription } from "@/lib/paddle/get-subscription"
+import { getBillingData, type BillingData } from "@/lib/paddle/get-billing-data"
 import { cancelSubscription } from "@/lib/paddle/cancel-subscription"
 import { HUDY_PRO_PLAN } from "@/lib/paddle/pricing-config"
 
-// Subscription type matching the DB schema
-interface Subscription {
-  id: string
-  user_id: string
-  paddle_subscription_id: string | null
-  paddle_customer_id: string | null
-  paddle_price_id: string | null
-  status: string
-  starts_at: string | null
-  ends_at: string | null
-  canceled_at: string | null
-  created_at: string
-  updated_at: string
-}
-
 export default function BillingPage() {
-  const [subscription, setSubscription] = useState<Subscription | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [canceling, setCanceling] = useState(false)
+  const [billingData, setBillingData] = useState<BillingData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isCanceling, setIsCanceling] = useState(false)
 
   useEffect(() => {
-    getSubscription().then((data) => {
-      setSubscription(data as Subscription | null)
-      setLoading(false)
-    })
+    async function loadBillingData() {
+      try {
+        const data = await getBillingData()
+        setBillingData(data)
+      } catch (error) {
+        console.error("Failed to load billing data:", error)
+        toast.error("결제 정보를 불러오는데 실패했습니다")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadBillingData()
   }, [])
 
-  const handleCancel = async () => {
-    if (!subscription) return
-    setCanceling(true)
-    const result = await cancelSubscription(subscription.id)
-    setCanceling(false)
+  const handleCancelSubscription = async () => {
+    if (!billingData?.subscription?.id) return
 
-    if (result.error) {
-      toast.error(result.error)
-    } else {
-      toast.success("구독이 해지 예약되었습니다. 현재 결제 기간까지 이용 가능합니다.")
-      // Refresh subscription data
-      const updated = await getSubscription()
-      setSubscription(updated as Subscription | null)
+    setIsCanceling(true)
+    try {
+      await cancelSubscription(billingData.subscription.id)
+      toast.success("구독이 취소되었습니다. 현재 결제 기간이 끝나면 자동으로 종료됩니다.")
+
+      // Reload billing data
+      const data = await getBillingData()
+      setBillingData(data)
+    } catch (error) {
+      console.error("Failed to cancel subscription:", error)
+      toast.error("구독 취소에 실패했습니다. 다시 시도해주세요.")
+    } finally {
+      setIsCanceling(false)
     }
   }
 
-  if (loading) {
+  const getStatusBadge = (subscription: BillingData["subscription"]) => {
+    if (!subscription) return null
+
+    if (subscription.canceledAt) {
+      return <Badge variant="outline" className="border-yellow-500/50 text-yellow-500">해지 예약</Badge>
+    }
+
+    if (subscription.status === "active") {
+      return <Badge variant="outline" className="border-green-500/50 text-green-500">활성</Badge>
+    }
+
+    return <Badge variant="outline" className="border-muted-foreground">비활성</Badge>
+  }
+
+  const getTransactionStatusBadge = (status: string) => {
+    if (status === "completed") {
+      return <Badge variant="outline" className="border-green-500/50 text-green-500">완료</Badge>
+    }
+    return <Badge variant="outline">{status}</Badge>
+  }
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "-"
+    return format(new Date(dateString), "PPP", { locale: ko })
+  }
+
+  const formatShortDate = (dateString: string | null) => {
+    if (!dateString) return "-"
+    return format(new Date(dateString), "M월 d일", { locale: ko })
+  }
+
+  const calculateDaysRemaining = (endDate: string | null) => {
+    if (!endDate) return null
+    const days = differenceInDays(new Date(endDate), new Date())
+    return days > 0 ? days : 0
+  }
+
+  if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Billing</h1>
-          <p className="text-muted-foreground">구독 및 결제 관리</p>
-        </div>
-        <Card>
-          <CardContent className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          </CardContent>
-        </Card>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     )
   }
 
-  // No active subscription
-  if (!subscription) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Billing</h1>
-          <p className="text-muted-foreground">구독 및 결제 관리</p>
-        </div>
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-primary" />
-              HuDy Pro 구독하기
-            </CardTitle>
-            <CardDescription>
-              월 ${HUDY_PRO_PLAN.price}으로 모든 API 기능을 이용하세요
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ul className="mb-6 space-y-2">
-              {HUDY_PRO_PLAN.features.slice(0, 4).map((feature) => (
-                <li key={feature} className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span className="text-primary">✓</span>
-                  {feature}
-                </li>
-              ))}
-            </ul>
-            <Button asChild>
-              <Link href="/checkout">구독 시작하기</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
-  // Has subscription
-  const statusBadge = {
-    active: <Badge className="bg-green-500/10 text-green-500 hover:bg-green-500/10">활성</Badge>,
-    canceled: <Badge variant="destructive">해지 예약</Badge>,
-    paused: <Badge variant="secondary">일시정지</Badge>,
-    inactive: <Badge variant="outline">비활성</Badge>,
-  }[subscription.status] || <Badge variant="outline">{subscription.status}</Badge>
+  const { subscription, transactions } = billingData || {}
+  const hasSubscription = !!subscription
+  const isCanceled = !!subscription?.canceledAt
+  const isActive = subscription?.status === "active" && !isCanceled
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">Billing</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Billing</h1>
         <p className="text-muted-foreground">구독 및 결제 관리</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5 text-primary" />
-              {HUDY_PRO_PLAN.name}
-            </CardTitle>
-            {statusBadge}
-          </div>
-          <CardDescription>
-            ${HUDY_PRO_PLAN.price} / month
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            {subscription.starts_at && (
-              <div className="flex items-center gap-3 rounded-lg border border-border p-3">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground">구독 시작일</p>
-                  <p className="text-sm font-medium text-foreground">
-                    {format(new Date(subscription.starts_at), "yyyy년 M월 d일", { locale: ko })}
+      {/* Current Plan or No Subscription */}
+      {hasSubscription ? (
+        <Card className="border-border rounded-xl">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  HuDy Pro
+                  {getStatusBadge(subscription)}
+                </CardTitle>
+                <CardDescription className="mt-1.5">
+                  <span className="text-2xl font-bold text-foreground">$3</span>
+                  <span className="text-muted-foreground">/월</span>
+                </CardDescription>
+              </div>
+              <CreditCard className="h-8 w-8 text-muted-foreground" />
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Canceled Notice Banner */}
+            {isCanceled && (
+              <div className="flex items-start gap-3 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5" />
+                <div className="flex-1 space-y-1">
+                  <p className="text-sm font-medium text-yellow-500">구독이 해지 예약되었습니다</p>
+                  <p className="text-sm text-muted-foreground">
+                    {subscription.endsAt && (
+                      <>
+                        {formatDate(subscription.endsAt)}까지 이용 가능합니다.
+                      </>
+                    )}
                   </p>
                 </div>
               </div>
             )}
-            {subscription.ends_at && (
-              <div className="flex items-center gap-3 rounded-lg border border-border p-3">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-xs text-muted-foreground">
-                    {subscription.canceled_at ? "이용 만료일" : "다음 결제일"}
-                  </p>
-                  <p className="text-sm font-medium text-foreground">
-                    {format(new Date(subscription.ends_at), "yyyy년 M월 d일", { locale: ko })}
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
 
-          {subscription.status === "active" && !subscription.canceled_at && (
-            <div className="pt-2">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
-                    <AlertTriangle className="mr-2 h-4 w-4" />
-                    구독 해지
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>구독을 해지하시겠습니까?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      현재 결제 기간이 끝나면 서비스가 중단됩니다.
-                      {subscription.ends_at && (
-                        <> {format(new Date(subscription.ends_at), "yyyy년 M월 d일", { locale: ko })}까지 이용 가능합니다.</>
+            {/* Info Grid */}
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
+                <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">구독 시작일</p>
+                  <p className="text-sm text-muted-foreground">
+                    {formatDate(subscription.startsAt)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
+                <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">
+                    {isCanceled ? "이용 만료일" : "다음 결제일"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {formatDate(isCanceled ? subscription.endsAt : subscription.nextBilledAt)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
+                <FileText className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">현재 결제 기간</p>
+                  <p className="text-sm text-muted-foreground">
+                    {subscription.currentPeriodStart && subscription.currentPeriodEnd
+                      ? `${formatShortDate(subscription.currentPeriodStart)} ~ ${formatShortDate(subscription.currentPeriodEnd)}`
+                      : "-"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
+                <Zap className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">남은 일수</p>
+                  <p className="text-sm text-muted-foreground">
+                    {(() => {
+                      const targetDate = isCanceled ? subscription.endsAt : subscription.nextBilledAt
+                      const daysRemaining = calculateDaysRemaining(targetDate)
+                      return daysRemaining !== null ? `${daysRemaining}일` : "-"
+                    })()}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Cancel Button */}
+            {isActive && (
+              <>
+                <Separator />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium">구독 취소</p>
+                    <p className="text-sm text-muted-foreground">
+                      구독을 취소하면 현재 결제 기간이 끝날 때까지 이용 가능합니다
+                    </p>
+                  </div>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" size="sm" disabled={isCanceling}>
+                        {isCanceling ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            처리 중...
+                          </>
+                        ) : (
+                          "구독 취소"
+                        )}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>구독을 취소하시겠습니까?</AlertDialogTitle>
+                        <AlertDialogDescription className="space-y-2">
+                          <p>구독을 취소하면:</p>
+                          <ul className="list-disc list-inside space-y-1 text-sm">
+                            <li>현재 결제 기간이 끝날 때까지 HuDy Pro를 계속 이용할 수 있습니다</li>
+                            <li>다음 결제가 진행되지 않습니다</li>
+                            <li>만료 후 Free 플랜으로 자동 전환됩니다</li>
+                          </ul>
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>취소</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleCancelSubscription}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          구독 취소
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="border-border rounded-xl">
+          <CardHeader>
+            <CardTitle>HuDy Pro</CardTitle>
+            <CardDescription>
+              <span className="text-2xl font-bold text-foreground">$3</span>
+              <span className="text-muted-foreground">/월</span>
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-3">
+              {HUDY_PRO_PLAN.features.map((feature, index) => (
+                <div key={index} className="flex items-start gap-3">
+                  <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+                  <p className="text-sm text-muted-foreground">{feature}</p>
+                </div>
+              ))}
+            </div>
+            <Separator />
+            <Button asChild className="w-full">
+              <Link href="/checkout">
+                <CreditCard className="mr-2 h-4 w-4" />
+                구독 시작하기
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Payment History */}
+      {transactions && transactions.length > 0 && (
+        <Card className="border-border rounded-xl">
+          <CardHeader>
+            <CardTitle>결제 내역</CardTitle>
+            <CardDescription>과거 결제 기록을 확인할 수 있습니다</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>날짜</TableHead>
+                  <TableHead>금액</TableHead>
+                  <TableHead>상태</TableHead>
+                  <TableHead className="text-right">영수증</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {transactions.map((transaction) => (
+                  <TableRow key={transaction.id}>
+                    <TableCell className="font-medium">
+                      {formatDate(transaction.createdAt)}
+                    </TableCell>
+                    <TableCell>
+                      {transaction.currency.toUpperCase()} ${transaction.amount}
+                    </TableCell>
+                    <TableCell>{getTransactionStatusBadge(transaction.status)}</TableCell>
+                    <TableCell className="text-right">
+                      {transaction.invoiceUrl ? (
+                        <Button variant="ghost" size="sm" asChild>
+                          <a
+                            href={transaction.invoiceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2"
+                          >
+                            다운로드
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        </Button>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
                       )}
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>취소</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleCancel}
-                      disabled={canceling}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      {canceling ? "처리중..." : "해지하기"}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
 
-          {subscription.canceled_at && (
-            <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3">
-              <p className="text-sm text-destructive">
-                구독 해지가 예약되었습니다.
-                {subscription.ends_at && (
-                  <> {format(new Date(subscription.ends_at), "yyyy년 M월 d일", { locale: ko })}까지 이용 가능합니다.</>
-                )}
-              </p>
+      {/* Empty State for No Transactions */}
+      {(!transactions || transactions.length === 0) && hasSubscription && (
+        <Card className="border-border rounded-xl">
+          <CardHeader>
+            <CardTitle>결제 내역</CardTitle>
+            <CardDescription>과거 결제 기록을 확인할 수 있습니다</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-sm text-muted-foreground">결제 내역이 없습니다</p>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }
