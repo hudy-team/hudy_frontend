@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "27a8405f4bce",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    ".env.example",
+    ".env.local",
+    ".omc/state/checkpoints/checkpoint-2026-02-14T16-37-58-590Z.json",
+    "lib/paddle/get-subscription.ts",
+    "lib/paddle/process-webhook.ts",
+    "middleware.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/27/a8405f4bce/0/metadata.json",
+      "transcript": "/27/a8405f4bce/0/full.jsonl",
+      "context": "/27/a8405f4bce/0/context.md",
+      "content_hash": "/27/a8405f4bce/0/content_hash.txt",
+      "prompt": "/27/a8405f4bce/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 42,
+    "cache_creation_tokens": 45151,
+    "cache_read_tokens": 1803514,
+    "output_tokens": 2110,
+    "api_call_count": 14
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "27a8405f4bce",
+  "session_id": "620884cb-39b1-44aa-82e2-c4d546261fd0",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-14T16:40:22.901227Z",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    ".env.example",
+    ".env.local",
+    ".omc/state/checkpoints/checkpoint-2026-02-14T16-37-58-590Z.json",
+    "lib/paddle/get-subscription.ts",
+    "lib/paddle/process-webhook.ts",
+    "middleware.ts"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "762092b7-bb05-4f81-9917-9f42f9a13c15",
+  "checkpoint_transcript_start": 1166,
+  "transcript_lines_at_start": 1166,
+  "token_usage": {
+    "input_tokens": 42,
+    "cache_creation_tokens": 45151,
+    "cache_read_tokens": 1803514,
+    "output_tokens": 2110,
+    "api_call_count": 14
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-14T16:40:22.623197Z",
+    "agent_lines": 0,
+    "human_added": 935,
+    "human_modified": 26,
+    "human_removed": 0,
+    "total_committed": 960,
+    "agent_percentage": 0
+  }
+}
