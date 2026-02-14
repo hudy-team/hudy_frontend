@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "890c941a3f74",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "lib/paddle/get-billing-data.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/89/0c941a3f74/0/metadata.json",
+      "transcript": "/89/0c941a3f74/0/full.jsonl",
+      "context": "/89/0c941a3f74/0/context.md",
+      "content_hash": "/89/0c941a3f74/0/content_hash.txt",
+      "prompt": "/89/0c941a3f74/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 27,
+    "cache_creation_tokens": 13895,
+    "cache_read_tokens": 1161789,
+    "output_tokens": 240,
+    "api_call_count": 9
+  }
+}
