@@ -181,9 +181,9 @@ export default function LoginPage() {
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
           {"로그인하면 "}
-          <Link href="#" className="text-foreground underline underline-offset-2">이용약관</Link>
+          <Link href="/terms" className="text-foreground underline underline-offset-2 hover:text-primary">이용약관</Link>
           {" 및 "}
-          <Link href="#" className="text-foreground underline underline-offset-2">개인정보처리방침</Link>
+          <Link href="/privacy" className="text-foreground underline underline-offset-2 hover:text-primary">개인정보처리방침</Link>
           {"에 동의하는 것으로 간주됩니다."}
         </p>
       </div>
