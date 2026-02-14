@@ -1,0 +1,306 @@
+import { EventEntity, EventName } from "@paddle/paddle-node-sdk";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { getPaddleInstance } from "./get-paddle-instance";
+
+function createServiceClient() {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SECRET_KEY!
+  );
+}
+
+async function logWebhookEvent(
+  eventType: string,
+  payload: unknown,
+  status: "processed" | "error" = "processed",
+  errorMessage?: string
+) {
+  try {
+    const supabase = createServiceClient();
+    await supabase.from("webhook_events").insert({
+      event_type: eventType,
+      payload: payload as Record<string, unknown>,
+      status,
+      error_message: errorMessage,
+    });
+  } catch (e) {
+    console.error("[webhook-log] Failed to log event:", e);
+  }
+}
+
+export async function processWebhookEvent(eventData: EventEntity) {
+  const eventType = eventData.eventType;
+  console.log(`[webhook] Processing: ${eventType}`);
+
+  try {
+    switch (eventType) {
+      case EventName.SubscriptionCreated:
+      case EventName.SubscriptionUpdated:
+      case EventName.SubscriptionCanceled:
+        await handleSubscriptionEvent(eventData);
+        break;
+      case EventName.CustomerCreated:
+      case EventName.CustomerUpdated:
+        await handleCustomerEvent(eventData);
+        break;
+      case EventName.TransactionCompleted:
+        await handleTransactionCompleted(eventData);
+        break;
+      default:
+        console.log(`[webhook] Unhandled event: ${eventType}`);
+    }
+    await logWebhookEvent(eventType, eventData.data);
+  } catch (error) {
+    await logWebhookEvent(
+      eventType,
+      eventData.data,
+      "error",
+      error instanceof Error ? error.message : "Unknown"
+    );
+    throw error; // Re-throw so webhook route returns 500 → Paddle retries
+  }
+}
+
+function mapPaddleStatus(paddleStatus: string): string {
+  switch (paddleStatus) {
+    case "active":
+    case "trialing":
+    case "past_due": // Keep as active during payment retry period
+      return "active";
+    case "canceled":
+      return "canceled";
+    case "paused":
+      return "paused";
+    default:
+      return "inactive";
+  }
+}
+
+async function handleSubscriptionEvent(eventData: EventEntity) {
+  const supabase = createServiceClient();
+  const data = eventData.data as unknown as Record<string, unknown>;
+  const paddleSubscriptionId = data.id as string;
+  const paddleCustomerId = data.customerId as string;
+
+  const items = data.items as Array<{ price?: { id?: string } }> | undefined;
+  const priceId = items?.[0]?.price?.id ?? null;
+  const status = mapPaddleStatus(data.status as string);
+
+  console.log(
+    `[subscription] ${eventData.eventType}: ${paddleSubscriptionId} customer=${paddleCustomerId} status=${status}`
+  );
+
+  // Calculate ends_at
+  let endsAt: string | null = null;
+  const scheduledChange = data.scheduled_change as
+    | { action?: string; effective_at?: string }
+    | undefined;
+  const currentBillingPeriod = data.currentBillingPeriod as
+    | { endsAt?: string }
+    | undefined;
+
+  if (scheduledChange?.action === "cancel") {
+    endsAt = scheduledChange.effective_at || null;
+  } else if (data.next_billed_at) {
+    endsAt = data.next_billed_at as string;
+  } else if (currentBillingPeriod?.endsAt) {
+    endsAt = currentBillingPeriod.endsAt;
+  }
+
+  // Try to find user_id from customers table
+  const { data: customerData } = await supabase
+    .from("customers")
+    .select("user_id")
+    .eq("customer_id", paddleCustomerId)
+    .single();
+
+  const userId = customerData?.user_id || null;
+
+  // Idempotent upsert on paddle_subscription_id
+  const { error } = await supabase.from("subscriptions").upsert(
+    {
+      user_id: userId,
+      paddle_subscription_id: paddleSubscriptionId,
+      paddle_customer_id: paddleCustomerId,
+      paddle_price_id: priceId,
+      status,
+      starts_at: (data.startedAt as string) || new Date().toISOString(),
+      ends_at: endsAt,
+      canceled_at: status === "canceled" ? new Date().toISOString() : null,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "paddle_subscription_id" }
+  );
+
+  if (error) {
+    console.error("[subscription] Upsert failed:", error);
+    throw error;
+  }
+
+  console.log(
+    `[subscription] Upserted: ${paddleSubscriptionId} status=${status} user=${userId || "unlinked"}`
+  );
+}
+
+async function handleCustomerEvent(eventData: EventEntity) {
+  const supabase = createServiceClient();
+  const data = eventData.data as unknown as Record<string, unknown>;
+  const customerId = data.id as string;
+  const email = data.email as string;
+
+  console.log(
+    `[customer] ${eventData.eventType}: ${customerId} email=${email}`
+  );
+
+  // Use RPC function instead of listUsers()
+  const { data: userId } = await supabase.rpc("get_user_id_by_email", {
+    lookup_email: email,
+  });
+
+  // Upsert customer record
+  const { error } = await supabase.from("customers").upsert(
+    {
+      customer_id: customerId,
+      email,
+      user_id: userId || null,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "customer_id" }
+  );
+
+  if (error) {
+    console.error("[customer] Upsert failed:", error);
+    throw error;
+  }
+
+  // If user found, link any orphaned subscriptions
+  if (userId) {
+    const { data: orphanedSubs } = await supabase
+      .from("subscriptions")
+      .select("id, status")
+      .eq("paddle_customer_id", customerId)
+      .is("user_id", null);
+
+    if (orphanedSubs && orphanedSubs.length > 0) {
+      console.log(
+        `[customer] Linking ${orphanedSubs.length} orphaned subscription(s) to user ${userId}`
+      );
+      for (const sub of orphanedSubs) {
+        await supabase
+          .from("subscriptions")
+          .update({ user_id: userId, updated_at: new Date().toISOString() })
+          .eq("id", sub.id);
+      }
+    }
+  }
+
+  console.log(
+    `[customer] Upserted: ${customerId} user=${userId || "not found"}`
+  );
+}
+
+async function handleTransactionCompleted(eventData: EventEntity) {
+  const supabase = createServiceClient();
+  const data = eventData.data as unknown as Record<string, unknown>;
+  const customerId = data.customerId as string;
+
+  if (!customerId) {
+    console.log("[transaction.completed] No customer_id");
+    return;
+  }
+
+  console.log(
+    `[transaction.completed] Processing for customer ${customerId}`
+  );
+
+  // 1. Get customer email from Paddle API (with DB fallback)
+  let customerEmail: string | null = null;
+
+  try {
+    const paddle = getPaddleInstance();
+    const paddleCustomer = await paddle.customers.get(customerId);
+    customerEmail = paddleCustomer.email;
+  } catch {
+    const { data: dbCustomer } = await supabase
+      .from("customers")
+      .select("email")
+      .eq("customer_id", customerId)
+      .single();
+    customerEmail = dbCustomer?.email || null;
+  }
+
+  if (!customerEmail) {
+    console.error(
+      `[transaction.completed] No email for customer ${customerId}`
+    );
+    throw new Error(`No email found for customer ${customerId}`);
+  }
+
+  // 2. Upsert customer record using RPC instead of listUsers()
+  const { data: userId } = await supabase.rpc("get_user_id_by_email", {
+    lookup_email: customerEmail,
+  });
+
+  const { error: customerUpsertError } = await supabase
+    .from("customers")
+    .upsert(
+      {
+        customer_id: customerId,
+        email: customerEmail,
+        user_id: userId || null,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "customer_id" }
+    );
+
+  if (customerUpsertError) {
+    console.error(
+      "[transaction.completed] Customer upsert failed:",
+      customerUpsertError
+    );
+    throw customerUpsertError;
+  }
+
+  // 3. Link orphaned subscriptions if user found
+  if (userId) {
+    const { data: orphanedSubs } = await supabase
+      .from("subscriptions")
+      .select("id, paddle_subscription_id, status")
+      .eq("paddle_customer_id", customerId)
+      .is("user_id", null);
+
+    if (orphanedSubs && orphanedSubs.length > 0) {
+      console.log(
+        `[transaction.completed] Linking ${orphanedSubs.length} subscription(s) to user ${userId}`
+      );
+
+      for (const sub of orphanedSubs) {
+        const { error: linkError } = await supabase
+          .from("subscriptions")
+          .update({ user_id: userId, updated_at: new Date().toISOString() })
+          .eq("id", sub.id);
+
+        if (linkError) {
+          console.error(
+            `[transaction.completed] Failed to link subscription ${sub.id}:`,
+            linkError
+          );
+          throw linkError;
+        }
+
+        console.log(
+          `[transaction.completed] Linked subscription ${sub.id} to user ${userId}`
+        );
+      }
+    }
+
+    console.log(
+      `[transaction.completed] Successfully processed for customer ${customerId} → user ${userId}`
+    );
+  } else {
+    console.warn(
+      `[transaction.completed] No user found for email ${customerEmail}`
+    );
+    throw new Error(`No user found for email ${customerEmail}`);
+  }
+}

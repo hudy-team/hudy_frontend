@@ -57,7 +57,7 @@ export function PricingSection() {
             </ul>
 
             <Button size="lg" className="w-full" asChild>
-              <Link href="/login">{"지금 시작하기"}</Link>
+              <Link href="/checkout">{"지금 시작하기"}</Link>
             </Button>
           </div>
         </div>

@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useState } from "react"
-import { Calendar, Key, LayoutDashboard, LogOut, Menu, X } from "lucide-react"
+import { Calendar, CreditCard, Key, LayoutDashboard, LogOut, Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { HuDyLogo } from "@/components/hudy-logo"
 import { createClient } from "@/lib/supabase/client"
@@ -12,6 +12,7 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/api-keys", label: "API Keys", icon: Key },
   { href: "/dashboard/holidays", label: "Custom Holidays", icon: Calendar },
+  { href: "/dashboard/billing", label: "Billing", icon: CreditCard },
 ]
 
 export function DashboardMobileNav() {
