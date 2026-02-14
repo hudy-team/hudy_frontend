@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "373e94d0a9a8",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".omc/state/subagent-tracking.json",
+    "components/landing/footer.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/37/3e94d0a9a8/0/metadata.json",
+      "transcript": "/37/3e94d0a9a8/0/full.jsonl",
+      "context": "/37/3e94d0a9a8/0/context.md",
+      "content_hash": "/37/3e94d0a9a8/0/content_hash.txt",
+      "prompt": "/37/3e94d0a9a8/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 21,
+    "cache_creation_tokens": 100668,
+    "cache_read_tokens": 657310,
+    "output_tokens": 3687,
+    "api_call_count": 8
+  }
+}
