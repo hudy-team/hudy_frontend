@@ -72,7 +72,7 @@ export function DocsSection() {
                   <span className="text-primary">{'"day"'}</span>: <span className="text-chart-4">{"1"}</span>,
                 </div>
                 <div className="pl-12">
-                  <span className="text-primary">{'"day_of_week"'}</span>: <span className="text-foreground">{'"수"'}</span>,
+                  <span className="text-primary">{'"day_of_week"'}</span>: <span className="text-foreground">{'"수요일"'}</span>,
                 </div>
                 <div className="pl-12">
                   <span className="text-primary">{'"type"'}</span>: <span className="text-foreground">{'"public"'}</span>
