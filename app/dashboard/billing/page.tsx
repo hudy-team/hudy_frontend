@@ -271,32 +271,43 @@ export default function BillingPage() {
           </CardContent>
         </Card>
       ) : (
-        <Card className="border-border rounded-xl">
-          <CardHeader>
-            <CardTitle>HuDy Pro</CardTitle>
-            <CardDescription>
-              <span className="text-2xl font-bold text-foreground">$3</span>
-              <span className="text-muted-foreground">/월</span>
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-3">
-              {HUDY_PRO_PLAN.features.map((feature, index) => (
-                <div key={index} className="flex items-start gap-3">
-                  <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                  <p className="text-sm text-muted-foreground">{feature}</p>
-                </div>
-              ))}
+        <div className="mx-auto max-w-lg">
+          <Card className="relative overflow-hidden rounded-2xl border-primary/20 bg-card shadow-lg shadow-primary/5">
+            <div className="absolute -top-px left-1/2 -translate-x-1/2 rounded-b-lg bg-primary px-4 py-1">
+              <span className="text-xs font-medium text-primary-foreground">All-in-One</span>
             </div>
-            <Separator />
-            <Button asChild className="w-full">
-              <Link href="/checkout">
-                <CreditCard className="mr-2 h-4 w-4" />
-                구독 시작하기
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
+            <CardHeader className="pt-10 text-center">
+              <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                <Zap className="h-6 w-6 text-primary" />
+              </div>
+              <CardTitle className="text-xl">HuDy Pro</CardTitle>
+              <CardDescription>
+                <span className="text-3xl font-bold text-foreground">$3</span>
+                <span className="text-muted-foreground"> / month</span>
+              </CardDescription>
+              <p className="text-sm text-muted-foreground">
+                모든 기능, 하나의 요금제
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2.5">
+                {HUDY_PRO_PLAN.features.map((feature, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                      <Check className="h-3 w-3 text-primary" />
+                    </div>
+                    <p className="text-sm text-muted-foreground">{feature}</p>
+                  </div>
+                ))}
+              </div>
+              <Button asChild size="lg" className="w-full">
+                <Link href="/checkout">
+                  지금 시작하기
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* Payment History */}
