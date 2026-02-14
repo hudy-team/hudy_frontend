@@ -76,6 +76,69 @@ function mapPaddleStatus(paddleStatus: string): string {
   }
 }
 
+async function cancelDuplicateSubscriptions(
+  supabase: ReturnType<typeof createServiceClient>,
+  currentSubscriptionId: string,
+  paddleCustomerId: string,
+  userId: string | null
+) {
+  console.log(
+    `[duplicate-check] Checking for duplicates: current=${currentSubscriptionId}`
+  );
+
+  // Query for other active subscriptions
+  let query = supabase
+    .from("subscriptions")
+    .select("paddle_subscription_id, created_at")
+    .eq("status", "active")
+    .neq("paddle_subscription_id", currentSubscriptionId);
+
+  // Match by user_id if available, otherwise by customer_id
+  if (userId) {
+    query = query.eq("user_id", userId);
+  } else {
+    query = query.eq("paddle_customer_id", paddleCustomerId);
+  }
+
+  const { data: duplicates, error } = await query;
+
+  if (error) {
+    console.error("[duplicate-check] Query failed:", error);
+    throw error;
+  }
+
+  if (!duplicates || duplicates.length === 0) {
+    console.log("[duplicate-check] No duplicates found");
+    return;
+  }
+
+  console.log(
+    `[duplicate-check] Found ${duplicates.length} duplicate(s), cancelling older ones`
+  );
+
+  const paddle = getPaddleInstance();
+
+  for (const dup of duplicates) {
+    try {
+      console.log(
+        `[duplicate-cancel] Cancelling ${dup.paddle_subscription_id}`
+      );
+      await paddle.subscriptions.cancel(dup.paddle_subscription_id, {
+        effectiveFrom: "immediately",
+      });
+      console.log(
+        `[duplicate-cancel] Successfully cancelled ${dup.paddle_subscription_id}`
+      );
+    } catch (cancelError) {
+      console.error(
+        `[duplicate-cancel] Failed to cancel ${dup.paddle_subscription_id}:`,
+        cancelError
+      );
+      // Continue cancelling other duplicates even if one fails
+    }
+  }
+}
+
 async function handleSubscriptionEvent(eventData: EventEntity) {
   const supabase = createServiceClient();
   const data = eventData.data as unknown as Record<string, unknown>;
@@ -140,6 +203,24 @@ async function handleSubscriptionEvent(eventData: EventEntity) {
   console.log(
     `[subscription] Upserted: ${paddleSubscriptionId} status=${status} user=${userId || "unlinked"}`
   );
+
+  // Auto-cancel duplicate subscriptions (only on creation)
+  if (eventData.eventType === EventName.SubscriptionCreated) {
+    try {
+      await cancelDuplicateSubscriptions(
+        supabase,
+        paddleSubscriptionId,
+        paddleCustomerId,
+        userId
+      );
+    } catch (dupError) {
+      console.error(
+        "[subscription] Duplicate cancellation failed (non-fatal):",
+        dupError
+      );
+      // Don't throw - let the main subscription creation succeed
+    }
+  }
 }
 
 async function handleCustomerEvent(eventData: EventEntity) {

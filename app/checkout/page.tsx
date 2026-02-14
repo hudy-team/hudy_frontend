@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { HUDY_PRO_PLAN } from "@/lib/paddle/pricing-config"
 import { CheckoutClient } from "./checkout-client"
+import { getSubscription } from "@/lib/paddle/get-subscription"
 
 export default async function CheckoutPage() {
   const supabase = await createClient()
@@ -9,6 +10,12 @@ export default async function CheckoutPage() {
 
   if (!user) {
     redirect("/login")
+  }
+
+  // Prevent duplicate subscriptions
+  const existingSubscription = await getSubscription()
+  if (existingSubscription) {
+    redirect("/dashboard/billing")
   }
 
   return (
