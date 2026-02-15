@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "72eee8bbd927",
+  "session_id": "9f60e705-573e-4657-8d5a-dd0feab9b487",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-15T14:16:38.862599Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".omc/state/hud-state.json",
+    "components/landing/hero-section.tsx"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "88206dcf-3727-4be1-b4fe-cf0103d7627b",
+  "checkpoint_transcript_start": 793,
+  "transcript_lines_at_start": 793,
+  "token_usage": {
+    "input_tokens": 12,
+    "cache_creation_tokens": 1592,
+    "cache_read_tokens": 546037,
+    "output_tokens": 80,
+    "api_call_count": 4
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-15T14:16:38.719947Z",
+    "agent_lines": 5,
+    "human_added": 714,
+    "human_modified": 6,
+    "human_removed": 0,
+    "total_committed": 725,
+    "agent_percentage": 0.6896551724137931
+  }
+}

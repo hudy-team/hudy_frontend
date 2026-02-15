@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "72eee8bbd927",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".omc/state/hud-state.json",
+    "components/landing/hero-section.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/72/eee8bbd927/0/metadata.json",
+      "transcript": "/72/eee8bbd927/0/full.jsonl",
+      "context": "/72/eee8bbd927/0/context.md",
+      "content_hash": "/72/eee8bbd927/0/content_hash.txt",
+      "prompt": "/72/eee8bbd927/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 12,
+    "cache_creation_tokens": 1592,
+    "cache_read_tokens": 546037,
+    "output_tokens": 80,
+    "api_call_count": 4
+  }
+}
