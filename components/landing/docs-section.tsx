@@ -99,22 +99,24 @@ export function DocsSection() {
 
           {/* Main Tabs - Level 1 */}
           <Tabs defaultValue="holidays" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 rounded-none border-b border-border bg-transparent p-0">
-              <TabsTrigger
-                value="holidays"
-                className="rounded-none border-b-2 border-transparent py-4 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-              >
-                <Calendar className="mr-2 h-4 w-4" />
-                공휴일 조회
-              </TabsTrigger>
-              <TabsTrigger
-                value="business-days"
-                className="rounded-none border-b-2 border-transparent py-4 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-              >
-                <Calculator className="mr-2 h-4 w-4" />
-                영업일 계산
-              </TabsTrigger>
-            </TabsList>
+            <div className="flex border-b border-border">
+              <TabsList className="flex w-full bg-transparent p-0 h-auto">
+                <TabsTrigger
+                  value="holidays"
+                  className="flex-1 rounded-none border-b-2 border-transparent py-4 text-sm font-medium text-muted-foreground transition-colors data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-primary/5 data-[state=active]:shadow-none"
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  공휴일 조회
+                </TabsTrigger>
+                <TabsTrigger
+                  value="business-days"
+                  className="flex-1 rounded-none border-b-2 border-transparent py-4 text-sm font-medium text-muted-foreground transition-colors data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-primary/5 data-[state=active]:shadow-none"
+                >
+                  <Calculator className="mr-2 h-4 w-4" />
+                  영업일 계산
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             {/* Holidays API */}
             <TabsContent value="holidays" className="mt-0">
@@ -179,17 +181,17 @@ export function DocsSection() {
             {/* Business Days API - Level 2 Sub-tabs */}
             <TabsContent value="business-days" className="mt-0">
               <Tabs defaultValue="count" className="w-full">
-                <div className="border-b border-border px-6 pt-4">
-                  <TabsList className="grid h-9 w-full grid-cols-3 rounded-md bg-muted p-1">
-                    <TabsTrigger value="count" className="text-xs">
+                <div className="px-6 py-4">
+                  <TabsList className="grid h-10 w-full grid-cols-3 rounded-lg bg-secondary p-1">
+                    <TabsTrigger value="count" className="rounded-md text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                       <Hash className="mr-1.5 h-3.5 w-3.5" />
                       기간 조회
                     </TabsTrigger>
-                    <TabsTrigger value="add" className="text-xs">
+                    <TabsTrigger value="add" className="rounded-md text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                       <Plus className="mr-1.5 h-3.5 w-3.5" />
                       더하기
                     </TabsTrigger>
-                    <TabsTrigger value="subtract" className="text-xs">
+                    <TabsTrigger value="subtract" className="rounded-md text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                       <Minus className="mr-1.5 h-3.5 w-3.5" />
                       빼기
                     </TabsTrigger>
