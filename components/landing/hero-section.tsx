@@ -54,12 +54,14 @@ function CodePreview() {
         <div className="h-3 w-3 rounded-full bg-primary/60" />
         <span className="ml-3 text-xs text-muted-foreground font-mono">GET /v2/holidays</span>
       </div>
-      <div className="p-4 font-mono text-xs leading-relaxed sm:p-5 sm:text-sm">
-        <div className="text-muted-foreground whitespace-nowrap overflow-x-auto">
-          <span className="text-primary">{"curl"}</span>{" "}
-          <span className="text-foreground">{"https://api.hudy.co.kr/v2/holidays?year=2026"}</span>{" "}
-          <span className="text-chart-4">{"-H"}</span>{" "}
-          <span className="text-foreground">{'"x-api-key: YOUR_API_KEY"'}</span>
+      <div className="min-w-0 p-4 font-mono text-xs leading-relaxed sm:p-5 sm:text-sm">
+        <div className="overflow-x-auto text-muted-foreground">
+          <div className="whitespace-nowrap">
+            <span className="text-primary">{"curl"}</span>{" "}
+            <span className="text-foreground">{"https://api.hudy.co.kr/v2/holidays?year=2026"}</span>{" "}
+            <span className="text-chart-4">{"-H"}</span>{" "}
+            <span className="text-foreground">{'"x-api-key: YOUR_API_KEY"'}</span>
+          </div>
         </div>
         <div className="mt-4 border-t border-border pt-4 text-muted-foreground leading-loose">
           <div>{"{"}</div>
