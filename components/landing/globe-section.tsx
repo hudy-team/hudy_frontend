@@ -4,10 +4,10 @@ import { Globe } from "@/components/ui/globe"
 
 export function GlobeSection() {
   return (
-    <section className="relative overflow-hidden px-6 py-24">
+    <section className="relative px-6 py-24">
       <div className="mx-auto max-w-7xl">
-        <div className="relative flex flex-col items-center">
-          <div className="relative z-10 mb-8 text-center">
+        <div className="flex flex-col items-center">
+          <div className="mb-8 text-center">
             <p className="mb-3 text-sm font-medium uppercase tracking-widest text-primary">
               Global Service
             </p>
@@ -19,9 +19,8 @@ export function GlobeSection() {
             </p>
           </div>
 
-          <div className="relative h-[320px] w-full max-w-[500px] md:h-[400px] md:max-w-[600px]">
+          <div className="relative aspect-square w-full max-w-[400px] md:max-w-[550px]">
             <Globe className="top-0" />
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-transparent to-background/80" />
           </div>
         </div>
       </div>
