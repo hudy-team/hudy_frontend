@@ -21,7 +21,7 @@ export function GlobeSection() {
 
           <div className="relative h-[320px] w-full max-w-[500px] md:h-[400px] md:max-w-[600px]">
             <Globe className="top-0" />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-transparent to-background/80" />
           </div>
         </div>
       </div>
