@@ -7,7 +7,7 @@ import { Globe } from "@/components/ui/globe"
 
 export function GlobeSection() {
   return (
-    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-20">
+    <section className="relative flex flex-col items-center overflow-hidden px-6 pb-12 pt-32 sm:pb-16 md:pt-40">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-primary/5 blur-3xl" />
       </div>
@@ -40,9 +40,21 @@ export function GlobeSection() {
           </Button>
         </div>
 
-        <div className="relative mt-12 h-[280px] w-full max-w-[400px] sm:mt-16 sm:h-[320px] sm:max-w-[500px] md:h-[400px] md:max-w-[600px]">
+        <div className="mt-16 text-center sm:mt-20">
+          <p className="mb-3 text-sm font-medium uppercase tracking-widest text-primary">
+            Global Service
+          </p>
+          <h2 className="text-balance text-2xl font-bold tracking-tight text-foreground sm:text-3xl md:text-4xl">
+            어디서든 빠르게 연결
+          </h2>
+          <p className="mx-auto mt-4 max-w-xl text-pretty text-sm text-muted-foreground sm:text-base">
+            안정적인 글로벌 인프라로 어디서든 빠른 응답을 보장합니다.
+          </p>
+        </div>
+
+        <div className="relative mt-8 h-[300px] w-full max-w-[400px] sm:h-[360px] sm:max-w-[500px] md:h-[450px] md:max-w-[600px]">
           <Globe className="top-0" />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background/40 via-transparent to-background" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
         </div>
       </div>
     </section>
