@@ -202,7 +202,7 @@ export function DocsSection() {
                 <TabsContent value="count" className="mt-0">
                   <EndpointHeader
                     method="GET"
-                    url="api.hudy.co.kr/v1/business-days/count"
+                    url="api.hudy.co.kr/v2/business-days/count"
                   />
 
                   <div className="px-6 py-4">
@@ -260,7 +260,7 @@ export function DocsSection() {
                 <TabsContent value="add" className="mt-0">
                   <EndpointHeader
                     method="GET"
-                    url="api.hudy.co.kr/v1/business-days/add"
+                    url="api.hudy.co.kr/v2/business-days/add"
                   />
 
                   <div className="px-6 py-4">
@@ -312,7 +312,7 @@ export function DocsSection() {
                 <TabsContent value="subtract" className="mt-0">
                   <EndpointHeader
                     method="GET"
-                    url="api.hudy.co.kr/v1/business-days/subtract"
+                    url="api.hudy.co.kr/v2/business-days/subtract"
                   />
 
                   <div className="px-6 py-4">
