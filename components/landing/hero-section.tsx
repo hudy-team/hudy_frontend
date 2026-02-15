@@ -4,7 +4,7 @@ import { ArrowRight } from "lucide-react"
 
 export function HeroSection() {
   return (
-    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-20">
+    <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pb-24 pt-20">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-primary/5 blur-3xl" />
       </div>
@@ -15,13 +15,13 @@ export function HeroSection() {
           <span className="text-xs text-muted-foreground">v2.0 Released - Custom Holidays Support</span>
         </div>
 
-        <h1 className="text-balance text-5xl font-bold leading-tight tracking-tight text-foreground md:text-7xl">
+        <h1 className="text-balance text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl md:text-7xl">
           Korean Public Holidays
           <br />
           <span className="text-primary">API Service</span>
         </h1>
 
-        <p className="mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground md:text-xl">
+        <p className="mt-6 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
           {"대한민국 공휴일을 손쉽게 조회하고, 나만의 커스텀 공휴일을 등록하세요. 단 한 줄의 API 호출로 시작할 수 있습니다."}
         </p>
 
@@ -54,36 +54,41 @@ function CodePreview() {
         <div className="h-3 w-3 rounded-full bg-primary/60" />
         <span className="ml-3 text-xs text-muted-foreground font-mono">GET /v2/holidays</span>
       </div>
-      <div className="p-5 font-mono text-sm leading-relaxed">
-        <div className="text-muted-foreground whitespace-nowrap overflow-x-auto">
-          <span className="text-primary">{"curl"}</span>{" "}
-          <span className="text-foreground">{"https://api.hudy.co.kr/v2/holidays?year=2026"}</span>{" "}
-          <span className="text-chart-4">{"-H"}</span>{" "}
-          <span className="text-foreground">{'"x-api-key: YOUR_API_KEY"'}</span>
+      <div className="p-4 font-mono text-xs leading-relaxed sm:p-5 sm:text-sm">
+        <div className="text-muted-foreground overflow-x-auto">
+          <div className="whitespace-nowrap">
+            <span className="text-primary">{"curl"}</span>{" "}
+            <span className="text-foreground">{"https://api.hudy.co.kr/v2/holidays?year=2026"}</span>{" "}
+            <span className="text-chart-4">{"\\"}</span>
+          </div>
+          <div className="whitespace-nowrap pl-4">
+            <span className="text-chart-4">{"-H"}</span>{" "}
+            <span className="text-foreground">{'"x-api-key: YOUR_API_KEY"'}</span>
+          </div>
         </div>
         <div className="mt-4 border-t border-border pt-4 text-muted-foreground leading-loose">
           <div>{"{"}</div>
-          <div className="pl-6">
+          <div className="pl-4">
             <span className="text-primary">{'"result"'}</span>: <span className="text-chart-4">{"true"}</span>,
           </div>
-          <div className="pl-6">
+          <div className="pl-4">
             <span className="text-primary">{'"data"'}</span>: [
           </div>
-          <div className="pl-12">{"{"}</div>
-          <div className="pl-16">
+          <div className="pl-8">{"{"}</div>
+          <div className="pl-10 sm:pl-12">
             <span className="text-primary">{'"id"'}</span>: <span className="text-foreground">{'"1"'}</span>,
           </div>
-          <div className="pl-16">
+          <div className="pl-10 sm:pl-12">
             <span className="text-primary">{'"name"'}</span>: <span className="text-foreground">{'"신정"'}</span>,
           </div>
-          <div className="pl-16">
+          <div className="pl-10 sm:pl-12">
             <span className="text-primary">{'"date"'}</span>: <span className="text-foreground">{'"2026-01-01"'}</span>,
           </div>
-          <div className="pl-16">
+          <div className="pl-10 sm:pl-12">
             <span className="text-primary">{'"type"'}</span>: <span className="text-foreground">{'"public"'}</span>
           </div>
-          <div className="pl-12">{"}"}</div>
-          <div className="pl-6">{"]"}</div>
+          <div className="pl-8">{"}"}</div>
+          <div className="pl-4">{"]"}</div>
           <div>{"}"}</div>
         </div>
       </div>
