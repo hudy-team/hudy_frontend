@@ -1,0 +1,358 @@
+요즘 agent가 대세니까, 공휴일조회, 커스텀공휴일 crud, 비즈니스api 조회 등등 mcp 로 만들어서 제공하고 싶어. 대시보드에서 현재 발급된 api 키로 바로 연결할 수있는 mcp 를 제공한다거나 해서. 이걸 위해서 필요한 작업이 뭔지 플래닝 해줘
+
+---
+
+[Request interrupted by user for tool use]
+
+---
+
+아 그전에 참고로 공휴일조회, 비즈니스api 조회 즉 코어 api 기능은 ../hudy_backend 에 있음. 커스텀 공휴일 crud, api 키 crud 같은 매니징 api 만 현재 프로젝트에 있음. 이것도 참고
+
+---
+
+# Plan Skill
+
+[PLANNING MODE ACTIVATED]
+
+## Planning Session with Planner
+
+You are now in planning mode with Planner, the strategic planning consultant.
+
+### Current Phase: Interview Mode
+
+I will ask clarifying questions to fully understand your requirements before creating a plan.
+
+### What Happens Next
+1. **Interview** - I'll ask questions about your goals, constraints, and preferences
+2. **Analysis** - Analyst will analyze for hidden requirements and risks
+3. **Planning** - I'll create a comprehensive work plan
+4. **Review** (optional) - Critic can review the plan for quality
+
+### Transition Commands
+Say one of these when you're ready to generate the plan:
+- "Make it into a work plan!"
+- "Create the plan"
+- "I'm ready to plan"
+
+### Plan Storage
+- Drafts are saved to `.omc/drafts/`
+- Final plans are saved to `.omc/plans/`
+
+---
+
+Let's begin. Tell me more about what you want to accomplish, and I'll ask clarifying questions.
+
+
+ARGUMENTS: HuDy MCP Server 구축 플래닝
+
+## 배경 지식 (탐색 완료)
+
+### 백엔드 (../hudy_backend - Rust/actix-web)
+- **코어 API**: `api.hudy.co.kr`
+  - `GET /v1/holidays?year=2025` or `?from=...&to=...` — 공휴일 + 커스텀 공휴일 조회
+  - `GET /v1/business-days/count?from=...&to=...` — 영업일 수 계산
+  - `GET /v1/business-days/add?from=...&days=...` — 영업일 더하기
+  - `GET /v1/business-days/subtract?from=...&days=...` — 영업일 빼기
+- **인증**: `x-api-key` 헤더에 JWT 토큰 (key format: `hd_live_` + 32 hex)
+- **DB**: PostgreSQL (Supabase), 테이블: api_keys, public_holidays, custom_holidays, api_usage_daily
+
+### 프론트엔드 (현재 프로젝트 - Next.js 16)
+- **매니징 API**: Supabase 직접 쿼리로 CRUD
+  - API 키 관리 (생성/재발급/활성화 토글)
+  - 커스텀 공휴일 CRUD
+  - 공휴일 조회 (read-only, year filter)
+  - API 사용량 통계 조회
+- **인증**: Supabase Auth (Google/GitHub OAuth, magic link)
+- **결제**: Paddle ($3/month, 5,000 calls)
+
+### 사용자 요구사항
+- MCP 서버를 만들어서 AI agent들이 HuDy API를 사용할 수 있게 하고 싶음
+- 대시보드에서 발급된 API 키로 바로 MCP 연결 가능하게
+- MCP tools: 공휴일 조회, 커스텀 공휴일 CRUD, 비즈니스 API 조회 등
+
+이 기능을 구현하기 위해 필요한 전체 작업을 플래닝해줘.
+
+---
+
+[Request interrupted by user for tool use]
+
+---
+
+다시 질문
+
+---
+
+응 플랜 작성해줘
+
+---
+
+바로 구현 시작해줘
+
+---
+
+<task-notification>
+<task-id>b003075</task-id>
+<output-file>REDACTED.output</output-file>
+<status>completed</status>
+<summary>Background command "Install MCP SDK and Vercel mcp-handler" completed (exit code 0)</summary>
+</task-notification>
+Read the output file to retrieve the result: REDACTED.output
+
+---
+
+커밋 푸시
+
+---
+
+커밋 푸시
+
+---
+
+2가지 수정이 필요함
+1. 모바일 화면에서 아직 hero, example 이 화면을 벗어나면서 ui가 깨짐 (example request 가 한줄로 변하면서 그런듯)
+2. mcp url을 www.hudy.co.kr 로 변경 (현재 www. 없음 없으면 redirect 될듯)
+
+---
+
+claude code 를 위한 oneline install 명령어도 mcp 항목 탭에 추가. 첨부한 이미지는 exa 인데, 저런것처럼 명령어 제공
+
+---
+
+[Image: source: /Users/minkyu/Desktop/스크린샷 2026-02-16 오후 3.26.27.png]
+
+---
+
+불필요한 서버 url 지우고 claud code 도 밑에 claude desktop, cursor 랑 같이 탭으로 설정
+
+---
+
+❯ claude mcp add --transport http -h "x-api-key: hd_live_3b5544a7a16b675be227beaa4f484976" hudy https://www.hudy.co.kr/api/mcp
+Usage: claude mcp add [options] <name> <commandOrUrl> [args...]
+
+Add an MCP server to Claude Code.
+
+Examples:
+  # Add HTTP server:
+  claude mcp add --transport http sentry https://mcp.sentry.dev/mcp
+
+  # Add HTTP server with headers:
+  claude mcp add --transport http corridor https://app.corridor.dev/api/mcp --header "Authorization: Bearer ..."
+
+  # Add stdio server with environment variables:
+  claude mcp add -e API_KEY=xxx my-server -- npx my-mcp-server
+
+  # Add stdio server with subprocess flags:
+  claude mcp add my-server -- my-command --some-flag arg1
+
+Options:
+  --callback-port <port>       Fixed port for OAuth callback (for servers requiring pre-registered redirect URIs)
+  --client-id <clientId>       OAuth client ID for HTTP/SSE servers
+  --client-secret              Prompt for OAuth client secret (or set MCP_CLIENT_SECRET env var)
+  -e, --env <env...>           Set environment variables (e.g. -e KEY=value)
+  -H, --header <header...>     Set WebSocket headers (e.g. -H "X-Api-Key: abc123" -H "X-Custom: value")
+  -h, --help                   Display help for command
+  -s, --scope <scope>          Configuration scope (local, user, or project) (default: "local")
+  -t, --transport <transport>  Transport type (stdio, sse, http). Defaults to stdio if not specified.
+
+    ~/Documents ····························································································································································································· 15:29:46 
+❯
+제시된 명령어로 설치 시도 시 다음에러 발생
+
+---
+
+그리고 mcp 설정은 api 설정 페이지가 아닌 mcp 메뉴, 페이지로 별도 분리
+
+---
+
+This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation.
+
+Analysis:
+Let me chronologically analyze the entire conversation:
+
+1. **Initial Request**: User wants to create an MCP (Model Context Protocol) server for their HuDy (Korean Holiday API) service, providing tools for holiday lookup, custom holiday CRUD, business days API, etc. They want it integrated with their dashboard where users can connect using their API keys.
+
+2. **Context Clarification**: User clarified that core API features (holiday lookup, business days) are in `../hudy_backend` (Rust/actix-web), while management APIs (custom holiday CRUD, API key CRUD) are in the current frontend project (Next.js on Vercel).
+
+3. **Planning Phase**: Explored both backend and frontend codebases thoroughly. Key findings:
+   - Backend: Rust/actix-web at `api.hudy.co.kr`, endpoints `/v1/holidays`, `/v1/business-days/{count,add,subtract}`, JWT auth via `x-api-key` header
+   - Frontend: Next.js 16, Supabase direct queries for CRUD, deployed on Vercel free tier
+   
+4. **Architecture Decisions** (via AskUserQuestion):
+   - MCP method: Remote MCP (Streamable HTTP)
+   - Project location: Current frontend project (Next.js API route on Vercel)
+   - Tool scope: Core API + Custom holiday CRUD
+   - Managing API: Next.js API route with Supabase direct queries
+
+5. **Implementation Phase 1-3**: Created MCP server foundation + all 8 tools
+6. **Implementation Phase 4-5**: Dashboard MCP guide + Landing page updates
+7. **Bug fixes**: Mobile overflow, MCP URL change to www.hudy.co.kr, `-h` → `-H` flag fix
+8. **Current work**: Separating MCP section from API keys page into dedicated `/dashboard/mcp` page
+
+Key errors encountered:
+- `-h` flag interpreted as `--help` instead of `--header` (correct: `-H`)
+- Mobile overflow from `whitespace-nowrap` in hero section
+- MCP URL missing `www.` prefix
+- Multiple file edit conflicts due to linter modifications
+
+Now let me trace the most recent work: User asked to separate MCP settings into its own page. I've:
+1. Removed MCP section from api-keys/page.tsx
+2. Cleaned up unused imports (Cpu, Tabs, etc.)
+3. Created `app/dashboard/mcp/page.tsx`
+4. Still need to: Add MCP to sidebar and mobile-nav navItems
+
+Summary:
+1. Primary Request and Intent:
+   The user wants to build an MCP (Model Context Protocol) server for their HuDy Korean Holiday API service. The MCP server should allow AI agents (Claude Desktop, Cursor, Claude Code) to use HuDy's API tools directly. Key requirements:
+   - Remote MCP via Streamable HTTP, hosted on existing Vercel deployment
+   - 8 MCP tools: 4 core API tools (holidays, business days) + 4 custom holiday CRUD tools
+   - Dashboard integration with setup guides and one-click copy
+   - Landing page MCP documentation
+   - Most recently: Separate MCP settings into its own `/dashboard/mcp` page (was embedded in API keys page)
+
+2. Key Technical Concepts:
+   - MCP (Model Context Protocol) with Streamable HTTP transport
+   - `mcp-handler` (Vercel's official MCP wrapper package)
+   - `@modelcontextprotocol/sdk` v1.26.0
+   - AsyncLocalStorage for request-scoped auth context in serverless
+   - Next.js 16 App Router API routes on Vercel
+   - Supabase service role key for server-side DB access
+   - API key authentication (`hd_live_` + 32 hex chars, validated against `api_keys` table)
+   - Backend API at `api.hudy.co.kr` (Rust/actix-web) with `/v1/holidays`, `/v2/business-days/*` endpoints
+
+3. Files and Code Sections:
+
+   - **`lib/supabase/admin.ts`** (CREATED)
+     - Supabase admin client using service role key for server-side operations
+     ```typescript
+     import { createClient } from "@supabase/supabase-js";
+     export function createAdminClient() {
+       return createClient(
+         process.env.NEXT_PUBLIC_SUPABASE_URL!,
+         process.env.SUPABASE_SECRET_KEY!
+       );
+     }
+     ```
+
+   - **`lib/mcp/auth.ts`** (CREATED)
+     - AsyncLocalStorage-based auth context + API key validation
+     - `validateApiKey()` queries Supabase `api_keys` table, returns `{apiKeyId, userId, apiKey}`
+     - `getAuthContext()` retrieves request-scoped auth from AsyncLocalStorage
+     - `authStore` is the AsyncLocalStorage instance
+
+   - **`lib/mcp/tools/core.ts`** (CREATED)
+     - 4 core tools: `get_holidays`, `count_business_days`, `add_business_days`, `subtract_business_days`
+     - Proxies to backend API via `callHudyApi()` helper using `HUDY_API_URL` env var
+     - Uses `/v1/holidays` and `/v2/business-days/*` endpoints
+     - Passes user's API key in `x-api-key` header to backend
+
+   - **`lib/mcp/tools/custom-holidays.ts`** (CREATED)
+     - 4 CRUD tools: `list_custom_holidays`, `create_custom_holiday`, `update_custom_holiday`, `delete_custom_holiday`
+     - Direct Supabase queries via admin client
+     - All queries scoped to `user_id` from auth context
+     - Korean day-of-week calculation: `KOREAN_DAYS = ['일요일', '월요일', ...]`
+
+   - **`lib/mcp/server.ts`** (CREATED)
+     - MCP server setup using `createMcpHandler` from `mcp-handler`
+     - Registers core tools and custom holiday tools
+     - Config: `basePath: "/api"`, `serverInfo: { name: "hudy", version: "1.0.0" }`
+
+   - **`app/api/[transport]/route.ts`** (CREATED)
+     - Route handler with `withAuth` middleware wrapping GET/POST/DELETE
+     - Extracts `x-api-key` header, validates via `validateApiKey()`
+     - Wraps `mcpHandler` call in `authStore.run()` for request-scoped auth
+     - `runtime = "nodejs"` for AsyncLocalStorage support
+     - Returns JSON-RPC error responses for auth failures
+
+   - **`app/dashboard/api-keys/page.tsx`** (MODIFIED)
+     - MCP guide section REMOVED (moved to separate page)
+     - Removed unused imports: `Cpu`, `Tabs`, `TabsContent`, `TabsList`, `TabsTrigger`
+
+   - **`app/dashboard/mcp/page.tsx`** (JUST CREATED)
+     - Standalone MCP settings page
+     - Fetches user's API keys from Supabase to populate config templates
+     - 3 tabs: Claude Code (terminal command), Claude Desktop (JSON config), Cursor (JSON config)
+     - Copy buttons for each config type
+     - Tools list showing all 8 available MCP tools
+     - Full code written and saved
+
+   - **`components/landing/docs-section.tsx`** (MODIFIED)
+     - Added "MCP 연동" tab alongside "공휴일 조회" and "영업일 계산"
+     - Shows Claude Code terminal command, JSON config example, available tools list
+     - EndpointHeader URL span got `break-all` class for mobile
+     - All MCP URLs updated to `www.hudy.co.kr`
+     - `-h` flag corrected to `-H`
+
+   - **`components/landing/features-section.tsx`** (MODIFIED)
+     - "개발자 친화적" description updated to include "MCP 지원"
+
+   - **`components/landing/hero-section.tsx`** (MODIFIED)
+     - CodePreview: `whitespace-nowrap` → `break-all`, `overflow-x-auto` removed
+     - Fixes mobile overflow for curl example
+
+   - **`components/dashboard/sidebar.tsx`** (NEEDS MODIFICATION)
+     - Currently has navItems: Dashboard, API Keys, Custom Holidays, Billing
+     - Needs MCP item added with `Cpu` icon
+
+   - **`components/dashboard/mobile-nav.tsx`** (NEEDS MODIFICATION)
+     - Same navItems array, needs MCP item added
+
+   - **`.env.example`** (MODIFIED)
+     - Added `HUDY_API_URL=https://api.hudy.co.kr`
+
+4. Errors and fixes:
+   - **Mobile overflow**: Hero section `whitespace-nowrap` caused curl example to overflow on mobile. Fixed by changing to `break-all`. Docs EndpointHeader URL also got `break-all`.
+   - **MCP URL missing www**: All instances of `hudy.co.kr` needed `www.` prefix to avoid redirect. Fixed with `replace_all` across both files.
+   - **`-h` interpreted as `--help`**: User tested `claude mcp add` command and `-h` triggered help output. Correct flag is uppercase `-H` (`--header`). Fixed across all files.
+   - **File edit conflicts**: Multiple times `Edit` tool failed because file was modified by linter since last read. Required re-reading the file before editing.
+
+5. Problem Solving:
+   - Chose `mcp-handler` (Vercel official) over raw SDK for simpler integration
+   - Used AsyncLocalStorage to pass per-request auth context to tool handlers (solving the challenge of request-scoped data in a singleton MCP server)
+   - Verified Vercel free tier compatibility (10s timeout sufficient for API calls, Streamable HTTP works with serverless)
+
+6. All user messages:
+   - "요즘 agent가 대세니까, 공휴일조회, 커스텀공휴일 crud, 비즈니스api 조회 등등 mcp 로 만들어서 제공하고 싶어. 대시보드에서 현재 발급된 api 키로 바로 연결할 수있는 mcp 를 제공한다거나 해서. 이걸 위해서 필요한 작업이 뭔지 플래닝 해줘"
+   - "아 그전에 참고로 공휴일조회, 비즈니스api 조회 즉 코어 api 기능은 ../hudy_backend 에 있음. 커스텀 공휴일 crud, api 키 crud 같은 매니징 api 만 현재 프로젝트에 있음. 이것도 참고"
+   - (AskUserQuestion answers): Remote MCP, frontend project (Vercel concern), Core + Custom CRUD, Frontend API route for managing
+   - "응 플랜 작성해줘"
+   - "바로 구현 시작해줘"
+   - "커밋 푸시"
+   - "2가지 수정이 필요함 1. 모바일 화면에서 아직 hero, example 이 화면을 벗어나면서 ui가 깨짐 2. mcp url을 www.hudy.co.kr 로 변경"
+   - "claude code 를 위한 oneline install 명령어도 mcp 항목 탭에 추가. 첨부한 이미지는 exa 인데, 저런것처럼 명령어 제공" (with Exa MCP screenshot)
+   - "불필요한 서버 url 지우고 claude code 도 밑에 claude desktop, cursor 랑 같이 탭으로 설정"
+   - (User tested and reported error): `claude mcp add --transport http -h "x-api-key: ..."` showed help instead of adding. The `-h` flag is `--help`, correct flag is `-H`.
+   - "그리고 mcp 설정은 api 설정 페이지가 아닌 mcp 메뉴, 페이지로 별도 분리"
+
+7. Pending Tasks:
+   - Add MCP nav item (`{ href: "/dashboard/mcp", label: "MCP", icon: Cpu }`) to `components/dashboard/sidebar.tsx` navItems
+   - Add same MCP nav item to `components/dashboard/mobile-nav.tsx` navItems
+   - Build verification after sidebar changes
+   - Commit and push
+
+8. Current Work:
+   Separating MCP settings from the API keys page into a dedicated `/dashboard/mcp` page. User said: "그리고 mcp 설정은 api 설정 페이지가 아닌 mcp 메뉴, 페이지로 별도 분리"
+   
+   Completed so far:
+   - ✅ Removed MCP section from `app/dashboard/api-keys/page.tsx`
+   - ✅ Cleaned up unused imports (Cpu, Tabs components)
+   - ✅ Created `app/dashboard/mcp/page.tsx` with full MCP guide content
+   
+   Still needed:
+   - Add MCP to sidebar navigation in `components/dashboard/sidebar.tsx`
+   - Add MCP to mobile navigation in `components/dashboard/mobile-nav.tsx`
+   - Build, commit, push
+
+9. Optional Next Step:
+   Add MCP nav item to both sidebar.tsx and mobile-nav.tsx. Both files have identical `navItems` arrays that need a new entry:
+   ```typescript
+   { href: "/dashboard/mcp", label: "MCP", icon: Cpu }
+   ```
+   The `Cpu` icon needs to be added to the lucide-react import in both files. Then build verify and commit/push.
+
+If you need specific details from before compaction (like exact code snippets, error messages, or content you generated), read the full transcript at: /Users/minkyu/.REDACTED.jsonl
+Please continue the conversation from where we left off without asking the user any further questions. Continue with the last task that you were asked to work on.
+
+---
+
+❯ claude mcp add --transport http -H "x-api-key: hd_live_3b5544a7a16b675be227beaa4f484976" hudy https://www.hudy.co.kr/api/mcp
+error: missing required argument 'name'
