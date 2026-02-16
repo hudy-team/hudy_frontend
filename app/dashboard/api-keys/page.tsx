@@ -404,13 +404,13 @@ export default function ApiKeysPage() {
                 <div className="relative rounded-lg border border-border bg-muted/30">
                   <pre className="overflow-x-auto p-4 text-xs">
                     <code className="font-mono text-foreground">
-{`claude mcp add --transport http -h "x-api-key: ${keys.length > 0 ? keys[0].key : "YOUR_API_KEY"}" hudy https://www.hudy.co.kr/api/mcp`}
+{`claude mcp add --transport http -H "x-api-key: ${keys.length > 0 ? keys[0].key : "YOUR_API_KEY"}" hudy https://www.hudy.co.kr/api/mcp`}
                     </code>
                   </pre>
                   <button
                     type="button"
                     onClick={async () => {
-                      const cmd = `claude mcp add --transport http -h "x-api-key: ${keys.length > 0 ? keys[0].key : "YOUR_API_KEY"}" hudy https://www.hudy.co.kr/api/mcp`
+                      const cmd = `claude mcp add --transport http -H "x-api-key: ${keys.length > 0 ? keys[0].key : "YOUR_API_KEY"}" hudy https://www.hudy.co.kr/api/mcp`
                       await navigator.clipboard.writeText(cmd)
                       toast.success("Claude Code 명령어가 복사되었습니다.")
                     }}

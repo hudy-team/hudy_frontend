@@ -217,7 +217,7 @@ export function DocsSection() {
                 </p>
                 <div className="rounded-lg bg-background p-4 font-mono text-sm">
                   <span className="break-all text-muted-foreground">
-                    <span className="text-primary">claude</span>{" "}mcp add --transport http -h{" "}
+                    <span className="text-primary">claude</span>{" "}mcp add --transport http -H{" "}
                     <span className="text-foreground">{'"x-api-key: YOUR_API_KEY"'}</span>{" "}
                     <span className="text-chart-4">hudy</span>{" "}
                     <span className="text-foreground">https://www.hudy.co.kr/api/mcp</span>
