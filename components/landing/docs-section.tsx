@@ -210,8 +210,28 @@ export function DocsSection() {
 
               <div className="border-t border-border px-6 py-4">
                 <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  Example Configuration
+                  Claude Code
                 </h4>
+                <p className="mb-3 text-sm text-muted-foreground">
+                  터미널에서 아래 명령어를 실행하세요.
+                </p>
+                <div className="rounded-lg bg-background p-4 font-mono text-sm">
+                  <span className="break-all text-muted-foreground">
+                    <span className="text-primary">claude</span>{" "}mcp add --transport http -h{" "}
+                    <span className="text-foreground">{'"x-api-key: YOUR_API_KEY"'}</span>{" "}
+                    <span className="text-chart-4">hudy</span>{" "}
+                    <span className="text-foreground">https://www.hudy.co.kr/api/mcp</span>
+                  </span>
+                </div>
+              </div>
+
+              <div className="border-t border-border px-6 py-4">
+                <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  JSON Configuration
+                </h4>
+                <p className="mb-3 text-sm text-muted-foreground">
+                  또는 설정 파일에 직접 추가할 수 있습니다.
+                </p>
                 <JsonResponse>
                   <div>{"{"}</div>
                   <div className="pl-4"><JsonKey k="mcpServers" />: {"{"}</div>
