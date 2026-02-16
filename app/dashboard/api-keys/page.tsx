@@ -390,60 +390,37 @@ export default function ApiKeysPage() {
             </div>
           </div>
 
-          {/* 서버 URL */}
+          {/* 설정 */}
           <div className="mb-6">
-            <label className="mb-2 block text-sm font-medium text-foreground">서버 URL</label>
-            <div className="flex items-center gap-2 rounded-lg border border-border bg-background p-3">
-              <code className="flex-1 font-mono text-sm text-foreground">
-                https://www.hudy.co.kr/api/mcp
-              </code>
-              <button
-                type="button"
-                onClick={async () => {
-                  await navigator.clipboard.writeText("https://www.hudy.co.kr/api/mcp")
-                  toast.success("서버 URL이 복사되었습니다.")
-                }}
-                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                aria-label="URL 복사"
-              >
-                <Copy className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Claude Code 원라인 설치 */}
-          <div className="mb-6">
-            <label className="mb-2 block text-sm font-medium text-foreground">Claude Code</label>
-            <p className="mb-2 text-xs text-muted-foreground">터미널에서 아래 명령어를 실행하세요.</p>
-            <div className="relative rounded-lg border border-border bg-muted/30">
-              <pre className="overflow-x-auto p-4 text-xs">
-                <code className="font-mono text-foreground">
-{`claude mcp add --transport http -h "x-api-key: ${keys.length > 0 ? keys[0].key : "YOUR_API_KEY"}" hudy https://www.hudy.co.kr/api/mcp`}
-                </code>
-              </pre>
-              <button
-                type="button"
-                onClick={async () => {
-                  const cmd = `claude mcp add --transport http -h "x-api-key: ${keys.length > 0 ? keys[0].key : "YOUR_API_KEY"}" hudy https://www.hudy.co.kr/api/mcp`
-                  await navigator.clipboard.writeText(cmd)
-                  toast.success("Claude Code 명령어가 복사되었습니다.")
-                }}
-                className="absolute right-2 top-2 rounded-md p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                aria-label="명령어 복사"
-              >
-                <Copy className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* 설정 JSON */}
-          <div className="mb-6">
-            <label className="mb-2 block text-sm font-medium text-foreground">설정 JSON</label>
-            <Tabs defaultValue="claude" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-3">
+            <Tabs defaultValue="claude-code" className="w-full">
+              <TabsList className="grid w-full grid-cols-3 mb-3">
+                <TabsTrigger value="claude-code">Claude Code</TabsTrigger>
                 <TabsTrigger value="claude">Claude Desktop</TabsTrigger>
                 <TabsTrigger value="cursor">Cursor</TabsTrigger>
               </TabsList>
+
+              <TabsContent value="claude-code">
+                <p className="mb-2 text-xs text-muted-foreground">터미널에서 아래 명령어를 실행하세요.</p>
+                <div className="relative rounded-lg border border-border bg-muted/30">
+                  <pre className="overflow-x-auto p-4 text-xs">
+                    <code className="font-mono text-foreground">
+{`claude mcp add --transport http -h "x-api-key: ${keys.length > 0 ? keys[0].key : "YOUR_API_KEY"}" hudy https://www.hudy.co.kr/api/mcp`}
+                    </code>
+                  </pre>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const cmd = `claude mcp add --transport http -h "x-api-key: ${keys.length > 0 ? keys[0].key : "YOUR_API_KEY"}" hudy https://www.hudy.co.kr/api/mcp`
+                      await navigator.clipboard.writeText(cmd)
+                      toast.success("Claude Code 명령어가 복사되었습니다.")
+                    }}
+                    className="absolute right-2 top-2 rounded-md p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                    aria-label="명령어 복사"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </button>
+                </div>
+              </TabsContent>
 
               <TabsContent value="claude">
                 <div className="relative rounded-lg border border-border bg-muted/30">
