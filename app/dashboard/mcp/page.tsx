@@ -182,6 +182,7 @@ export default function McpPage() {
               { name: "count_business_days", desc: "영업일 수 계산" },
               { name: "add_business_days", desc: "영업일 더하기" },
               { name: "subtract_business_days", desc: "영업일 빼기" },
+              { name: "check_business_day", desc: "영업일 여부 확인" },
               { name: "list_custom_holidays", desc: "커스텀 공휴일 목록" },
               { name: "create_custom_holiday", desc: "커스텀 공휴일 생성" },
               { name: "update_custom_holiday", desc: "커스텀 공휴일 수정" },

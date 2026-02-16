@@ -264,6 +264,10 @@ export function DocsSection() {
                     <span className="text-sm text-muted-foreground">영업일 더하기 / 빼기</span>
                   </div>
                   <div className="flex items-start gap-4 rounded-lg bg-secondary/50 px-4 py-3">
+                    <span className="font-mono text-sm text-primary">check_business_day</span>
+                    <span className="text-sm text-muted-foreground">영업일 여부 확인</span>
+                  </div>
+                  <div className="flex items-start gap-4 rounded-lg bg-secondary/50 px-4 py-3">
                     <span className="font-mono text-sm text-primary">custom_holidays CRUD</span>
                     <span className="text-sm text-muted-foreground">커스텀 공휴일 생성, 조회, 수정, 삭제</span>
                   </div>

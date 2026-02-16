@@ -106,6 +106,28 @@ export function registerCoreTools(server: McpServer) {
     }
   );
 
+  // check_business_day: 영업일 여부 확인
+  server.tool(
+    "check_business_day",
+    "특정 날짜가 영업일인지 확인합니다. 날짜를 지정하지 않으면 오늘 날짜를 기준으로 확인합니다.",
+    {
+      day: z
+        .string()
+        .regex(/^\d{4}-\d{2}-\d{2}$/)
+        .optional()
+        .describe("확인할 날짜 (YYYY-MM-DD). 미지정 시 오늘 날짜"),
+    },
+    async ({ day }) => {
+      const params: Record<string, string> = {};
+      if (day) params.day = day;
+
+      const data = await callHudyApi("/v2/business-days/check", params);
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify(data.data, null, 2) }],
+      };
+    }
+  );
+
   // subtract_business_days: 영업일 빼기
   server.tool(
     "subtract_business_days",
