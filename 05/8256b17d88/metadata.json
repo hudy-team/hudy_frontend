@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "058256b17d88",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".omc/state/checkpoints/checkpoint-2026-02-16T06-32-46-769Z.json",
+    "app/dashboard/api-keys/page.tsx",
+    "app/dashboard/mcp/page.tsx",
+    "components/dashboard/mobile-nav.tsx",
+    "components/dashboard/sidebar.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/05/8256b17d88/0/metadata.json",
+      "transcript": "/05/8256b17d88/0/full.jsonl",
+      "context": "/05/8256b17d88/0/context.md",
+      "content_hash": "/05/8256b17d88/0/content_hash.txt",
+      "prompt": "/05/8256b17d88/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 42,
+    "cache_creation_tokens": 46493,
+    "cache_read_tokens": 1658362,
+    "output_tokens": 3928,
+    "api_call_count": 14
+  }
+}
