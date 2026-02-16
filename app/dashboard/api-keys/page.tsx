@@ -14,9 +14,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Copy, Eye, EyeOff, Key, Plus, RefreshCw, Power } from "lucide-react"
+import { Copy, Eye, EyeOff, Key, Plus, RefreshCw, Power, Cpu } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface ApiKey {
   id: string
@@ -373,6 +374,198 @@ export default function ApiKeysPage() {
           })}
         </div>
       )}
+
+      {/* MCP 연결 가이드 섹션 */}
+      <Card className="mt-8">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3 mb-6">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+              <Cpu className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-foreground">MCP 연결</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                AI Agent에서 HuDy API를 바로 사용하세요.
+              </p>
+            </div>
+          </div>
+
+          {/* 서버 URL */}
+          <div className="mb-6">
+            <label className="mb-2 block text-sm font-medium text-foreground">서버 URL</label>
+            <div className="flex items-center gap-2 rounded-lg border border-border bg-background p-3">
+              <code className="flex-1 font-mono text-sm text-foreground">
+                https://hudy.co.kr/api/mcp
+              </code>
+              <button
+                type="button"
+                onClick={async () => {
+                  await navigator.clipboard.writeText("https://hudy.co.kr/api/mcp")
+                  toast.success("서버 URL이 복사되었습니다.")
+                }}
+                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                aria-label="URL 복사"
+              >
+                <Copy className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* 설정 JSON */}
+          <div className="mb-6">
+            <label className="mb-2 block text-sm font-medium text-foreground">설정 JSON</label>
+            <Tabs defaultValue="claude" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-3">
+                <TabsTrigger value="claude">Claude Desktop</TabsTrigger>
+                <TabsTrigger value="cursor">Cursor</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="claude">
+                <div className="relative rounded-lg border border-border bg-muted/30">
+                  <pre className="overflow-x-auto p-4 text-xs">
+                    <code className="font-mono text-foreground">
+{`{
+  "mcpServers": {
+    "hudy": {
+      "url": "https://hudy.co.kr/api/mcp",
+      "headers": {
+        "x-api-key": "${keys.length > 0 ? keys[0].key : "YOUR_API_KEY"}"
+      }
+    }
+  }
+}`}
+                    </code>
+                  </pre>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const config = {
+                        mcpServers: {
+                          hudy: {
+                            url: "https://hudy.co.kr/api/mcp",
+                            headers: {
+                              "x-api-key": keys.length > 0 ? keys[0].key : "YOUR_API_KEY"
+                            }
+                          }
+                        }
+                      }
+                      await navigator.clipboard.writeText(JSON.stringify(config, null, 2))
+                      toast.success("Claude Desktop 설정이 복사되었습니다.")
+                    }}
+                    className="absolute right-2 top-2 rounded-md p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                    aria-label="설정 복사"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </button>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="cursor">
+                <div className="relative rounded-lg border border-border bg-muted/30">
+                  <pre className="overflow-x-auto p-4 text-xs">
+                    <code className="font-mono text-foreground">
+{`{
+  "mcpServers": {
+    "hudy": {
+      "url": "https://hudy.co.kr/api/mcp",
+      "headers": {
+        "x-api-key": "${keys.length > 0 ? keys[0].key : "YOUR_API_KEY"}"
+      }
+    }
+  }
+}`}
+                    </code>
+                  </pre>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const config = {
+                        mcpServers: {
+                          hudy: {
+                            url: "https://hudy.co.kr/api/mcp",
+                            headers: {
+                              "x-api-key": keys.length > 0 ? keys[0].key : "YOUR_API_KEY"
+                            }
+                          }
+                        }
+                      }
+                      await navigator.clipboard.writeText(JSON.stringify(config, null, 2))
+                      toast.success("Cursor 설정이 복사되었습니다.")
+                    }}
+                    className="absolute right-2 top-2 rounded-md p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                    aria-label="설정 복사"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </button>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          {/* 사용 가능한 도구 */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-foreground">사용 가능한 도구</label>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <div className="flex items-start gap-2 text-sm">
+                <span className="text-primary">•</span>
+                <div>
+                  <code className="font-mono text-foreground">get_holidays</code>
+                  <span className="text-muted-foreground"> — 공휴일 조회</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2 text-sm">
+                <span className="text-primary">•</span>
+                <div>
+                  <code className="font-mono text-foreground">count_business_days</code>
+                  <span className="text-muted-foreground"> — 영업일 수 계산</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2 text-sm">
+                <span className="text-primary">•</span>
+                <div>
+                  <code className="font-mono text-foreground">add_business_days</code>
+                  <span className="text-muted-foreground"> — 영업일 더하기</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2 text-sm">
+                <span className="text-primary">•</span>
+                <div>
+                  <code className="font-mono text-foreground">subtract_business_days</code>
+                  <span className="text-muted-foreground"> — 영업일 빼기</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2 text-sm">
+                <span className="text-primary">•</span>
+                <div>
+                  <code className="font-mono text-foreground">list_custom_holidays</code>
+                  <span className="text-muted-foreground"> — 커스텀 공휴일 목록</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2 text-sm">
+                <span className="text-primary">•</span>
+                <div>
+                  <code className="font-mono text-foreground">create_custom_holiday</code>
+                  <span className="text-muted-foreground"> — 커스텀 공휴일 생성</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2 text-sm">
+                <span className="text-primary">•</span>
+                <div>
+                  <code className="font-mono text-foreground">update_custom_holiday</code>
+                  <span className="text-muted-foreground"> — 커스텀 공휴일 수정</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2 text-sm">
+                <span className="text-primary">•</span>
+                <div>
+                  <code className="font-mono text-foreground">delete_custom_holiday</code>
+                  <span className="text-muted-foreground"> — 커스텀 공휴일 삭제</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <AlertDialog open={showReplaceDialog} onOpenChange={setShowReplaceDialog}>
         <AlertDialogContent>

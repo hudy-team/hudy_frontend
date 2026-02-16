@@ -1,6 +1,6 @@
 "use client"
 
-import { Calendar, Calculator, Hash, Plus, Minus } from "lucide-react"
+import { Calendar, Calculator, Hash, Plus, Minus, Cpu } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 // Helper Components
@@ -115,6 +115,13 @@ export function DocsSection() {
                   <Calculator className="mr-2 h-4 w-4" />
                   영업일 계산
                 </TabsTrigger>
+                <TabsTrigger
+                  value="mcp"
+                  className="flex-1 rounded-none border-b-2 border-transparent py-4 text-sm font-medium text-muted-foreground transition-colors data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-primary/5 data-[state=active]:shadow-none"
+                >
+                  <Cpu className="mr-2 h-4 w-4" />
+                  MCP 연동
+                </TabsTrigger>
               </TabsList>
             </div>
 
@@ -175,6 +182,72 @@ export function DocsSection() {
                   <div className="pl-4">]</div>
                   <div>{"}"}</div>
                 </JsonResponse>
+              </div>
+            </TabsContent>
+
+            {/* MCP Integration */}
+            <TabsContent value="mcp" className="mt-0">
+              {/* MCP Server URL */}
+              <div className="border-b border-border bg-secondary/50 px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex rounded bg-primary/10 px-2.5 py-1 font-mono text-xs font-semibold text-primary">
+                    MCP
+                  </span>
+                  <span className="font-mono text-sm text-foreground">
+                    https://hudy.co.kr/api/mcp
+                  </span>
+                </div>
+              </div>
+
+              <div className="px-6 py-4">
+                <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  설정 방법
+                </h4>
+                <p className="mb-4 text-sm text-muted-foreground">
+                  Claude Desktop, Cursor 등 MCP를 지원하는 AI 도구에서 아래 설정을 추가하세요.
+                </p>
+              </div>
+
+              <div className="border-t border-border px-6 py-4">
+                <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  Example Configuration
+                </h4>
+                <JsonResponse>
+                  <div>{"{"}</div>
+                  <div className="pl-4"><JsonKey k="mcpServers" />: {"{"}</div>
+                  <div className="pl-8"><JsonKey k="hudy" />: {"{"}</div>
+                  <div className="pl-12"><JsonKey k="url" />: <JsonString v="https://hudy.co.kr/api/mcp" />,</div>
+                  <div className="pl-12"><JsonKey k="headers" />: {"{"}</div>
+                  <div className="pl-16"><JsonKey k="x-api-key" />: <JsonString v="hd_live_xxxx" /></div>
+                  <div className="pl-12">{"}"}</div>
+                  <div className="pl-8">{"}"}</div>
+                  <div className="pl-4">{"}"}</div>
+                  <div>{"}"}</div>
+                </JsonResponse>
+              </div>
+
+              <div className="border-t border-border px-6 py-4">
+                <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  사용 가능한 도구
+                </h4>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-start gap-4 rounded-lg bg-secondary/50 px-4 py-3">
+                    <span className="font-mono text-sm text-primary">get_holidays</span>
+                    <span className="text-sm text-muted-foreground">공휴일 조회 (연도별, 기간별)</span>
+                  </div>
+                  <div className="flex items-start gap-4 rounded-lg bg-secondary/50 px-4 py-3">
+                    <span className="font-mono text-sm text-primary">count_business_days</span>
+                    <span className="text-sm text-muted-foreground">영업일 수 계산</span>
+                  </div>
+                  <div className="flex items-start gap-4 rounded-lg bg-secondary/50 px-4 py-3">
+                    <span className="font-mono text-sm text-primary">add / subtract_business_days</span>
+                    <span className="text-sm text-muted-foreground">영업일 더하기 / 빼기</span>
+                  </div>
+                  <div className="flex items-start gap-4 rounded-lg bg-secondary/50 px-4 py-3">
+                    <span className="font-mono text-sm text-primary">custom_holidays CRUD</span>
+                    <span className="text-sm text-muted-foreground">커스텀 공휴일 생성, 조회, 수정, 삭제</span>
+                  </div>
+                </div>
               </div>
             </TabsContent>
 

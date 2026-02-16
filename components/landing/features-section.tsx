@@ -19,7 +19,7 @@ const features = [
   {
     icon: Code2,
     title: "개발자 친화적",
-    description: "RESTful API, JSON 응답. 어떤 언어에서든 쉽게 연동할 수 있습니다.",
+    description: "RESTful API, JSON 응답, MCP 지원. 어떤 언어에서든, AI Agent에서도 쉽게 연동할 수 있습니다.",
   },
 ]
 
