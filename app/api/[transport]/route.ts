@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { mcpHandler } from "@/lib/mcp/server";
+import { handleMcpRequest } from "@/lib/mcp/server";
 import { authStore, validateApiKey } from "@/lib/mcp/auth";
 
 async function withAuth(req: NextRequest) {
@@ -29,7 +29,7 @@ async function withAuth(req: NextRequest) {
     );
   }
 
-  return authStore.run(authContext, () => mcpHandler(req));
+  return authStore.run(authContext, () => handleMcpRequest(req));
 }
 
 export async function GET(req: NextRequest) {
