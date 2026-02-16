@@ -77,13 +77,13 @@ export default function McpPage() {
                 <div className="relative rounded-lg border border-border bg-muted/30">
                   <pre className="overflow-x-auto p-4 text-xs">
                     <code className="font-mono text-foreground">
-{`claude mcp add --transport http -H "x-api-key: ${apiKey}" hudy https://www.hudy.co.kr/api/mcp`}
+{`claude mcp add hudy --transport http -H "x-api-key: ${apiKey}" https://www.hudy.co.kr/api/mcp`}
                     </code>
                   </pre>
                   <button
                     type="button"
                     onClick={() => copyToClipboard(
-                      `claude mcp add --transport http -H "x-api-key: ${apiKey}" hudy https://www.hudy.co.kr/api/mcp`,
+                      `claude mcp add hudy --transport http -H "x-api-key: ${apiKey}" https://www.hudy.co.kr/api/mcp`,
                       "Claude Code 명령어가"
                     )}
                     className="absolute right-2 top-2 rounded-md p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
