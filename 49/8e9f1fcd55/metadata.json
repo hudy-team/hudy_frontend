@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "498e9f1fcd55",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    ".omc/plans/hudy-mcp-server.md",
+    "app/api/[transport]/route.ts",
+    "lib/mcp/auth.ts",
+    "lib/mcp/server.ts",
+    "lib/mcp/tools/core.ts",
+    "lib/mcp/tools/custom-holidays.ts",
+    "lib/supabase/admin.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/49/8e9f1fcd55/0/metadata.json",
+      "transcript": "/49/8e9f1fcd55/0/full.jsonl",
+      "context": "/49/8e9f1fcd55/0/context.md",
+      "content_hash": "/49/8e9f1fcd55/0/content_hash.txt",
+      "prompt": "/49/8e9f1fcd55/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 93,
+    "cache_creation_tokens": 296768,
+    "cache_read_tokens": 2567265,
+    "output_tokens": 10387,
+    "api_call_count": 32
+  }
+}
