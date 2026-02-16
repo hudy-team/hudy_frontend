@@ -55,8 +55,8 @@ function CodePreview() {
         <span className="ml-3 text-xs text-muted-foreground font-mono">GET /v2/holidays</span>
       </div>
       <div className="min-w-0 p-4 font-mono text-xs leading-relaxed sm:p-5 sm:text-sm">
-        <div className="overflow-x-auto text-muted-foreground">
-          <div className="whitespace-nowrap">
+        <div className="text-muted-foreground">
+          <div className="break-all">
             <span className="text-primary">{"curl"}</span>{" "}
             <span className="text-foreground">{"https://api.hudy.co.kr/v2/holidays?year=2026"}</span>{" "}
             <span className="text-chart-4">{"-H"}</span>{" "}

@@ -395,12 +395,12 @@ export default function ApiKeysPage() {
             <label className="mb-2 block text-sm font-medium text-foreground">서버 URL</label>
             <div className="flex items-center gap-2 rounded-lg border border-border bg-background p-3">
               <code className="flex-1 font-mono text-sm text-foreground">
-                https://hudy.co.kr/api/mcp
+                https://www.hudy.co.kr/api/mcp
               </code>
               <button
                 type="button"
                 onClick={async () => {
-                  await navigator.clipboard.writeText("https://hudy.co.kr/api/mcp")
+                  await navigator.clipboard.writeText("https://www.hudy.co.kr/api/mcp")
                   toast.success("서버 URL이 복사되었습니다.")
                 }}
                 className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
@@ -427,7 +427,7 @@ export default function ApiKeysPage() {
 {`{
   "mcpServers": {
     "hudy": {
-      "url": "https://hudy.co.kr/api/mcp",
+      "url": "https://www.hudy.co.kr/api/mcp",
       "headers": {
         "x-api-key": "${keys.length > 0 ? keys[0].key : "YOUR_API_KEY"}"
       }
@@ -442,7 +442,7 @@ export default function ApiKeysPage() {
                       const config = {
                         mcpServers: {
                           hudy: {
-                            url: "https://hudy.co.kr/api/mcp",
+                            url: "https://www.hudy.co.kr/api/mcp",
                             headers: {
                               "x-api-key": keys.length > 0 ? keys[0].key : "YOUR_API_KEY"
                             }
@@ -467,7 +467,7 @@ export default function ApiKeysPage() {
 {`{
   "mcpServers": {
     "hudy": {
-      "url": "https://hudy.co.kr/api/mcp",
+      "url": "https://www.hudy.co.kr/api/mcp",
       "headers": {
         "x-api-key": "${keys.length > 0 ? keys[0].key : "YOUR_API_KEY"}"
       }
@@ -482,7 +482,7 @@ export default function ApiKeysPage() {
                       const config = {
                         mcpServers: {
                           hudy: {
-                            url: "https://hudy.co.kr/api/mcp",
+                            url: "https://www.hudy.co.kr/api/mcp",
                             headers: {
                               "x-api-key": keys.length > 0 ? keys[0].key : "YOUR_API_KEY"
                             }

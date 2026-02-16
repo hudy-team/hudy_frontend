@@ -10,7 +10,7 @@ function EndpointHeader({ method, url }: { method: string; url: string }) {
       <span className="inline-flex rounded bg-primary/10 px-2.5 py-1 font-mono text-xs font-semibold text-primary">
         {method}
       </span>
-      <span className="font-mono text-sm text-foreground">{url}</span>
+      <span className="font-mono text-sm text-foreground break-all">{url}</span>
     </div>
   )
 }
@@ -194,7 +194,7 @@ export function DocsSection() {
                     MCP
                   </span>
                   <span className="font-mono text-sm text-foreground">
-                    https://hudy.co.kr/api/mcp
+                    https://www.hudy.co.kr/api/mcp
                   </span>
                 </div>
               </div>
@@ -216,7 +216,7 @@ export function DocsSection() {
                   <div>{"{"}</div>
                   <div className="pl-4"><JsonKey k="mcpServers" />: {"{"}</div>
                   <div className="pl-8"><JsonKey k="hudy" />: {"{"}</div>
-                  <div className="pl-12"><JsonKey k="url" />: <JsonString v="https://hudy.co.kr/api/mcp" />,</div>
+                  <div className="pl-12"><JsonKey k="url" />: <JsonString v="https://www.hudy.co.kr/api/mcp" />,</div>
                   <div className="pl-12"><JsonKey k="headers" />: {"{"}</div>
                   <div className="pl-16"><JsonKey k="x-api-key" />: <JsonString v="hd_live_xxxx" /></div>
                   <div className="pl-12">{"}"}</div>
