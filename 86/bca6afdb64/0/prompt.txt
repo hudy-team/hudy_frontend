@@ -1,0 +1,125 @@
+요즘 agent가 대세니까, 공휴일조회, 커스텀공휴일 crud, 비즈니스api 조회 등등 mcp 로 만들어서 제공하고 싶어. 대시보드에서 현재 발급된 api 키로 바로 연결할 수있는 mcp 를 제공한다거나 해서. 이걸 위해서 필요한 작업이 뭔지 플래닝 해줘
+
+---
+
+[Request interrupted by user for tool use]
+
+---
+
+아 그전에 참고로 공휴일조회, 비즈니스api 조회 즉 코어 api 기능은 ../hudy_backend 에 있음. 커스텀 공휴일 crud, api 키 crud 같은 매니징 api 만 현재 프로젝트에 있음. 이것도 참고
+
+---
+
+# Plan Skill
+
+[PLANNING MODE ACTIVATED]
+
+## Planning Session with Planner
+
+You are now in planning mode with Planner, the strategic planning consultant.
+
+### Current Phase: Interview Mode
+
+I will ask clarifying questions to fully understand your requirements before creating a plan.
+
+### What Happens Next
+1. **Interview** - I'll ask questions about your goals, constraints, and preferences
+2. **Analysis** - Analyst will analyze for hidden requirements and risks
+3. **Planning** - I'll create a comprehensive work plan
+4. **Review** (optional) - Critic can review the plan for quality
+
+### Transition Commands
+Say one of these when you're ready to generate the plan:
+- "Make it into a work plan!"
+- "Create the plan"
+- "I'm ready to plan"
+
+### Plan Storage
+- Drafts are saved to `.omc/drafts/`
+- Final plans are saved to `.omc/plans/`
+
+---
+
+Let's begin. Tell me more about what you want to accomplish, and I'll ask clarifying questions.
+
+
+ARGUMENTS: HuDy MCP Server 구축 플래닝
+
+## 배경 지식 (탐색 완료)
+
+### 백엔드 (../hudy_backend - Rust/actix-web)
+- **코어 API**: `api.hudy.co.kr`
+  - `GET /v1/holidays?year=2025` or `?from=...&to=...` — 공휴일 + 커스텀 공휴일 조회
+  - `GET /v1/business-days/count?from=...&to=...` — 영업일 수 계산
+  - `GET /v1/business-days/add?from=...&days=...` — 영업일 더하기
+  - `GET /v1/business-days/subtract?from=...&days=...` — 영업일 빼기
+- **인증**: `x-api-key` 헤더에 JWT 토큰 (key format: `hd_live_` + 32 hex)
+- **DB**: PostgreSQL (Supabase), 테이블: api_keys, public_holidays, custom_holidays, api_usage_daily
+
+### 프론트엔드 (현재 프로젝트 - Next.js 16)
+- **매니징 API**: Supabase 직접 쿼리로 CRUD
+  - API 키 관리 (생성/재발급/활성화 토글)
+  - 커스텀 공휴일 CRUD
+  - 공휴일 조회 (read-only, year filter)
+  - API 사용량 통계 조회
+- **인증**: Supabase Auth (Google/GitHub OAuth, magic link)
+- **결제**: Paddle ($3/month, 5,000 calls)
+
+### 사용자 요구사항
+- MCP 서버를 만들어서 AI agent들이 HuDy API를 사용할 수 있게 하고 싶음
+- 대시보드에서 발급된 API 키로 바로 MCP 연결 가능하게
+- MCP tools: 공휴일 조회, 커스텀 공휴일 CRUD, 비즈니스 API 조회 등
+
+이 기능을 구현하기 위해 필요한 전체 작업을 플래닝해줘.
+
+---
+
+[Request interrupted by user for tool use]
+
+---
+
+다시 질문
+
+---
+
+응 플랜 작성해줘
+
+---
+
+바로 구현 시작해줘
+
+---
+
+<task-notification>
+<task-id>b003075</task-id>
+<output-file>REDACTED.output</output-file>
+<status>completed</status>
+<summary>Background command "Install MCP SDK and Vercel mcp-handler" completed (exit code 0)</summary>
+</task-notification>
+Read the output file to retrieve the result: REDACTED.output
+
+---
+
+커밋 푸시
+
+---
+
+커밋 푸시
+
+---
+
+2가지 수정이 필요함
+1. 모바일 화면에서 아직 hero, example 이 화면을 벗어나면서 ui가 깨짐 (example request 가 한줄로 변하면서 그런듯)
+2. mcp url을 www.hudy.co.kr 로 변경 (현재 www. 없음 없으면 redirect 될듯)
+
+---
+
+claude code 를 위한 oneline install 명령어도 mcp 항목 탭에 추가. 첨부한 이미지는 exa 인데, 저런것처럼 명령어 제공
+
+---
+
+[Image: source: /Users/minkyu/Desktop/스크린샷 2026-02-16 오후 3.26.27.png]
+
+---
+
+불필요한 서버 url 지우고 claud code 도 밑에 claude desktop, cursor 랑 같이 탭으로 설정
