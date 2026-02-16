@@ -55,7 +55,7 @@ export function registerCoreTools(server: McpServer) {
       if (from) params.from = from;
       if (to) params.to = to;
 
-      const data = await callHudyApi("/v1/holidays", params);
+      const data = await callHudyApi("/v2/holidays", params);
       return {
         content: [{ type: "text" as const, text: JSON.stringify(data.data, null, 2) }],
       };
