@@ -1,0 +1,29 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "372eb94abacc",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".omc/plans/hudy-mcp-server.md",
+    "app/dashboard/api-keys/page.tsx",
+    "components/landing/docs-section.tsx",
+    "components/landing/hero-section.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/37/2eb94abacc/0/metadata.json",
+      "transcript": "/37/2eb94abacc/0/full.jsonl",
+      "context": "/37/2eb94abacc/0/context.md",
+      "content_hash": "/37/2eb94abacc/0/content_hash.txt",
+      "prompt": "/37/2eb94abacc/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 36,
+    "cache_creation_tokens": 126392,
+    "cache_read_tokens": 1494736,
+    "output_tokens": 1162,
+    "api_call_count": 12
+  }
+}
