@@ -1,6 +1,6 @@
 "use client"
 
-import { Calendar, Calculator, Hash, Plus, Minus, Cpu } from "lucide-react"
+import { Calendar, Calculator, Check, Hash, Package, Plus, Minus, Cpu } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 // Helper Components
@@ -121,6 +121,13 @@ export function DocsSection() {
                 >
                   <Cpu className="mr-2 h-4 w-4" />
                   MCP 연동
+                </TabsTrigger>
+                <TabsTrigger
+                  value="sdk"
+                  className="flex-1 rounded-none border-b-2 border-transparent py-4 text-sm font-medium text-muted-foreground transition-colors data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-primary/5 data-[state=active]:shadow-none"
+                >
+                  <Package className="mr-2 h-4 w-4" />
+                  SDK
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -277,9 +284,13 @@ export function DocsSection() {
 
             {/* Business Days API - Level 2 Sub-tabs */}
             <TabsContent value="business-days" className="mt-0">
-              <Tabs defaultValue="count" className="w-full">
+              <Tabs defaultValue="check" className="w-full">
                 <div className="px-6 py-4">
-                  <TabsList className="grid h-10 w-full grid-cols-3 rounded-lg bg-secondary p-1">
+                  <TabsList className="grid h-10 w-full grid-cols-4 rounded-lg bg-secondary p-1">
+                    <TabsTrigger value="check" className="rounded-md text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                      <Check className="mr-1.5 h-3.5 w-3.5" />
+                      체크
+                    </TabsTrigger>
                     <TabsTrigger value="count" className="rounded-md text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                       <Hash className="mr-1.5 h-3.5 w-3.5" />
                       기간 조회
@@ -294,6 +305,52 @@ export function DocsSection() {
                     </TabsTrigger>
                   </TabsList>
                 </div>
+
+                {/* Check Business Day */}
+                <TabsContent value="check" className="mt-0">
+                  <EndpointHeader
+                    method="GET"
+                    url="https://api.hudy.co.kr/v2/business-days/check"
+                  />
+
+                  <div className="px-6 py-4">
+                    <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Parameters
+                    </h4>
+                    <div className="flex flex-col gap-2">
+                      <ParamRow
+                        name="day"
+                        description="확인할 날짜 (YYYY-MM-DD). 미지정 시 오늘"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="border-t border-border px-6 py-4">
+                    <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Example Response
+                    </h4>
+                    <JsonResponse>
+                      <div>{"{"}</div>
+                      <div className="pl-4">
+                        <JsonKey k="result" />: <JsonBool v={true} />,
+                      </div>
+                      <div className="pl-4">
+                        <JsonKey k="data" />: {"{"}
+                      </div>
+                      <div className="pl-8">
+                        <JsonKey k="date" />: <JsonString v="2026-02-17" />,
+                      </div>
+                      <div className="pl-8">
+                        <JsonKey k="is_business_day" />: <JsonBool v={true} />,
+                      </div>
+                      <div className="pl-8">
+                        <JsonKey k="day_of_week" />: <JsonString v="화요일" />
+                      </div>
+                      <div className="pl-4">{"}"}</div>
+                      <div>{"}"}</div>
+                    </JsonResponse>
+                  </div>
+                </TabsContent>
 
                 {/* Count Business Days */}
                 <TabsContent value="count" className="mt-0">
@@ -454,6 +511,177 @@ export function DocsSection() {
                       <div className="pl-4">{"}"}</div>
                       <div>{"}"}</div>
                     </JsonResponse>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </TabsContent>
+
+            {/* SDK */}
+            <TabsContent value="sdk" className="mt-0">
+              <Tabs defaultValue="npm" className="w-full">
+                <div className="px-6 py-4">
+                  <TabsList className="grid h-10 w-full grid-cols-2 rounded-lg bg-secondary p-1">
+                    <TabsTrigger value="npm" className="rounded-md text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                      Node.js / TypeScript
+                    </TabsTrigger>
+                    <TabsTrigger value="pypi" className="rounded-md text-xs data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                      Python
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+
+                <TabsContent value="npm" className="mt-0">
+                  <div className="border-t border-border px-6 py-4">
+                    <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Installation
+                    </h4>
+                    <div className="rounded-lg bg-background p-4 font-mono text-sm">
+                      <span className="text-primary">npm</span>{" "}
+                      <span className="text-muted-foreground">install</span>{" "}
+                      <span className="text-foreground">@hudy-sdk/sdk</span>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-border px-6 py-4">
+                    <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Quick Start
+                    </h4>
+                    <div className="rounded-lg bg-background p-4 font-mono text-sm leading-relaxed">
+                      <div className="text-muted-foreground">
+                        <div>
+                          <span className="text-primary">import</span>{" "}
+                          {"{ HudyClient }"}{" "}
+                          <span className="text-primary">from</span>{" "}
+                          <span className="text-foreground">{`'@hudy-sdk/sdk'`}</span>
+                        </div>
+                        <div className="mt-2">
+                          <span className="text-primary">const</span>{" "}
+                          {"client = "}
+                          <span className="text-primary">new</span>{" "}
+                          <span className="text-foreground">HudyClient</span>
+                          {"({ apiKey: "}
+                          <span className="text-foreground">{`'hd_live_xxxx'`}</span>
+                          {" })"}
+                        </div>
+                        <div className="mt-2">
+                          <span className="text-muted-foreground/60">{"// 공휴일 조회"}</span>
+                        </div>
+                        <div>
+                          <span className="text-primary">const</span>{" "}
+                          {"holidays = "}
+                          <span className="text-primary">await</span>{" "}
+                          {"client."}
+                          <span className="text-foreground">getHolidays</span>
+                          {"("}
+                          <span className="text-chart-4">2026</span>
+                          {")"}
+                        </div>
+                        <div className="mt-2">
+                          <span className="text-muted-foreground/60">{"// 영업일 체크"}</span>
+                        </div>
+                        <div>
+                          <span className="text-primary">const</span>{" "}
+                          {"result = "}
+                          <span className="text-primary">await</span>{" "}
+                          {"client."}
+                          <span className="text-foreground">isBusinessDay</span>
+                          {"("}
+                          <span className="text-primary">new</span>{" "}
+                          <span className="text-foreground">Date</span>
+                          {"("}
+                          <span className="text-foreground">{`'2026-02-17'`}</span>
+                          {"))"}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-border px-6 py-4">
+                    <a
+                      href="https://www.npmjs.com/package/@hudy-sdk/sdk"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-primary hover:underline"
+                    >
+                      npm에서 자세히 보기 →
+                    </a>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="pypi" className="mt-0">
+                  <div className="border-t border-border px-6 py-4">
+                    <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Installation
+                    </h4>
+                    <div className="rounded-lg bg-background p-4 font-mono text-sm">
+                      <span className="text-primary">pip</span>{" "}
+                      <span className="text-muted-foreground">install</span>{" "}
+                      <span className="text-foreground">hudy-sdk</span>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-border px-6 py-4">
+                    <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      Quick Start
+                    </h4>
+                    <div className="rounded-lg bg-background p-4 font-mono text-sm leading-relaxed">
+                      <div className="text-muted-foreground">
+                        <div>
+                          <span className="text-primary">from</span>{" "}
+                          {"datetime "}
+                          <span className="text-primary">import</span>{" "}
+                          <span className="text-foreground">date</span>
+                        </div>
+                        <div>
+                          <span className="text-primary">from</span>{" "}
+                          {"hudy "}
+                          <span className="text-primary">import</span>{" "}
+                          <span className="text-foreground">HudyClient</span>
+                        </div>
+                        <div className="mt-2">
+                          {"client = "}
+                          <span className="text-foreground">HudyClient</span>
+                          {"(api_key="}
+                          <span className="text-foreground">{`"hd_live_xxxx"`}</span>
+                          {")"}
+                        </div>
+                        <div className="mt-2">
+                          <span className="text-muted-foreground/60">{"# 공휴일 조회"}</span>
+                        </div>
+                        <div>
+                          {"holidays = client."}
+                          <span className="text-foreground">get_holidays</span>
+                          {"("}
+                          <span className="text-chart-4">2026</span>
+                          {")"}
+                        </div>
+                        <div className="mt-2">
+                          <span className="text-muted-foreground/60">{"# 영업일 체크"}</span>
+                        </div>
+                        <div>
+                          {"result = client."}
+                          <span className="text-foreground">is_business_day</span>
+                          {"(date("}
+                          <span className="text-chart-4">2026</span>
+                          {", "}
+                          <span className="text-chart-4">2</span>
+                          {", "}
+                          <span className="text-chart-4">17</span>
+                          {"))"}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-border px-6 py-4">
+                    <a
+                      href="https://pypi.org/project/hudy-sdk/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-primary hover:underline"
+                    >
+                      PyPI에서 자세히 보기 →
+                    </a>
                   </div>
                 </TabsContent>
               </Tabs>

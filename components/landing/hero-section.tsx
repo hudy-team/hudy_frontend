@@ -12,7 +12,7 @@ export function HeroSection() {
       <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center text-center">
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-4 py-1.5">
           <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-          <span className="text-xs text-muted-foreground">v2.0 Released - Custom Holidays Support</span>
+          <span className="text-xs text-muted-foreground">NEW - Official SDK & Business Day Check</span>
         </div>
 
         <h1 className="text-balance text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl md:text-7xl">

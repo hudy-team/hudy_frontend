@@ -1,4 +1,4 @@
-import { Calendar, Code2, Layers, Zap } from "lucide-react"
+import { Calendar, CalendarCheck, Code2, Layers, Package, Zap } from "lucide-react"
 
 const features = [
   {
@@ -10,6 +10,16 @@ const features = [
     icon: Layers,
     title: "커스텀 공휴일",
     description: "회사 창립기념일, 사내 행사일 등 나만의 커스텀 공휴일을 등록하고 API로 조회하세요.",
+  },
+  {
+    icon: CalendarCheck,
+    title: "영업일 관리",
+    description: "특정 날짜의 영업일 여부 확인, 기간 내 영업일 수 계산, N영업일 후/전 날짜 계산을 지원합니다.",
+  },
+  {
+    icon: Package,
+    title: "공식 SDK",
+    description: "Node.js와 Python SDK를 제공합니다. npm install 또는 pip install 한 줄이면 바로 시작.",
   },
   {
     icon: Zap,
