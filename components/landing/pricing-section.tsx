@@ -33,8 +33,11 @@ export function PricingSection() {
               <span className="text-sm text-muted-foreground">/ {HUDY_PRO_PLAN.interval}</span>
             </div>
 
+            <p className="mb-2 text-sm font-medium text-primary">
+              {"30일 무료 체험"}
+            </p>
             <p className="mb-8 text-sm text-muted-foreground">
-              {"모든 기능, 하나의 요금제. 지금 바로 시작하세요."}
+              {"모든 기능, 하나의 요금제. 부담 없이 시작하세요."}
             </p>
 
             <ul className="mb-8 flex flex-col gap-3">
@@ -47,8 +50,11 @@ export function PricingSection() {
             </ul>
 
             <Button size="lg" className="w-full" asChild>
-              <Link href="/checkout">{"지금 시작하기"}</Link>
+              <Link href="/checkout">{"30일 무료로 시작하기"}</Link>
             </Button>
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              {"무료 체험 후 월 $" + HUDY_PRO_PLAN.price + " · 언제든 취소 가능"}
+            </p>
           </div>
         </div>
       </div>
