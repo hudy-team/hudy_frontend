@@ -1,7 +1,10 @@
 export const HUDY_PRO_PLAN = {
   name: "HuDy Pro",
   productId: "pro_01khe31vwkkqyswk484177fpw6",
-  priceId: "pri_01khe32kbr9f7270tdf08wedyb",
+  priceId: {
+    month: "pri_01khznxcxjy7tzfrqrrhgjxgv6",        // 무료체험 포함
+    monthNoTrial: "pri_01khe32kbr9f7270tdf08wedyb",  // 무료체험 없음
+  },
   price: 3,
   currency: "USD",
   interval: "month" as const,
@@ -16,3 +19,16 @@ export const HUDY_PRO_PLAN = {
     "99.9% Uptime SLA",
   ],
 } as const;
+
+/** 무료체험 포함 priceId인지 확인 */
+export function isPriceWithTrial(priceId: string): boolean {
+  return priceId === HUDY_PRO_PLAN.priceId.month;
+}
+
+/** 모든 유효한 priceId 목록 */
+export function isValidPriceId(priceId: string): boolean {
+  return (
+    priceId === HUDY_PRO_PLAN.priceId.month ||
+    priceId === HUDY_PRO_PLAN.priceId.monthNoTrial
+  );
+}

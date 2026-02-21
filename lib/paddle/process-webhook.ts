@@ -1,6 +1,7 @@
 import { EventEntity, EventName } from "@paddle/paddle-node-sdk";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { getPaddleInstance } from "./get-paddle-instance";
+import { isPriceWithTrial } from "./pricing-config";
 
 function createServiceClient() {
   return createSupabaseClient(
@@ -391,6 +392,14 @@ async function handleTransactionCompleted(eventData: EventEntity) {
       }
     }
 
+    // 무료체험 포함 가격으로 결제한 경우 이력 기록
+    const items = data.items as Array<{ price?: { id?: string } }> | undefined;
+    const transactionPriceId = items?.[0]?.price?.id;
+
+    if (transactionPriceId && isPriceWithTrial(transactionPriceId)) {
+      await recordTrialUsage(supabase, customerId);
+    }
+
     console.log(
       `[transaction.completed] Successfully processed for customer ${customerId} → user ${userId}`
     );
@@ -399,5 +408,30 @@ async function handleTransactionCompleted(eventData: EventEntity) {
       `[transaction.completed] No user found for email ${customerEmail}`
     );
     throw new Error(`No user found for email ${customerEmail}`);
+  }
+}
+
+/**
+ * 무료체험 사용 이력을 기록합니다.
+ * first_trial_date IS NULL 조건으로 멱등성 보장 (최초 1회만 기록)
+ */
+async function recordTrialUsage(
+  supabase: ReturnType<typeof createServiceClient>,
+  customerId: string
+) {
+  const { error } = await supabase
+    .from("customers")
+    .update({
+      has_used_free_trial: true,
+      first_trial_date: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("customer_id", customerId)
+    .is("first_trial_date", null);
+
+  if (error) {
+    console.error(`[trial-record] Failed to record trial usage for ${customerId}:`, error);
+  } else {
+    console.log(`[trial-record] Recorded trial usage for customer ${customerId}`);
   }
 }
