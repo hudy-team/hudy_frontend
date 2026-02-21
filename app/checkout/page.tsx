@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
-import { HUDY_PRO_PLAN } from "@/lib/paddle/pricing-config"
+import { validateAndGetPriceId } from "@/lib/paddle/validate-price-id"
 import { CheckoutClient } from "./checkout-client"
 import { getSubscription } from "@/lib/paddle/get-subscription"
 
@@ -18,6 +18,9 @@ export default async function CheckoutPage() {
     redirect("/dashboard/billing")
   }
 
+  // SSR에서 무료체험 이력에 따라 priceId 결정
+  const validatedPriceId = await validateAndGetPriceId(user.email || "")
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-6 py-16">
@@ -29,7 +32,7 @@ export default async function CheckoutPage() {
         </div>
         <CheckoutClient
           userEmail={user.email || ""}
-          priceId={HUDY_PRO_PLAN.priceId}
+          priceId={validatedPriceId}
         />
       </div>
     </div>
