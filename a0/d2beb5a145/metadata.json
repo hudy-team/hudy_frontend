@@ -1,0 +1,29 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "a0d2beb5a145",
+  "strategy": "manual-commit",
+  "branch": "worktree-optimized-enchanting-spindle",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "app/checkout/page.tsx",
+    "lib/paddle/pricing-config.ts",
+    "lib/paddle/process-webhook.ts",
+    "lib/paddle/validate-price-id.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/a0/d2beb5a145/0/metadata.json",
+      "transcript": "/a0/d2beb5a145/0/full.jsonl",
+      "context": "/a0/d2beb5a145/0/context.md",
+      "content_hash": "/a0/d2beb5a145/0/content_hash.txt",
+      "prompt": "/a0/d2beb5a145/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 96,
+    "cache_creation_tokens": 145088,
+    "cache_read_tokens": 2518074,
+    "output_tokens": 4606,
+    "api_call_count": 32
+  }
+}
