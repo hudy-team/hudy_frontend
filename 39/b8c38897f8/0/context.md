@@ -1,0 +1,20 @@
+# Session Context
+
+## User Prompts
+
+### Prompt 1
+
+api key 생성쪽에서 구독이 없을때 뜨는 구독하러가기 버튼이 bill 이나 checkout 페이지가 아니라 대시보드로 이동중
+
+### Prompt 2
+
+그리고 bill 쪽 ui에서 가격과 다시 시작하기가 너무 우측에 몰려있는 느낌이지 않음? UI/UX 미적감각으로 다시 이쁘게 해봐
+
+### Prompt 3
+
+[Image: source: /Users/minkyu/Desktop/스크린샷 2026-02-21 오후 8.40.48.png]
+
+### Prompt 4
+
+main으로 커밋푸시
+
