@@ -1,17 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Check, Zap } from "lucide-react"
-
-const features = [
-  "월 5,000회 API 호출",
-  "커스텀 공휴일 등록",
-  "x-api-key 기반 인증",
-  "대한민국 법정공휴일 전체 제공",
-  "연도별 / 기간별 조회",
-  "우선 기술 지원",
-  "API 사용량 대시보드",
-  "99.9% Uptime SLA",
-]
+import { HUDY_PRO_PLAN } from "@/lib/paddle/pricing-config"
 
 export function PricingSection() {
   return (
@@ -35,20 +25,23 @@ export function PricingSection() {
 
             <div className="mb-2 flex items-center gap-2">
               <Zap className="h-5 w-5 text-primary" />
-              <h3 className="text-lg font-semibold text-foreground">HuDy Pro</h3>
+              <h3 className="text-lg font-semibold text-foreground">{HUDY_PRO_PLAN.name}</h3>
             </div>
 
             <div className="mb-2 flex items-baseline gap-1">
-              <span className="text-5xl font-bold text-foreground">$3</span>
-              <span className="text-sm text-muted-foreground">/ month</span>
+              <span className="text-5xl font-bold text-foreground">${HUDY_PRO_PLAN.price}</span>
+              <span className="text-sm text-muted-foreground">/ {HUDY_PRO_PLAN.interval}</span>
             </div>
 
+            <p className="mb-2 text-sm font-medium text-primary">
+              {"30일 무료 체험"}
+            </p>
             <p className="mb-8 text-sm text-muted-foreground">
-              {"모든 기능, 하나의 요금제. 지금 바로 시작하세요."}
+              {"모든 기능, 하나의 요금제. 부담 없이 시작하세요."}
             </p>
 
             <ul className="mb-8 flex flex-col gap-3">
-              {features.map((feature) => (
+              {HUDY_PRO_PLAN.features.map((feature) => (
                 <li key={feature} className="flex items-start gap-3 text-sm text-muted-foreground">
                   <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                   {feature}
@@ -57,8 +50,11 @@ export function PricingSection() {
             </ul>
 
             <Button size="lg" className="w-full" asChild>
-              <Link href="/checkout">{"지금 시작하기"}</Link>
+              <Link href="/checkout">{"30일 무료로 시작하기"}</Link>
             </Button>
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              {"무료 체험 후 월 $" + HUDY_PRO_PLAN.price + " · 언제든 취소 가능"}
+            </p>
           </div>
         </div>
       </div>
