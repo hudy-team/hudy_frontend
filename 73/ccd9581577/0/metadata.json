@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "73ccd9581577",
+  "session_id": "600d5687-d8b6-4774-a9fb-44ed563e99e1",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-21T09:07:58.214957Z",
+  "branch": "worktree-optimized-enchanting-spindle",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "components/landing/pricing-section.tsx"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "45414d46-c6d2-4b69-a273-72b272657486",
+  "checkpoint_transcript_start": 492,
+  "transcript_lines_at_start": 492,
+  "token_usage": {
+    "input_tokens": 18,
+    "cache_creation_tokens": 2741,
+    "cache_read_tokens": 657322,
+    "output_tokens": 254,
+    "api_call_count": 6
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-21T09:07:58.105632Z",
+    "agent_lines": 8,
+    "human_added": 417,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 425,
+    "agent_percentage": 1.8823529411764703
+  }
+}
