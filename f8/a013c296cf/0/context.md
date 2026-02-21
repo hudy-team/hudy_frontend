@@ -1,0 +1,20 @@
+# Session Context
+
+## User Prompts
+
+### Prompt 1
+
+랜딩페이지의 globe 컴포넌트의 빨간 점들 더 많이 찍어줘
+
+### Prompt 2
+
+너가 서버 띄워봐
+
+### Prompt 3
+
+워크트리에서 띄워서 그런지 env 에러로 접근이 안됨
+
+### Prompt 4
+
+main으로 커밋 푸시
+

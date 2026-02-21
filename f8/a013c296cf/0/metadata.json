@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "f8a013c296cf",
+  "session_id": "0629d9c2-86a7-4c4a-8eaf-979bb85f6028",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-21T12:13:46.17837Z",
+  "branch": "fix/billing-ui-redesign",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "components/ui/globe.tsx"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "9664303c-480e-4fc5-b254-5bb0dfced330",
+  "token_usage": {
+    "input_tokens": 51,
+    "cache_creation_tokens": 26127,
+    "cache_read_tokens": 1019967,
+    "output_tokens": 2388,
+    "api_call_count": 17
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-21T12:13:46.151544Z",
+    "agent_lines": 47,
+    "human_added": 450,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 497,
+    "agent_percentage": 9.456740442655935
+  }
+}
