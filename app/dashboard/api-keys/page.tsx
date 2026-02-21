@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Copy, Eye, EyeOff, Key, Plus, RefreshCw, Power } from "lucide-react"
+import { Copy, Eye, EyeOff, Key, Plus, RefreshCw, Power, CreditCard } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 
@@ -36,21 +36,33 @@ export default function ApiKeysPage() {
   const [creating, setCreating] = useState(false)
   const [recyclingIds, setRecyclingIds] = useState<Set<string>>(new Set())
   const [showReplaceDialog, setShowReplaceDialog] = useState(false)
+  const [hasSubscription, setHasSubscription] = useState(false)
 
   const fetchKeys = useCallback(async () => {
     setLoading(true)
     const supabase = createClient()
-    const { data, error } = await supabase
-      .from("api_keys")
-      .select("*")
-      .order("created_at", { ascending: false })
 
-    if (error) {
+    const [keysResult, subResult] = await Promise.all([
+      supabase
+        .from("api_keys")
+        .select("*")
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("subscriptions")
+        .select("id")
+        .eq("status", "active")
+        .limit(1)
+        .maybeSingle(),
+    ])
+
+    if (keysResult.error) {
       toast.error("API 키 로드 중 오류가 발생했습니다.")
-      console.error(error)
+      console.error(keysResult.error)
     } else {
-      setKeys(data || [])
+      setKeys(keysResult.data || [])
     }
+
+    setHasSubscription(!!subResult.data)
     setLoading(false)
   }, [])
 
@@ -92,6 +104,11 @@ export default function ApiKeysPage() {
 
   const createKey = async () => {
     if (!newKeyName.trim()) return
+
+    if (!hasSubscription) {
+      toast.error("구독이 필요합니다. 먼저 플랜을 구독해주세요.")
+      return
+    }
 
     // Check if keys already exist - show confirmation dialog
     if (keys.length > 0) {
@@ -217,10 +234,17 @@ export default function ApiKeysPage() {
           <h1 className="text-2xl font-bold text-foreground">API Keys</h1>
           <p className="mt-1 text-sm text-muted-foreground">{"API 키를 생성하고 관리하세요."}</p>
         </div>
-        <Button className="gap-2" onClick={() => setShowCreate(true)}>
-          <Plus className="h-4 w-4" />
-          <span className="max-sm:hidden">{"새 키 생성"}</span>
-        </Button>
+        {hasSubscription ? (
+          <Button className="gap-2" onClick={() => setShowCreate(true)}>
+            <Plus className="h-4 w-4" />
+            <span className="max-sm:hidden">{"새 키 생성"}</span>
+          </Button>
+        ) : !loading ? (
+          <Badge variant="secondary" className="gap-1.5 px-3 py-1.5 text-xs">
+            <CreditCard className="h-3 w-3" />
+            구독 필요
+          </Badge>
+        ) : null}
       </div>
 
       {showCreate && (
@@ -284,11 +308,29 @@ export default function ApiKeysPage() {
       ) : keys.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <Key className="mx-auto h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mt-4 text-lg font-semibold text-foreground">API 키가 없습니다</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              새 API 키를 생성하여 HuDy API를 사용하세요.
-            </p>
+            {hasSubscription ? (
+              <>
+                <Key className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                <h3 className="mt-4 text-lg font-semibold text-foreground">API 키가 없습니다</h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  새 API 키를 생성하여 HuDy API를 사용하세요.
+                </p>
+              </>
+            ) : (
+              <>
+                <CreditCard className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                <h3 className="mt-4 text-lg font-semibold text-foreground">구독이 필요합니다</h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  HuDy API를 사용하려면 먼저 플랜을 구독해주세요.
+                </p>
+                <Button className="mt-4 gap-2" asChild>
+                  <a href="/dashboard">
+                    <CreditCard className="h-4 w-4" />
+                    구독하러 가기
+                  </a>
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       ) : (

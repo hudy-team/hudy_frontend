@@ -16,20 +16,26 @@ async function withAuth(req: NextRequest) {
     );
   }
 
-  const authContext = await validateApiKey(apiKey);
+  const result = await validateApiKey(apiKey);
 
-  if (!authContext) {
+  if (!result.ok) {
+    const message =
+      result.reason === "no_subscription"
+        ? "Active subscription required. Please subscribe at https://hudy.co.kr"
+        : "Invalid or inactive API key";
+    const status = result.reason === "no_subscription" ? 403 : 401;
+
     return Response.json(
       {
         jsonrpc: "2.0",
-        error: { code: -32001, message: "Invalid or inactive API key" },
+        error: { code: -32001, message },
         id: null,
       },
-      { status: 401 }
+      { status }
     );
   }
 
-  return authStore.run(authContext, () => handleMcpRequest(req));
+  return authStore.run(result.context, () => handleMcpRequest(req));
 }
 
 export async function GET(req: NextRequest) {

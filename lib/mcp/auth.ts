@@ -15,10 +15,14 @@ export function getAuthContext(): AuthContext {
   return ctx;
 }
 
+export type ValidateResult =
+  | { ok: true; context: AuthContext }
+  | { ok: false; reason: "invalid_key" | "no_subscription" };
+
 export async function validateApiKey(
   apiKey: string | null
-): Promise<AuthContext | null> {
-  if (!apiKey) return null;
+): Promise<ValidateResult> {
+  if (!apiKey) return { ok: false, reason: "invalid_key" };
 
   const supabase = createAdminClient();
   const { data, error } = await supabase
@@ -27,11 +31,22 @@ export async function validateApiKey(
     .eq("key", apiKey)
     .single();
 
-  if (error || !data || !data.is_active) return null;
+  if (error || !data || !data.is_active)
+    return { ok: false, reason: "invalid_key" };
+
+  // 구독 상태 확인 - active 구독이 없으면 API 사용 불가
+  const { data: subscription } = await supabase
+    .from("subscriptions")
+    .select("id")
+    .eq("user_id", data.user_id)
+    .eq("status", "active")
+    .limit(1)
+    .maybeSingle();
+
+  if (!subscription) return { ok: false, reason: "no_subscription" };
 
   return {
-    apiKeyId: data.id,
-    userId: data.user_id,
-    apiKey,
+    ok: true,
+    context: { apiKeyId: data.id, userId: data.user_id, apiKey },
   };
 }
