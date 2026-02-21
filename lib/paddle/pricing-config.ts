@@ -1,7 +1,7 @@
 export const HUDY_PRO_PLAN = {
   name: "HuDy Pro",
-  productId: "pro_01khea7fdmbrfxa8ssg9jt5xbz",
-  priceId: "pri_01khea85r47qwx52kvye6ceayt",
+  productId: "pro_01khe31vwkkqyswk484177fpw6",
+  priceId: "pri_01khe32kbr9f7270tdf08wedyb",
   price: 3,
   currency: "USD",
   interval: "month" as const,
