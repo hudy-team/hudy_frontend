@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { format, differenceInDays } from "date-fns"
 import { ko } from "date-fns/locale"
-import { CreditCard, Calendar, Zap, AlertTriangle, Clock, FileText, ExternalLink, Loader2, Check } from "lucide-react"
+import { CreditCard, Calendar, Zap, AlertTriangle, Clock, FileText, ExternalLink, Loader2, Check, ArrowRight, XCircle } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -271,47 +271,80 @@ export default function BillingPage() {
           </CardContent>
         </Card>
       ) : (
-        /* No Subscription - Compact resubscribe banner */
-        <Card className="border-border rounded-xl overflow-hidden">
-          <div className="flex flex-col md:flex-row">
-            {/* Left: Current status */}
-            <div className="flex-1 p-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-                  <CreditCard className="h-5 w-5 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="font-semibold">현재 플랜</p>
-                  <p className="text-sm text-muted-foreground">구독이 만료되었습니다</p>
-                </div>
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                API 호출 및 커스텀 공휴일 등록 등 모든 Pro 기능을 사용하려면 구독을 다시 시작하세요.
-              </p>
-            </div>
-
-            {/* Right: CTA */}
-            <div className="flex items-center border-t md:border-t-0 md:border-l border-border bg-muted/30 p-6 md:w-[280px]">
-              <div className="w-full space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Zap className="h-4 w-4 text-primary" />
-                    <span className="font-semibold">HuDy Pro</span>
+        /* No Subscription - Resubscribe */
+        <div className="space-y-6">
+          {/* Status Banner */}
+          <Card className="relative rounded-xl border-border overflow-hidden">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+            <CardContent className="pt-6 pb-6">
+              <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
+                    <XCircle className="h-6 w-6 text-primary/70" />
                   </div>
                   <div>
-                    <span className="text-xl font-bold">$3</span>
-                    <span className="text-sm text-muted-foreground">/월</span>
+                    <div className="flex items-center gap-2.5">
+                      <h3 className="font-semibold text-foreground">구독이 만료되었습니다</h3>
+                      <Badge variant="outline" className="border-primary/30 text-primary text-xs">만료</Badge>
+                    </div>
+                    <p className="mt-0.5 text-sm text-muted-foreground">
+                      Pro 기능을 다시 이용하려면 구독을 재개하세요
+                    </p>
                   </div>
                 </div>
-                <Button asChild className="w-full">
-                  <Link href="/checkout">
-                    다시 구독하기
-                  </Link>
-                </Button>
               </div>
-            </div>
-          </div>
-        </Card>
+            </CardContent>
+          </Card>
+
+          {/* Resubscribe Card */}
+          <Card className="relative rounded-xl border-primary/15 overflow-hidden">
+            <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary/60 via-primary to-primary/60" />
+            <CardContent className="pt-8 pb-8">
+              <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-12">
+                {/* Left: Plan info + Features */}
+                <div className="flex-1 space-y-6">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <Zap className="h-5 w-5 text-primary" />
+                      <span className="text-lg font-bold text-foreground">HuDy Pro</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      모든 기능을 하나의 요금제로
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2.5">
+                    {HUDY_PRO_PLAN.features.map((feature, index) => (
+                      <div key={index} className="flex items-center gap-2.5">
+                        <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+                        <span className="text-sm text-muted-foreground">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right: Pricing + CTA */}
+                <div className="lg:w-[260px] shrink-0">
+                  <div className="rounded-xl bg-muted/50 border border-border p-6 space-y-5">
+                    <div className="text-center">
+                      <div className="flex items-baseline justify-center gap-1">
+                        <span className="text-4xl font-bold tracking-tight text-foreground">$3</span>
+                        <span className="text-muted-foreground">/월</span>
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">30일 무료 체험 포함</p>
+                    </div>
+                    <Button asChild size="lg" className="w-full group">
+                      <Link href="/checkout">
+                        다시 시작하기
+                        <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* Payment History */}
