@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Pencil, Plus, Trash2, X } from "lucide-react"
+import { Calendar, CreditCard, Pencil, Plus, Trash2, X } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 
@@ -39,38 +39,46 @@ export default function HolidaysPage() {
   const [form, setForm] = useState({ name: "", date: "" })
   const [activeTab, setActiveTab] = useState<"official" | "custom">("official")
   const [selectedYear, setSelectedYear] = useState(2026)
+  const [hasSubscription, setHasSubscription] = useState(false)
 
   const fetchData = async () => {
     setLoading(true)
     const supabase = createClient()
 
     try {
-      // Fetch public holidays filtered by selected year
-      const { data: pubData, error: pubError } = await supabase
-        .from('public_holidays')
-        .select('*')
-        .eq('year', selectedYear)
-        .order('date', { ascending: true })
+      const [pubResult, custResult, subResult] = await Promise.all([
+        supabase
+          .from('public_holidays')
+          .select('*')
+          .eq('year', selectedYear)
+          .order('date', { ascending: true }),
+        supabase
+          .from('custom_holidays')
+          .select('*')
+          .order('date', { ascending: true }),
+        supabase
+          .from('subscriptions')
+          .select('id')
+          .eq('status', 'active')
+          .limit(1)
+          .maybeSingle(),
+      ])
 
-      if (pubError) {
-        console.error('Error fetching public holidays:', pubError)
+      if (pubResult.error) {
+        console.error('Error fetching public holidays:', pubResult.error)
         toast.error("법정 공휴일을 불러오는 중 오류가 발생했습니다.")
       } else {
-        setPublicHolidays(pubData || [])
+        setPublicHolidays(pubResult.data || [])
       }
 
-      // Fetch custom holidays for current user
-      const { data: custData, error: custError } = await supabase
-        .from('custom_holidays')
-        .select('*')
-        .order('date', { ascending: true })
-
-      if (custError) {
-        console.error('Error fetching custom holidays:', custError)
+      if (custResult.error) {
+        console.error('Error fetching custom holidays:', custResult.error)
         toast.error("커스텀 공휴일을 불러오는 중 오류가 발생했습니다.")
       } else {
-        setCustomHolidays(custData || [])
+        setCustomHolidays(custResult.data || [])
       }
+
+      setHasSubscription(!!subResult.data)
     } finally {
       setLoading(false)
     }
@@ -81,6 +89,11 @@ export default function HolidaysPage() {
   }, [selectedYear])
 
   const handleSubmit = async () => {
+    if (!hasSubscription) {
+      toast.error("구독이 필요합니다. 먼저 플랜을 구독해주세요.")
+      return
+    }
+
     if (!form.name.trim() || !form.date) {
       toast.error("이름과 날짜를 입력해주세요.")
       return
@@ -144,6 +157,11 @@ export default function HolidaysPage() {
   }
 
   const deleteHoliday = async (id: string) => {
+    if (!hasSubscription) {
+      toast.error("구독이 필요합니다. 먼저 플랜을 구독해주세요.")
+      return
+    }
+
     const supabase = createClient()
 
     try {
@@ -178,16 +196,23 @@ export default function HolidaysPage() {
           <h1 className="text-2xl font-bold text-foreground">Holidays</h1>
           <p className="mt-1 text-sm text-muted-foreground">{"공휴일 조회 및 커스텀 공휴일을 관리하세요."}</p>
         </div>
-        <Button
-          className="gap-2"
-          onClick={() => {
-            setShowForm(true)
-            setActiveTab("custom")
-          }}
-        >
-          <Plus className="h-4 w-4" />
-          <span className="max-sm:hidden">{"공휴일 추가"}</span>
-        </Button>
+        {hasSubscription ? (
+          <Button
+            className="gap-2"
+            onClick={() => {
+              setShowForm(true)
+              setActiveTab("custom")
+            }}
+          >
+            <Plus className="h-4 w-4" />
+            <span className="max-sm:hidden">{"공휴일 추가"}</span>
+          </Button>
+        ) : !loading ? (
+          <Badge variant="secondary" className="gap-1.5 px-3 py-1.5 text-xs">
+            <CreditCard className="h-3 w-3" />
+            구독 필요
+          </Badge>
+        ) : null}
       </div>
 
       {showForm && (
@@ -359,15 +384,33 @@ export default function HolidaysPage() {
           {activeTab === "custom" && customHolidays.length === 0 && (
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-12">
-                <Calendar className="mb-4 h-12 w-12 text-muted-foreground/40" />
-                <p className="text-sm text-muted-foreground">{"아직 커스텀 공휴일이 없습니다."}</p>
-                <Button
-                  variant="outline"
-                  className="mt-4 bg-transparent"
-                  onClick={() => setShowForm(true)}
-                >
-                  {"첫 공휴일 추가하기"}
-                </Button>
+                {hasSubscription ? (
+                  <>
+                    <Calendar className="mb-4 h-12 w-12 text-muted-foreground/40" />
+                    <p className="text-sm text-muted-foreground">{"아직 커스텀 공휴일이 없습니다."}</p>
+                    <Button
+                      variant="outline"
+                      className="mt-4 bg-transparent"
+                      onClick={() => setShowForm(true)}
+                    >
+                      {"첫 공휴일 추가하기"}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="mb-4 h-12 w-12 text-muted-foreground/40" />
+                    <h3 className="text-lg font-semibold text-foreground">구독이 필요합니다</h3>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      커스텀 공휴일을 관리하려면 먼저 플랜을 구독해주세요.
+                    </p>
+                    <Button className="mt-4 gap-2" asChild>
+                      <a href="/dashboard">
+                        <CreditCard className="h-4 w-4" />
+                        구독하러 가기
+                      </a>
+                    </Button>
+                  </>
+                )}
               </CardContent>
             </Card>
           )}
