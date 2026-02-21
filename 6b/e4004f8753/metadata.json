@@ -1,0 +1,29 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "6be4004f8753",
+  "strategy": "manual-commit",
+  "branch": "worktree-optimized-enchanting-spindle",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "app/api/[transport]/route.ts",
+    "app/dashboard/api-keys/page.tsx",
+    "lib/mcp/auth.ts",
+    "lib/paddle/process-webhook.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/6b/e4004f8753/0/metadata.json",
+      "transcript": "/6b/e4004f8753/0/full.jsonl",
+      "context": "/6b/e4004f8753/0/context.md",
+      "content_hash": "/6b/e4004f8753/0/content_hash.txt",
+      "prompt": "/6b/e4004f8753/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 117,
+    "cache_creation_tokens": 173930,
+    "cache_read_tokens": 3048653,
+    "output_tokens": 5830,
+    "api_call_count": 39
+  }
+}
