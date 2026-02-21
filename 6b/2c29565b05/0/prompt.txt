@@ -1,0 +1,72 @@
+결제 완료 후 구독이 끝나면 결제내역 + price 페이지가 같이 노출되는중이야. UI가 구린데 UI/UX 개선진행해줘
+
+---
+
+[Image: source: /Users/minkyu/Desktop/스크린샷 2026-02-21 오후 7.49.15.png]
+
+---
+
+커밋 푸시 and 머지
+
+---
+
+아니 그거말고 빌링 ui 개선한거 말이야.
+
+---
+
+[Request interrupted by user for tool use]
+
+---
+
+아니 개쌉소리 하지말고 pr2에 연결된 브런치는 이미 옛날에 머지 완료됐다고 지금 이 빌링페이지 ui 개선전에 지금 이미 머지 완료된 브런치에 너가 커밋한거라고 이해안돼?
+
+---
+
+이게뭐야 UI 개구리잖아 frontend design 스킬써서 다시 제대로 UI 구성해
+
+---
+
+[Image: source: /Users/minkyu/Desktop/스크린샷 2026-02-21 오후 8.32.49.png]
+
+---
+
+Base directory for this skill: /Users/minkyu/.claude/plugins/cache/claude-plugins-official/frontend-design/8deab8460a9d/skills/frontend-design
+
+This skill guides creation of distinctive, production-grade frontend interfaces that avoid generic "AI slop" aesthetics. Implement real working code with exceptional attention to aesthetic details and creative choices.
+
+The user provides frontend requirements: a component, page, application, or interface to build. They may include context about the purpose, audience, or technical constraints.
+
+## Design Thinking
+
+Before coding, understand the context and commit to a BOLD aesthetic direction:
+- **Purpose**: What problem does this interface solve? Who uses it?
+- **Tone**: Pick an extreme: brutally minimal, maximalist chaos, retro-futuristic, organic/natural, luxury/refined, playful/toy-like, editorial/magazine, brutalist/raw, art deco/geometric, soft/pastel, industrial/utilitarian, etc. There are so many flavors to choose from. Use these for inspiration but design one that is true to the aesthetic direction.
+- **Constraints**: Technical requirements (framework, performance, accessibility).
+- **Differentiation**: What makes this UNFORGETTABLE? What's the one thing someone will remember?
+
+**CRITICAL**: Choose a clear conceptual direction and execute it with precision. Bold maximalism and refined minimalism both work - the key is intentionality, not intensity.
+
+Then implement working code (HTML/CSS/JS, React, Vue, etc.) that is:
+- Production-grade and functional
+- Visually striking and memorable
+- Cohesive with a clear aesthetic point-of-view
+- Meticulously refined in every detail
+
+## Frontend Aesthetics Guidelines
+
+Focus on:
+- **Typography**: Choose fonts that are beautiful, unique, and interesting. Avoid generic fonts like Arial and Inter; opt instead for distinctive choices that elevate the frontend's aesthetics; unexpected, characterful font choices. Pair a distinctive display font with a refined body font.
+- **Color & Theme**: Commit to a cohesive aesthetic. Use CSS variables for consistency. Dominant colors with sharp accents outperform timid, evenly-distributed palettes.
+- **Motion**: Use animations for effects and micro-interactions. Prioritize CSS-only solutions for HTML. Use Motion library for React when available. Focus on high-impact moments: one well-orchestrated page load with staggered reveals (animation-delay) creates more delight than scattered micro-interactions. Use scroll-triggering and hover states that surprise.
+- **Spatial Composition**: Unexpected layouts. Asymmetry. Overlap. Diagonal flow. Grid-breaking elements. Generous negative space OR controlled density.
+- **Backgrounds & Visual Details**: Create atmosphere and depth rather than defaulting to solid colors. Add contextual effects and textures that match the overall aesthetic. Apply creative forms like gradient meshes, noise textures, geometric patterns, layered transparencies, dramatic shadows, decorative borders, custom cursors, and grain overlays.
+
+NEVER use generic AI-generated aesthetics like overused font families (Inter, Roboto, Arial, system fonts), cliched color schemes (particularly purple gradients on white backgrounds), predictable layouts and component patterns, and cookie-cutter design that lacks context-specific character.
+
+Interpret creatively and make unexpected choices that feel genuinely designed for the context. No design should be the same. Vary between light and dark themes, different fonts, different aesthetics. NEVER converge on common choices (Space Grotesk, for example) across generations.
+
+**IMPORTANT**: Match implementation complexity to the aesthetic vision. Maximalist designs need elaborate code with extensive animations and effects. Minimalist or refined designs need restraint, precision, and careful attention to spacing, typography, and subtle details. Elegance comes from executing the vision well.
+
+Remember: Claude is capable of extraordinary creative work. Don't hold back, show what can truly be created when thinking outside the box and committing fully to a distinctive vision.
+
+ARGUMENTS: 빌링 페이지 구독 만료 상태 UI/UX 개선. 현재 구독 만료 시 "현재 플랜 / 구독이 만료되었습니다" 배너 + 결제 내역 테이블이 있는데 너무 밋밋하고 빈 공간이 많음. 대시보드 빌링 페이지답게 세련되게 재디자인 필요. 파일: app/dashboard/billing/page.tsx. 스크린샷: /Users/minkyu/Desktop/스크린샷 2026-02-21 오후 8.32.49.png

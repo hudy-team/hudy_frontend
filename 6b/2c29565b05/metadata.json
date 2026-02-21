@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "6b2c29565b05",
+  "strategy": "manual-commit",
+  "branch": "fix/billing-ui-redesign",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "app/dashboard/billing/page.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/6b/2c29565b05/0/metadata.json",
+      "transcript": "/6b/2c29565b05/0/full.jsonl",
+      "context": "/6b/2c29565b05/0/context.md",
+      "content_hash": "/6b/2c29565b05/0/content_hash.txt",
+      "prompt": "/6b/2c29565b05/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 50,
+    "cache_creation_tokens": 23816,
+    "cache_read_tokens": 1645167,
+    "output_tokens": 2653,
+    "api_call_count": 18
+  }
+}
