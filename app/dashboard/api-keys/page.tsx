@@ -324,7 +324,7 @@ export default function ApiKeysPage() {
                   HuDy API를 사용하려면 먼저 플랜을 구독해주세요.
                 </p>
                 <Button className="mt-4 gap-2" asChild>
-                  <a href="/dashboard">
+                  <a href="/dashboard/billing">
                     <CreditCard className="h-4 w-4" />
                     구독하러 가기
                   </a>
