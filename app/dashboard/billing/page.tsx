@@ -298,49 +298,43 @@ export default function BillingPage() {
 
           {/* Resubscribe Card */}
           <Card className="relative rounded-xl border-primary/15 overflow-hidden">
-            <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary/60 via-primary to-primary/60" />
-            <CardContent className="pt-8 pb-8">
-              <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-12">
-                {/* Left: Plan info + Features */}
-                <div className="flex-1 space-y-6">
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <Zap className="h-5 w-5 text-primary" />
-                      <span className="text-lg font-bold text-foreground">HuDy Pro</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      모든 기능을 하나의 요금제로
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2.5">
-                    {HUDY_PRO_PLAN.features.map((feature, index) => (
-                      <div key={index} className="flex items-center gap-2.5">
-                        <Check className="h-3.5 w-3.5 text-primary shrink-0" />
-                        <span className="text-sm text-muted-foreground">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
+            <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent" />
+            <CardContent className="pt-8 pb-8 space-y-8">
+              {/* Plan header + Pricing */}
+              <div className="flex flex-col items-center text-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-primary" />
+                  <span className="text-lg font-bold text-foreground">HuDy Pro</span>
                 </div>
-
-                {/* Right: Pricing + CTA */}
-                <div className="lg:w-[260px] shrink-0">
-                  <div className="rounded-xl bg-muted/50 border border-border p-6 space-y-5">
-                    <div className="text-center">
-                      <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-4xl font-bold tracking-tight text-foreground">$3</span>
-                        <span className="text-muted-foreground">/월</span>
-                      </div>
-                      <p className="mt-1 text-xs text-muted-foreground">30일 무료 체험 포함</p>
-                    </div>
-                    <Button asChild size="lg" className="w-full group">
-                      <Link href="/checkout">
-                        다시 시작하기
-                        <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                      </Link>
-                    </Button>
+                <div>
+                  <div className="flex items-baseline justify-center gap-1">
+                    <span className="text-5xl font-bold tracking-tight text-foreground">$3</span>
+                    <span className="text-lg text-muted-foreground">/월</span>
                   </div>
+                  <p className="mt-1.5 text-sm text-muted-foreground">30일 무료 체험 포함</p>
                 </div>
+              </div>
+
+              <Separator className="bg-border/60" />
+
+              {/* Features */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-3 max-w-lg mx-auto">
+                {HUDY_PRO_PLAN.features.map((feature, index) => (
+                  <div key={index} className="flex items-center gap-2.5">
+                    <Check className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <span className="text-sm text-muted-foreground">{feature}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* CTA */}
+              <div className="flex justify-center pt-2">
+                <Button asChild size="lg" className="px-10 group">
+                  <Link href="/checkout">
+                    다시 시작하기
+                    <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                </Button>
               </div>
             </CardContent>
           </Card>
