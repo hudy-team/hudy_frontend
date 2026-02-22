@@ -1,0 +1,26 @@
+# Session Context
+
+## User Prompts
+
+### Prompt 1
+
+공공데이터 활용 한다는 내용 term 이나 랜딩페이지? 적절한쪽에 추가해줘.
+
+공공데이터 api: https://www.data.go.kr/data/15012690/openapi.do
+
+### Prompt 2
+
+커밋 푸시
+
+### Prompt 3
+
+faq 에서 펼치기 했을 때 answer 부분 콘텐츠가 바로 위 Q 버튼에 딱 붙어있어 살짝 여백 필요할것 같음
+
+### Prompt 4
+
+fotter 에 공공데이터 내용을 잉요약관 / 개인정보처리방침 옆으로 하던가 해줘 갑자기 줄바꿈되서 한줄 더 생기니까 fotter ui 가 이상해졌음
+
+### Prompt 5
+
+커밋 푸시
+
