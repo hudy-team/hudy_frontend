@@ -1,0 +1,13 @@
+# Session Context
+
+## User Prompts
+
+### Prompt 1
+
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+vercel 로 배포중 뜬 warning 인데 체크해봐
+
+### Prompt 2
+
+빌드해서 이슈 없는지 체크하고 이슈 없으면 커밋 푸시
+
