@@ -79,6 +79,9 @@ export const metadata: Metadata = {
       'application/rss+xml': `${SITE_URL}/feed.xml`,
     },
   },
+  other: {
+    "naver-site-verification": "2d11119175e6a176c2134ce24de70bfa11d28602",
+  },
   robots: {
     index: true,
     follow: true,
