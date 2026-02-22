@@ -24,6 +24,9 @@ export function Navbar() {
           <Link href="#docs" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
             API Docs
           </Link>
+          <Link href="#faq" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+            FAQ
+          </Link>
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
@@ -56,6 +59,9 @@ export function Navbar() {
             </Link>
             <Link href="#docs" className="text-sm text-muted-foreground" onClick={() => setMobileOpen(false)}>
               API Docs
+            </Link>
+            <Link href="#faq" className="text-sm text-muted-foreground" onClick={() => setMobileOpen(false)}>
+              FAQ
             </Link>
             <div className="flex gap-3 pt-2">
               <Button variant="ghost" size="sm" asChild>

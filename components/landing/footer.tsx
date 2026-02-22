@@ -7,26 +7,29 @@ export function Footer() {
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 md:flex-row">
         <HuDyLogo size="sm" href="/" />
 
-        <div className="flex items-center gap-6">
+        <nav aria-label="푸터 내비게이션" className="flex flex-wrap items-center justify-center gap-6">
           <Link href="#features" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-            Features
+            기능
           </Link>
           <Link href="#pricing" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-            Pricing
+            요금제
           </Link>
           <Link href="#docs" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-            API Docs
+            API 문서
+          </Link>
+          <Link href="#faq" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+            FAQ
           </Link>
           <Link href="/terms" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-            Terms
+            이용약관
           </Link>
           <Link href="/privacy" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-            Privacy
+            개인정보처리방침
           </Link>
-        </div>
+        </nav>
 
         <p className="text-sm text-muted-foreground">
-          {"2026 HuDy. All rights reserved."}
+          {"© 2026 HuDy. All rights reserved."}
         </p>
       </div>
     </footer>

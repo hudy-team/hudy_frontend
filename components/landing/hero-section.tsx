@@ -16,9 +16,9 @@ export function HeroSection() {
         </div>
 
         <h1 className="text-balance text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl md:text-7xl">
-          Korean Public Holidays
+          대한민국 공휴일
           <br />
-          <span className="text-primary">API Service</span>
+          <span className="text-primary">API 서비스</span>
         </h1>
 
         <p className="mt-6 max-w-2xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
