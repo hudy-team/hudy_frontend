@@ -17,7 +17,7 @@ const PUBLIC_PATHS = [
 const BOT_UA_PATTERN =
   /Yeti|Googlebot|Bingbot|Slurp|DuckDuckBot|Baiduspider|YandexBot|facebookexternalhit|Twitterbot|LinkedInBot|crawler|spider|bot/i
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Webhook 경로는 인증 없이 통과
