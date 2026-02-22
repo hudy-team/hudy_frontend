@@ -20,6 +20,21 @@ export function Footer() {
           {"© 2026 HuDy. All rights reserved."}
         </p>
       </div>
+
+      <div className="mx-auto max-w-7xl border-t border-border px-6 pb-6 pt-4">
+        <p className="text-center text-xs text-muted-foreground">
+          본 서비스는{" "}
+          <a
+            href="https://www.data.go.kr/data/15012690/openapi.do"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline underline-offset-2 hover:text-foreground"
+          >
+            공공데이터포털
+          </a>
+          의 한국천문연구원 특일 정보를 활용하여 제공됩니다.
+        </p>
+      </div>
     </footer>
   )
 }
