@@ -1,0 +1,10 @@
+# Session Context
+
+## User Prompts
+
+### Prompt 1
+
+네이버 서치 어드바이저를 위해 html 태그 추가가 필요함
+<meta name="naver-site-verification" content="2d11119175e6a176c2134ce24de70bfa11d28602" />
+헤더 색션에 추가해서 커밋 푸시 해줘
+
