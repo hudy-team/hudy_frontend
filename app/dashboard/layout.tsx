@@ -1,6 +1,12 @@
 import React from "react"
+import type { Metadata } from 'next'
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
 import { DashboardMobileNav } from "@/components/dashboard/mobile-nav"
+
+export const metadata: Metadata = {
+  title: 'Dashboard',
+  robots: { index: false, follow: false },
+}
 
 export default function DashboardLayout({
   children,

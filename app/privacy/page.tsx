@@ -2,7 +2,9 @@ import Link from "next/link"
 import { HuDyLogo } from "@/components/hudy-logo"
 
 export const metadata = {
-  title: "개인정보처리방침 - HuDy",
+  title: "개인정보처리방침",
+  description: "HuDy 개인정보처리방침. 대한민국 공휴일 API 서비스의 개인정보 수집 및 이용에 관한 사항을 확인하세요.",
+  alternates: { canonical: 'https://www.hudy.co.kr/privacy' },
 }
 
 export default function PrivacyPage() {

@@ -2,7 +2,9 @@ import Link from "next/link"
 import { HuDyLogo } from "@/components/hudy-logo"
 
 export const metadata = {
-  title: "이용약관 - HuDy",
+  title: "이용약관",
+  description: "HuDy 서비스 이용약관. 대한민국 공휴일 API 서비스의 이용 조건을 확인하세요.",
+  alternates: { canonical: 'https://www.hudy.co.kr/terms' },
 }
 
 export default function TermsPage() {
