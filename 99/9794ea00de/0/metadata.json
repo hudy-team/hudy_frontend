@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "999794ea00de",
+  "session_id": "436ac5a4-ee25-43c8-8aba-88795030345c",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-23T01:16:55.245903Z",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "components/landing/pricing-section.tsx",
+    "lib/paddle/pricing-config.ts"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "36090622-a70a-4c0c-8f97-3be557a41ef5",
+  "token_usage": {
+    "input_tokens": 147,
+    "cache_creation_tokens": 250800,
+    "cache_read_tokens": 5414905,
+    "output_tokens": 8722,
+    "api_call_count": 49
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-23T01:16:55.115674Z",
+    "agent_lines": 66,
+    "human_added": 49,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 115,
+    "agent_percentage": 57.391304347826086
+  }
+}

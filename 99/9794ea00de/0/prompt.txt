@@ -1,0 +1,337 @@
+무료 플랜 만들어줘. 무료플랜은 다음 항목을 포함
+월 100회 api 호출
+x-api-key 기반 인증
+대한민국 법정공휴일 전체 제공
+연도별/ 기간별 조회
+api 사용량 대시보드
+99.9% uptime sla
+
+
+그리고 유료플랜은 저기 무료플랜에서 + 되는것들로 다시 내용 정리해줘. 그리고 하나의 요금제. 이부분도 제거(이제 무료플랜 생기니)
+
+그리고 기존 기존 only 유료 플랜으로 동작하던 방식도 무료플랜도 생기니까 그에맞게 대응해줘 (api key 가입 시 자동발급 롤백, 커스텀 api 관련만 bill 필요하도록대응, api request limit 플랜별로 체크 다르게 등등)
+
+---
+
+[Request interrupted by user]
+
+---
+
+무료 플랜 만들어줘. 무료플랜은 다음 항목을 포함
+월 100회 api 호출
+x-api-key 기반 인증
+대한민국 법정공휴일 전체 제공
+연도별/ 기간별 조회
+api 사용량 대시보드
+99.9% uptime sla
+
+
+그리고 유료플랜은 저기 무료플랜에서 + 되는것들로 다시 내용 정리해줘. 그리고 하나의 요금제. 이부분도 제거(이제 무료플랜 생기니)
+
+그리고 기존 기존 only 유료 플랜으로 동작하던 방식도 무료플랜도 생기니까 그에맞게 대응해줘 (api key 가입 시 자동발급 롤백, 커스텀 api 관련만 bill 
+필요하도록대응, api request limit 플랜별로 체크 다르게 등등) ulw
+
+---
+
+유료 플랜쪽에 모든 기능, 한달 커피한잔 값으로 부담없이 시작하세요로 변경. 그리고 supabase 관련 처리도 다 된거지?
+
+---
+
+api 키 관련해선 이미 이전에 supabase trigger로 처리중임. mcp로 먼저 체크해봐. rls도. supabase 관련해서 먼저 전체 체크
+
+---
+
+회원가입 시 자동 api 키발급 트리거가 있었는데, 아직 남아잇는지 체크. 없으면 회원가입 시 api key 가 없다면 자동 생성 진행. 그리고 현재 api key가 1개만 유지되는 룰을 넣었었는데 (신규발급 시 기존 api key 무효화 및 삭제 후 신규생성) 아직 유지되고 있는지도 체크
+
+---
+
+현재 구독 만료 및 기간 종료 시 api 키 삭제하거나 무효화 하는게 있는지 체크. 이전에 유료플랜 및 필수 결제 작업 추가 당시에 비슷한 로직을 넣었 던것 같은데, 이제 무료플랜이 있어서 구독 종료 및 기간 종료 시 플랜 다운그레이드만 진행하는 형태로만 되어야됨.
+
+---
+
+그럼 다운그레이드 되서 플랜이 낮아지면 자동으로 커스텀 휴일 이런거 접근 안되고, 공휴일 조회 시 커스텀 홀리데이 제외되고 나오는거 맞을까? api 서버는 ../hudy_backend 아니면 ../hudy_api_server 쪽에 있을거야
+
+---
+
+응 백엔드도 수정해줘
+
+---
+
+This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation.
+
+Analysis:
+Let me chronologically analyze the entire conversation:
+
+1. **Initial Request**: User asked to create a free plan and restructure the paid plan for HuDy (Korean holiday API service). Specific requirements:
+   - Free plan: 100 API calls/month, x-api-key auth, Korean public holidays, yearly/period queries, usage dashboard, 99.9% uptime SLA
+   - Pro plan: restructure to show only additions over free plan
+   - Remove "하나의 요금제" (single plan) messaging
+   - Adapt existing paid-only logic: API key auto-generation on signup rollback, only custom holidays need billing, plan-based API request limits
+
+2. **Exploration Phase**: Read all pricing/plan related files including:
+   - pricing-config.ts, pricing-section.tsx, api-keys/page.tsx, dashboard/page.tsx, billing/page.tsx, process-webhook.ts, checkout/page.tsx, checkout-client.tsx, holidays/page.tsx
+
+3. **Implementation Phase (Ultrawork)**: Created pricing-config.ts with both plans, then launched 6 parallel executor agents to modify:
+   - pricing-section.tsx (two-card layout)
+   - api-keys/page.tsx (remove subscription gate)
+   - dashboard/page.tsx (plan-aware quota)
+   - billing/page.tsx (free plan display)
+   - process-webhook.ts (don't deactivate keys on cancel)
+   - holidays/page.tsx (Pro-only messaging)
+
+4. **Post-build fix**: Found "모든 기능, 하나의 요금제" text still in pricing-section.tsx, fixed it.
+
+5. **User feedback on pricing text**: Changed Pro plan description to "모든 기능, 한달 커피 한 잔 값으로 부담 없이 시작하세요."
+
+6. **Supabase check**: User asked to verify Supabase-side changes. Checked RLS policies, triggers, functions - all clean, no subscription gating at DB level.
+
+7. **Auto API key creation**: User mentioned there was a previous auto-create trigger. Confirmed it was gone. Created new `trg_auto_create_api_key` trigger via migration.
+
+8. **API key deactivation check**: User asked to verify no subscription expiry logic deactivates API keys. Confirmed all clear - DB triggers only send notifications, webhook already fixed.
+
+9. **Backend analysis**: User asked to check the Rust backend at `hudy_backend`. Found it had NO plan awareness at all - no subscription checks, no quota enforcement, custom holidays included for all users.
+
+10. **Backend implementation**: Modified 5 Rust files:
+    - `api_key_state_cache.rs` - Added `has_pro` and `monthly_usage` to ApiKeyState
+    - `api_key_auth.rs` - Added `has_pro` to AuthContext, monthly quota check (100/5000)
+    - `error.rs` - Added `QuotaExceeded` error variant
+    - `holiday.rs` - Custom holidays only for Pro
+    - `business_day.rs` - Custom holidays only for Pro in build_holiday_set
+
+11. **Build verification**: Both frontend (`pnpm build`) and backend (`cargo build`) compile successfully.
+
+Summary:
+1. Primary Request and Intent:
+   The user requested a complete free/paid plan system restructuring for HuDy (대한민국 공휴일 API 서비스):
+   - **Create Free plan**: 월 100회 API 호출, x-api-key 기반 인증, 대한민국 법정공휴일 전체 제공, 연도별/기간별 조회, API 사용량 대시보드, 99.9% Uptime SLA
+   - **Restructure Pro plan ($3/mo)**: Show only additions over free (월 5,000회 API 호출, 커스텀 공휴일 등록, 우선 기술 지원)
+   - **Remove "하나의 요금제" messaging** since there are now two plans
+   - **Adapt backend logic**: API key creation without subscription, custom holidays only for Pro, plan-based API request limits (100 vs 5000), auto API key on signup
+   - **Supabase verification**: Check RLS, triggers, and DB-level enforcement
+   - **Backend (Rust) modifications**: Add plan awareness to API server for quota enforcement and custom holiday filtering
+
+2. Key Technical Concepts:
+   - Next.js 16 App Router + React 19 + TypeScript frontend
+   - Rust (Actix-web) backend API server
+   - Supabase (PostgreSQL) for database with RLS policies
+   - Paddle payment integration (webhooks, subscriptions)
+   - Two-tier plan system (Free: 100 calls/mo, Pro: 5000 calls/mo)
+   - API key state caching with TTL
+   - Usage tracking via batched writes (UsageBatcher, 30s flush interval)
+   - Middleware chain: ApiKeyAuth → RateLimiter → Handler
+   - Custom holiday filtering based on subscription status
+
+3. Files and Code Sections:
+
+   **Frontend (hudy_frontend):**
+
+   - `lib/paddle/pricing-config.ts` — Core plan definitions
+     - Added `HUDY_FREE_PLAN` with monthlyQuota: 100
+     - Restructured `HUDY_PRO_PLAN` with `features` (Pro-only 3 items), `allFeatures` (all 8 items), `monthlyQuota: 5000`
+     ```typescript
+     export const HUDY_FREE_PLAN = {
+       name: "Free",
+       price: 0,
+       currency: "USD",
+       monthlyQuota: 100,
+       features: [
+         "월 100회 API 호출",
+         "x-api-key 기반 인증",
+         "대한민국 법정공휴일 전체 제공",
+         "연도별 / 기간별 조회",
+         "API 사용량 대시보드",
+         "99.9% Uptime SLA",
+       ],
+     } as const;
+
+     export const HUDY_PRO_PLAN = {
+       name: "HuDy Pro",
+       productId: "pro_01khe31vwkkqyswk484177fpw6",
+       priceId: {
+         month: "pri_01khznxcxjy7tzfrqrrhgjxgv6",
+         monthNoTrial: "pri_01khe32kbr9f7270tdf08wedyb",
+       },
+       price: 3,
+       currency: "USD",
+       interval: "month" as const,
+       monthlyQuota: 5000,
+       features: [
+         "월 5,000회 API 호출",
+         "커스텀 공휴일 등록",
+         "우선 기술 지원",
+       ],
+       allFeatures: [
+         "월 5,000회 API 호출",
+         "커스텀 공휴일 등록",
+         "x-api-key 기반 인증",
+         "대한민국 법정공휴일 전체 제공",
+         "연도별 / 기간별 조회",
+         "우선 기술 지원",
+         "API 사용량 대시보드",
+         "99.9% Uptime SLA",
+       ],
+     } as const;
+     ```
+
+   - `components/landing/pricing-section.tsx` — Redesigned from single card to two-card layout
+     - Free card (Sparkles icon, "무료", outline button → /login)
+     - Pro card (Zap icon, "Popular" badge, border-primary, "무료 플랜의 모든 기능 +" header, → /checkout)
+     - Section title changed to "요금제", description to "무료로 시작하고, 필요할 때 업그레이드하세요."
+     - Pro description: "모든 기능, 한달 커피 한 잔 값으로 부담 없이 시작하세요."
+
+   - `app/dashboard/api-keys/page.tsx` — Removed all subscription gating
+     - Removed `hasSubscription` state, `subResult` query, `CreditCard` import
+     - "새 키 생성" button always shown (no subscription check)
+     - Empty state always shows "API 키가 없습니다" (no "구독 필요" messaging)
+     - API key 1-per-user rule maintained (performCreateKey deletes existing before creating new)
+
+   - `app/dashboard/page.tsx` — Plan-aware monthly quota
+     - Added `hasPro` state, queries `subscriptions` table
+     - `const monthlyQuota = hasPro ? 5000 : 100` (replaces hardcoded 5000)
+
+   - `app/dashboard/billing/page.tsx` — Free plan awareness
+     - No subscription = "Free 플랜" with green "활성" badge (was "구독이 만료되었습니다")
+     - Shows Pro upgrade card with `HUDY_PRO_PLAN.allFeatures` and "Pro로 업그레이드" CTA
+
+   - `app/dashboard/holidays/page.tsx` — Updated messaging
+     - "구독 필요" → "Pro 전용" badge
+     - Toast messages changed to "Pro 플랜이 필요합니다. 업그레이드 후 이용해주세요."
+     - Empty state: "커스텀 공휴일은 Pro 플랜에서 이용할 수 있습니다." + "Pro로 업그레이드" button
+
+   - `lib/paddle/process-webhook.ts` — Removed API key deactivation on subscription cancel
+     - Changed from `if (userId)` with `shouldBeActive` toggle to `if (userId && status === "active")` — only activates, never deactivates
+     ```typescript
+     // 구독 활성화 시에만 API 키 활성화 (무료 플랜 전환 시 키는 유지)
+     if (userId && status === "active") {
+         const { error: keyError } = await supabase
+           .from("api_keys")
+           .update({ is_active: true, updated_at: new Date().toISOString() })
+           .eq("user_id", userId);
+     }
+     ```
+
+   **Supabase (via MCP):**
+
+   - Created migration `auto_create_api_key_on_signup`:
+     ```sql
+     CREATE OR REPLACE FUNCTION public.auto_create_api_key()
+     RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER
+     SET search_path = public AS $
+     DECLARE generated_key text;
+     BEGIN
+       generated_key := 'hd_live_' || encode(gen_random_bytes(16), 'hex');
+       INSERT INTO public.api_keys (user_id, key, name, is_active)
+       VALUES (NEW.id, generated_key, 'Default', true);
+       RETURN NEW;
+     EXCEPTION WHEN unique_violation THEN
+       generated_key := 'hd_live_' || encode(gen_random_bytes(16), 'hex');
+       INSERT INTO public.api_keys (user_id, key, name, is_active)
+       VALUES (NEW.id, generated_key, 'Default', true);
+       RETURN NEW;
+     END; $;
+
+     CREATE TRIGGER trg_auto_create_api_key
+       AFTER INSERT ON auth.users
+       FOR EACH ROW EXECUTE FUNCTION public.auto_create_api_key();
+     ```
+
+   **Backend (hudy_backend, Rust):**
+
+   - `src/services/api_key_state_cache.rs` — Added plan awareness to cached state
+     - `ApiKeyState` now includes `has_pro: bool` and `monthly_usage: i64`
+     - DB query joins `subscriptions` table to determine Pro status
+     - Queries `api_usage_daily` for current month sum
+     ```rust
+     pub struct ApiKeyState {
+         pub api_key_id: Uuid,
+         pub user_id: Uuid,
+         pub is_active: bool,
+         pub has_pro: bool,
+         pub monthly_usage: i64,
+     }
+     ```
+
+   - `src/middleware/api_key_auth.rs` — Monthly quota enforcement
+     - Added `has_pro: bool` to `AuthContext`
+     - Constants: `FREE_MONTHLY_QUOTA: i64 = 100`, `PRO_MONTHLY_QUOTA: i64 = 5000`
+     - Returns `QuotaExceeded` error (429) when monthly usage >= quota
+     ```rust
+     const FREE_MONTHLY_QUOTA: i64 = 100;
+     const PRO_MONTHLY_QUOTA: i64 = 5000;
+
+     #[derive(Clone)]
+     pub struct AuthContext {
+         pub api_key_id: uuid::Uuid,
+         pub user_id: uuid::Uuid,
+         pub has_pro: bool,
+     }
+     ```
+
+   - `src/error.rs` — Added QuotaExceeded error variant
+     ```rust
+     QuotaExceeded { used: i64, limit: i64 }
+     // Returns 429 with message: "Monthly API quota exceeded ({used}/{limit}). Upgrade to Pro for higher limits."
+     ```
+
+   - `src/handlers/holiday.rs` — Custom holiday filtering
+     - Only fetches custom holidays when `auth.has_pro` is true
+     ```rust
+     let custom_holidays = if auth.has_pro {
+         custom_holiday_cache.get_holidays(pool.get_ref(), user_id, from_date, to_date).await?
+     } else {
+         vec![]
+     };
+     ```
+
+   - `src/handlers/business_day.rs` — Custom holiday filtering in business day calculations
+     - Added `has_pro: bool` parameter to `build_holiday_set`
+     - Updated all 4 handler call sites to pass `auth.has_pro`
+
+4. Errors and fixes:
+   - **"모든 기능, 하나의 요금제" text remaining**: After parallel executor agents finished, this text was still in pricing-section.tsx line 70. Fixed by editing to "더 많은 호출과 커스텀 기능을 이용하세요." and then user requested change to "모든 기능, 한달 커피 한 잔 값으로 부담 없이 시작하세요."
+   - **No cron extension**: Query for `cron.job` failed with "relation does not exist" — confirmed pg_cron is not installed, so no scheduled deactivation jobs exist.
+   - All builds passed without errors (both `pnpm build` and `cargo build`).
+
+5. Problem Solving:
+   - Identified that backend had ZERO plan awareness — no subscription checks, no quota enforcement, custom holidays served to all users regardless of plan
+   - Solved by adding `has_pro` and `monthly_usage` to the API key state cache, which already had a TTL-based caching mechanism
+   - Quota enforcement placed in auth middleware to avoid repeating code in every handler
+   - Custom holiday filtering added at handler level (holiday.rs and business_day.rs)
+   - Supabase RLS was already clean (only `auth.uid() = user_id` checks, no subscription gating) so no DB changes needed for plan logic
+   - Auto API key creation trigger was missing (previously existed but was removed), recreated via Supabase migration
+
+6. All user messages:
+   - "무료 플랜 만들어줘. 무료플랜은 다음 항목을 포함 월 100회 api 호출, x-api-key 기반 인증, 대한민국 법정공휴일 전체 제공, 연도별/기간별 조회, api 사용량 대시보드, 99.9% uptime sla. 그리고 유료플랜은 저기 무료플랜에서 + 되는것들로 다시 내용 정리해줘. 그리고 하나의 요금제 이부분도 제거. 그리고 기존 only 유료 플랜으로 동작하던 방식도 무료플랜도 생기니까 그에맞게 대응해줘 (api key 가입 시 자동발급 롤백, 커스텀 api 관련만 bill 필요하도록대응, api request limit 플랜별로 체크 다르게 등등) ulw"
+   - "유료 플랜쪽에 모든 기능, 한달 커피한잔 값으로 부담없이 시작하세요로 변경. 그리고 supabase 관련 처리도 다 된거지?"
+   - "api 키 관련해선 이미 이전에 supabase trigger로 처리중임. mcp로 먼저 체크해봐. rls도. supabase 관련해서 먼저 전체 체크"
+   - "회원가입 시 자동 api 키발급 트리거가 있었는데, 아직 남아잇는지 체크. 없으면 회원가입 시 api key 가 없다면 자동 생성 진행. 그리고 현재 api key가 1개만 유지되는 룰을 넣었었는데 (신규발급 시 기존 api key 무효화 및 삭제 후 신규생성) 아직 유지되고 있는지도 체크"
+   - "현재 구독 만료 및 기간 종료 시 api 키 삭제하거나 무효화 하는게 있는지 체크. 이전에 유료플랜 및 필수 결제 작업 추가 당시에 비슷한 로직을 넣었던것 같은데, 이제 무료플랜이 있어서 구독 종료 및 기간 종료 시 플랜 다운그레이드만 진행하는 형태로만 되어야됨."
+   - "그럼 다운그레이드 되서 플랜이 낮아지면 자동으로 커스텀 휴일 이런거 접근 안되고, 공휴일 조회 시 커스텀 홀리데이 제외되고 나오는거 맞을까? api 서버는 ../hudy_backend 아니면 ../hudy_api_server 쪽에 있을거야"
+   - "응 백엔드도 수정해줘"
+
+7. Pending Tasks:
+   - None explicitly pending. All requested work (frontend, Supabase, backend) has been implemented and builds verified.
+
+8. Current Work:
+   Just completed the Rust backend modifications at `/Users/minkyu/Documents/hudy/hudy_backend`:
+   - Added plan-aware API key state caching (`has_pro`, `monthly_usage`)
+   - Added monthly quota enforcement in auth middleware (Free: 100, Pro: 5,000)
+   - Added `QuotaExceeded` error type returning 429
+   - Added custom holiday filtering in holiday and business_day handlers
+   - `cargo build` passed successfully with 0 errors
+
+9. Optional Next Step:
+   All explicitly requested tasks are complete. The user may want to:
+   - Test the full flow end-to-end (signup → auto API key → free plan limits → upgrade → Pro features)
+   - Deploy the backend changes
+   - No further action should be taken without user confirmation since all requested work has been completed and verified.
+
+If you need specific details from before compaction (like exact code snippets, error messages, or content you generated), read the full transcript at: /Users/minkyu/.REDACTED.jsonl
+
+---
+
+hudy_backend쪽 플랜관련 작업한거 api cache 누락되서 성능 이슈 생기는 부분 있는지 체크
+
+---
+
+프론트엔드, 백엔드 모두 커밋 푸시 진행
