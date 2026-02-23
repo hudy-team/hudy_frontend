@@ -1,4 +1,5 @@
 import { Calendar, CalendarCheck, Code2, Layers, Package, Zap } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
 const features = [
   {
@@ -15,6 +16,7 @@ const features = [
     icon: CalendarCheck,
     title: "영업일 관리",
     description: "특정 날짜의 영업일 여부 확인, 기간 내 영업일 수 계산, N영업일 후/전 날짜 계산을 지원합니다.",
+    pro: true,
   },
   {
     icon: Package,
@@ -56,7 +58,12 @@ export function FeaturesSection() {
               <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                 <feature.icon className="h-5 w-5 text-primary" />
               </div>
-              <h3 className="mb-2 text-lg font-semibold text-foreground">{feature.title}</h3>
+              <h3 className="mb-2 text-lg font-semibold text-foreground">
+                {feature.title}
+                {feature.pro && (
+                  <Badge variant="outline" className="ml-2 border-primary/50 text-primary text-[10px] align-middle">Pro</Badge>
+                )}
+              </h3>
               <p className="text-sm leading-relaxed text-muted-foreground">{feature.description}</p>
             </div>
           ))}

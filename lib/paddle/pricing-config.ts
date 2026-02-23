@@ -29,12 +29,14 @@ export const HUDY_PRO_PLAN = {
   features: [
     "월 5,000회 API 호출",
     "커스텀 공휴일 등록",
+    "영업일 계산 API",
     "우선 기술 지원",
   ],
   /** 무료 플랜 포함 전체 기능 (Pro = Free + extras) */
   allFeatures: [
     "월 5,000회 API 호출",
     "커스텀 공휴일 등록",
+    "영업일 계산 API",
     "x-api-key 기반 인증",
     "대한민국 법정공휴일 전체 제공",
     "연도별 / 기간별 조회",

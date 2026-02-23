@@ -2,6 +2,7 @@
 
 import { Calendar, Calculator, Check, Hash, Package, Plus, Minus, Cpu } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
 
 // Helper Components
 function EndpointHeader({ method, url }: { method: string; url: string }) {
@@ -114,6 +115,7 @@ export function DocsSection() {
                 >
                   <Calculator className="mr-2 h-4 w-4" />
                   영업일 계산
+                  <Badge variant="outline" className="ml-1.5 border-primary/50 text-primary text-[10px]">Pro</Badge>
                 </TabsTrigger>
                 <TabsTrigger
                   value="mcp"
