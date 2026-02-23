@@ -31,7 +31,9 @@ export default function DashboardPage() {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([])
   const [usageData, setUsageData] = useState<ApiUsageDaily[]>([])
   const [loading, setLoading] = useState(true)
-  const MONTHLY_QUOTA = 5000
+  const [hasPro, setHasPro] = useState(false)
+
+  const monthlyQuota = hasPro ? 5000 : 100
 
   useEffect(() => {
     async function fetchData() {
@@ -60,6 +62,16 @@ export default function DashboardPage() {
       } else {
         setUsageData(usage || [])
       }
+
+      // Get subscription status
+      const { data: subData } = await supabase
+        .from("subscriptions")
+        .select("id, status")
+        .eq("status", "active")
+        .limit(1)
+        .maybeSingle()
+
+      setHasPro(!!subData)
 
       setLoading(false)
     }
@@ -159,9 +171,9 @@ export default function DashboardPage() {
       <div className="mb-8 grid gap-4 sm:grid-cols-2">
         <StatCard
           title="이번 달 API 사용량"
-          value={`${formatNumber(monthlyUsage)} / ${formatNumber(MONTHLY_QUOTA)}`}
+          value={`${formatNumber(monthlyUsage)} / ${formatNumber(monthlyQuota)}`}
           icon={<BarChart3 className="h-4 w-4 text-primary" />}
-          quota={{ used: monthlyUsage, limit: MONTHLY_QUOTA }}
+          quota={{ used: monthlyUsage, limit: monthlyQuota }}
         />
         <StatCard
           title="활성 키"

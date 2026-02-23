@@ -90,7 +90,7 @@ export default function HolidaysPage() {
 
   const handleSubmit = async () => {
     if (!hasSubscription) {
-      toast.error("구독이 필요합니다. 먼저 플랜을 구독해주세요.")
+      toast.error("Pro 플랜이 필요합니다. 업그레이드 후 이용해주세요.")
       return
     }
 
@@ -158,7 +158,7 @@ export default function HolidaysPage() {
 
   const deleteHoliday = async (id: string) => {
     if (!hasSubscription) {
-      toast.error("구독이 필요합니다. 먼저 플랜을 구독해주세요.")
+      toast.error("Pro 플랜이 필요합니다. 업그레이드 후 이용해주세요.")
       return
     }
 
@@ -210,7 +210,7 @@ export default function HolidaysPage() {
         ) : !loading ? (
           <Badge variant="secondary" className="gap-1.5 px-3 py-1.5 text-xs">
             <CreditCard className="h-3 w-3" />
-            구독 필요
+            Pro 전용
           </Badge>
         ) : null}
       </div>
@@ -399,14 +399,14 @@ export default function HolidaysPage() {
                 ) : (
                   <>
                     <CreditCard className="mb-4 h-12 w-12 text-muted-foreground/40" />
-                    <h3 className="text-lg font-semibold text-foreground">구독이 필요합니다</h3>
+                    <h3 className="text-lg font-semibold text-foreground">Pro 플랜이 필요합니다</h3>
                     <p className="mt-2 text-sm text-muted-foreground">
-                      커스텀 공휴일을 관리하려면 먼저 플랜을 구독해주세요.
+                      커스텀 공휴일은 Pro 플랜에서 이용할 수 있습니다.
                     </p>
                     <Button className="mt-4 gap-2" asChild>
                       <a href="/dashboard/billing">
                         <CreditCard className="h-4 w-4" />
-                        구독하러 가기
+                        Pro로 업그레이드
                       </a>
                     </Button>
                   </>

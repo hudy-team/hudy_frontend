@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { getBillingData, type BillingData } from "@/lib/paddle/get-billing-data"
 import { cancelSubscription } from "@/lib/paddle/cancel-subscription"
-import { HUDY_PRO_PLAN } from "@/lib/paddle/pricing-config"
+import { HUDY_PRO_PLAN, HUDY_FREE_PLAN } from "@/lib/paddle/pricing-config"
 
 export default function BillingPage() {
   const [billingData, setBillingData] = useState<BillingData | null>(null)
@@ -271,7 +271,7 @@ export default function BillingPage() {
           </CardContent>
         </Card>
       ) : (
-        /* No Subscription - Resubscribe */
+        /* No Subscription - Free Plan */
         <div className="space-y-6">
           {/* Status Banner */}
           <Card className="relative rounded-xl border-border overflow-hidden">
@@ -280,15 +280,15 @@ export default function BillingPage() {
               <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                 <div className="flex items-center gap-4">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/20">
-                    <XCircle className="h-6 w-6 text-primary/70" />
+                    <Zap className="h-6 w-6 text-primary/70" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2.5">
-                      <h3 className="font-semibold text-foreground">구독이 만료되었습니다</h3>
-                      <Badge variant="outline" className="border-primary/30 text-primary text-xs">만료</Badge>
+                      <h3 className="font-semibold text-foreground">Free 플랜</h3>
+                      <Badge variant="outline" className="border-green-500/50 text-green-500 text-xs">활성</Badge>
                     </div>
                     <p className="mt-0.5 text-sm text-muted-foreground">
-                      Pro 기능을 다시 이용하려면 구독을 재개하세요
+                      월 100회 API 호출을 무료로 이용 중입니다
                     </p>
                   </div>
                 </div>
@@ -296,7 +296,7 @@ export default function BillingPage() {
             </CardContent>
           </Card>
 
-          {/* Resubscribe Card */}
+          {/* Pro Upgrade Card */}
           <Card className="relative rounded-xl border-primary/15 overflow-hidden">
             <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent" />
             <CardContent className="pt-8 pb-8 space-y-8">
@@ -319,7 +319,7 @@ export default function BillingPage() {
 
               {/* Features */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-3 max-w-lg mx-auto">
-                {HUDY_PRO_PLAN.features.map((feature, index) => (
+                {HUDY_PRO_PLAN.allFeatures.map((feature, index) => (
                   <div key={index} className="flex items-center gap-2.5">
                     <Check className="h-3.5 w-3.5 text-primary shrink-0" />
                     <span className="text-sm text-muted-foreground">{feature}</span>
@@ -331,7 +331,7 @@ export default function BillingPage() {
               <div className="flex justify-center pt-2">
                 <Button asChild size="lg" className="px-10 group">
                   <Link href="/checkout">
-                    다시 시작하기
+                    Pro로 업그레이드
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                 </Button>

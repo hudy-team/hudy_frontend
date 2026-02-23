@@ -205,19 +205,18 @@ async function handleSubscriptionEvent(eventData: EventEntity) {
     `[subscription] Upserted: ${paddleSubscriptionId} status=${status} user=${userId || "unlinked"}`
   );
 
-  // 구독 상태 변경에 따라 API 키 활성/비활성 처리
+  // 구독 활성화 시에만 API 키 활성화 (무료 플랜 전환 시 키는 유지)
   // is_active 변경 시 notify_api_key_state_change 트리거가 api.hudy.co.kr 캐시 무효화
-  if (userId) {
-    const shouldBeActive = status === "active";
+  if (userId && status === "active") {
     const { error: keyError } = await supabase
       .from("api_keys")
-      .update({ is_active: shouldBeActive, updated_at: new Date().toISOString() })
+      .update({ is_active: true, updated_at: new Date().toISOString() })
       .eq("user_id", userId);
 
     if (keyError) {
-      console.error(`[subscription] API key ${shouldBeActive ? "activate" : "deactivate"} failed:`, keyError);
+      console.error(`[subscription] API key activate failed:`, keyError);
     } else {
-      console.log(`[subscription] API keys ${shouldBeActive ? "activated" : "deactivated"} for user ${userId}`);
+      console.log(`[subscription] API keys activated for user ${userId}`);
     }
   }
 
