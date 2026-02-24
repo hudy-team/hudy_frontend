@@ -81,5 +81,5 @@ export async function updateIncludeCustom(
 }
 
 export function getCalendarUrl(token: string): string {
-  return `https://api.hudy.co.kr/v1/calendar/${token}.ics`
+  return `https://api.hudy.co.kr/v2/calendar/${token}.ics`
 }
