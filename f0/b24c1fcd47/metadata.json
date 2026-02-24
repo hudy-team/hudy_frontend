@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "f0b24c1fcd47",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "lib/calendar.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/f0/b24c1fcd47/0/metadata.json",
+      "transcript": "/f0/b24c1fcd47/0/full.jsonl",
+      "context": "/f0/b24c1fcd47/0/context.md",
+      "content_hash": "/f0/b24c1fcd47/0/content_hash.txt",
+      "prompt": "/f0/b24c1fcd47/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 9,
+    "cache_creation_tokens": 1139,
+    "cache_read_tokens": 338251,
+    "output_tokens": 53,
+    "api_call_count": 3
+  }
+}

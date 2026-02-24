@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.4.2",
+  "checkpoint_id": "f0b24c1fcd47",
+  "session_id": "4b0f9cfa-1efc-4d3d-b628-e2415d47bc1d",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-24T02:29:57.792012Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "lib/calendar.ts"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "01a09df1-2cd4-4c57-80d7-9a655ff423eb",
+  "checkpoint_transcript_start": 421,
+  "transcript_lines_at_start": 421,
+  "token_usage": {
+    "input_tokens": 9,
+    "cache_creation_tokens": 1139,
+    "cache_read_tokens": 338251,
+    "output_tokens": 53,
+    "api_call_count": 3
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-24T02:29:57.725164Z",
+    "agent_lines": 1,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 1,
+    "agent_percentage": 100
+  }
+}
