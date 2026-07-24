@@ -72,7 +72,7 @@ DDL은 실행 모델에게 위임하지 않는다. 아래는 **적용 및 검증
       지시서: `docs/work-orders/FE-1.md`
 - [x] **FE-2** — `app/dashboard/api-keys/page.tsx` 를 `issue_api_key`/`rotate_api_key` RPC 호출로 전환
       지시서: `docs/work-orders/FE-2.md`  **[최우선 — 배포 전까지 키 발급 UI 장애]**
-- [ ] **FE-3** — `CLAUDE.md` 갱신 + 적용된 DB 마이그레이션을 `supabase/migrations/` 에 기록
+- [x] **FE-3** — `CLAUDE.md` 갱신 + 적용된 DB 마이그레이션을 `supabase/migrations/` 에 기록
       지시서: `docs/work-orders/FE-3.md`
 - [ ] **BE-1** — (별도 repo `hudy_backend`) UTC→KST 전환. 지시서: `hudy_backend/docs/work-orders/BE-1.md`
 
@@ -112,3 +112,4 @@ DDL은 실행 모델에게 위임하지 않는다. 아래는 **적용 및 검증
 - 2026-07-24: 아키텍트 세션. Supabase 크로스체크 완료, DB 하드닝 3개 마이그레이션 적용·검증. 원장 및 지시서 4건 작성.
 - 2026-07-24: FE-2 완료. `app/dashboard/api-keys/page.tsx` 를 `issue_api_key`/`rotate_api_key` RPC 호출로 전환. `pnpm build` 통과, `tsc --noEmit` 해당 파일 에러 없음.
 - 2026-07-24: FE-1 완료. `lib/date.ts`·`lib/plan.ts` 신설, `app/dashboard/page.tsx` 차트 30일 필터/overflow 처리/KST 월집계/쿼터 상수화. `pnpm build` 통과, `tsc --noEmit` 해당 파일 에러 없음.
+- 2026-07-24: FE-3 완료. DB 하드닝 마이그레이션 2건을 `supabase/migrations/` 에 기록, `CLAUDE.md` 실제 구현 상태 반영. 수용 기준 grep 전부 통과.
