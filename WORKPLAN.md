@@ -70,7 +70,7 @@ DDL은 실행 모델에게 위임하지 않는다. 아래는 **적용 및 검증
 - [ ] **FE-1** — `app/dashboard/page.tsx` 전면 수정 + `lib/date.ts`·`lib/plan.ts` 신설
       (차트 30일 필터 / overflow / 스케일, 월 사용량 KST, 쿼터 상수 분리, 테이블 정리)
       지시서: `docs/work-orders/FE-1.md`
-- [ ] **FE-2** — `app/dashboard/api-keys/page.tsx` 를 `issue_api_key`/`rotate_api_key` RPC 호출로 전환
+- [x] **FE-2** — `app/dashboard/api-keys/page.tsx` 를 `issue_api_key`/`rotate_api_key` RPC 호출로 전환
       지시서: `docs/work-orders/FE-2.md`  **[최우선 — 배포 전까지 키 발급 UI 장애]**
 - [ ] **FE-3** — `CLAUDE.md` 갱신 + 적용된 DB 마이그레이션을 `supabase/migrations/` 에 기록
       지시서: `docs/work-orders/FE-3.md`
@@ -110,3 +110,4 @@ DDL은 실행 모델에게 위임하지 않는다. 아래는 **적용 및 검증
 ## 진행 로그
 
 - 2026-07-24: 아키텍트 세션. Supabase 크로스체크 완료, DB 하드닝 3개 마이그레이션 적용·검증. 원장 및 지시서 4건 작성.
+- 2026-07-24: FE-2 완료. `app/dashboard/api-keys/page.tsx` 를 `issue_api_key`/`rotate_api_key` RPC 호출로 전환. `pnpm build` 통과, `tsc --noEmit` 해당 파일 에러 없음.

@@ -60,16 +60,6 @@ export default function ApiKeysPage() {
     fetchKeys()
   }, [fetchKeys])
 
-  const generateKey = () => {
-    return (
-      "hd_live_" +
-      Array.from(crypto.getRandomValues(new Uint8Array(24)))
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("")
-        .slice(0, 32)
-    )
-  }
-
   const toggleVisibility = (id: string) => {
     setVisibleKeys((prev) => {
       const next = new Set(prev)
@@ -108,40 +98,10 @@ export default function ApiKeysPage() {
     setCreating(true)
 
     const supabase = createClient()
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser()
-
-    if (userError || !user) {
-      toast.error("인증 정보를 확인할 수 없습니다.")
-      setCreating(false)
-      return
-    }
-
-    // Delete all existing keys first
-    if (keys.length > 0) {
-      const { error: deleteError } = await supabase
-        .from("api_keys")
-        .delete()
-        .eq("user_id", user.id)
-
-      if (deleteError) {
-        toast.error("기존 키 삭제 중 오류가 발생했습니다.")
-        console.error(deleteError)
-        setCreating(false)
-        setShowReplaceDialog(false)
-        return
-      }
-    }
-
-    const { error } = await supabase
-      .from("api_keys")
-      .insert({
-        user_id: user.id,
-        key: generateKey(),
-        name: newKeyName.trim(),
-      })
+    // 키 생성은 서버측 RPC가 담당한다. 기존 키 삭제도 RPC 내부에서 원자적으로 처리된다.
+    const { error } = await supabase.rpc("issue_api_key", {
+      key_name: newKeyName.trim(),
+    })
 
     if (error) {
       toast.error("API 키 생성 중 오류가 발생했습니다.")
@@ -163,10 +123,7 @@ export default function ApiKeysPage() {
     setRecyclingIds((prev) => new Set(prev).add(id))
 
     const supabase = createClient()
-    const { error } = await supabase
-      .from("api_keys")
-      .update({ key: generateKey() })
-      .eq("id", id)
+    const { error } = await supabase.rpc("rotate_api_key", { p_key_id: id })
 
     if (error) {
       toast.error("API 키 재생성 중 오류가 발생했습니다.")
