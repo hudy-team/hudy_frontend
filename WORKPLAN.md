@@ -74,7 +74,9 @@ DDL은 실행 모델에게 위임하지 않는다. 아래는 **적용 및 검증
       지시서: `docs/work-orders/FE-2.md`  **[최우선 — 배포 전까지 키 발급 UI 장애]**
 - [x] **FE-3** — `CLAUDE.md` 갱신 + 적용된 DB 마이그레이션을 `supabase/migrations/` 에 기록
       지시서: `docs/work-orders/FE-3.md`
-- [ ] **BE-1** — (별도 repo `hudy_backend`) UTC→KST 전환. 지시서: `hudy_backend/docs/work-orders/BE-1.md`
+- [x] **BE-1** — (별도 repo `hudy_backend`) UTC→KST 전환. 지시서: `hudy_backend/docs/work-orders/BE-1.md`
+- [x] **FE-4** — 캘린더 구독 토큰도 서버측 RPC로 전환 (`lib/calendar.ts`).
+      FE-1~3 검증 중 아키텍트가 추가 발견해 직접 수행. 지시서 없이 진행했으므로 아래 근거를 남긴다.
 
 ## 루프 프로토콜
 
@@ -101,6 +103,41 @@ DDL은 실행 모델에게 위임하지 않는다. 아래는 **적용 및 검증
 - **D3**: 차트 기간을 30일로 고정한다. 기간 선택 UI는 범위 밖(별도 기능).
 - **D4**: 타임존 기준을 **KST(UTC+9) 고정**으로 통일한다. 한국 공휴일 API 서비스이므로 사용자 로컬 타임존이 아니라 KST가 도메인 기준이다.
 - **D5**: `webhook_events` 의 "RLS 활성 + 정책 없음" 은 **의도된 상태**로 판단해 유지한다 (service_role 전용 테이블). advisor INFO는 무시.
+
+## FE-4 상세 (검증 중 추가 발견)
+
+FE-1~3 완료 후 리드 검증(`grep -rn 'getRandomValues' app/ lib/`)에서 `lib/calendar.ts` 가 걸렸다.
+캘린더 구독 토큰도 API 키와 **동일한 구조적 결함**을 갖고 있었다: 클라이언트가 토큰 값을 생성해 직접 INSERT.
+
+실증한 공격 경로 (`calendar_tokens.token` 은 UNIQUE):
+피해자가 토큰을 회전한 직후 공격자가 **옛 토큰 문자열을 자기 계정으로 선점**하면,
+그 구독 URL 을 등록해 둔 캘린더 앱들이 이후 공격자의 공휴일 데이터를 받는다.
+구독 URL 은 인증 없이 토큰만으로 접근되므로(백엔드가 `/v*/calendar/` 를 인증 예외로 둔다) 성립한다.
+
+조치: `issue_calendar_token(boolean)` / `rotate_calendar_token()` RPC 신설,
+`calendar_tokens` 의 INSERT 권한·정책 제거, UPDATE 는 `(include_custom, updated_at)` 컬럼만 허용.
+`lib/calendar.ts` 를 RPC 호출로 전환.
+
+검증 (authenticated 시뮬레이션, 롤백 트랜잭션):
+
+```
+[1 INSERT_ARBITRARY_TOKEN = BLOCKED ok] [2 UPDATE_TOKEN_COL = BLOCKED ok]
+[3 UPDATE_INCLUDE_CUSTOM  = ALLOWED ok]   <- 회귀 없음
+[4 issue ok len=64 include=true] [5 rotate ok len=64] [6 CROSS_USER_VISIBLE=0]
+```
+
+## 프로덕션 관측 사실 (2026-07-24, 코드 변경 아님)
+
+백엔드 소스의 핸들러는 전부 `/v1/...` 인데 **프로덕션 `api.hudy.co.kr` 은 `/v2/...` 로 노출된다.**
+
+```
+GET /v2/health   -> 200 {"result":true,"data":{"status":"healthy","version":"0.1.0"}}
+GET /v1/health   -> 404 (엣지의 HTML 404, 핸들러 미도달)
+GET /v2/calendar/<bad-token>.ics -> 404 {"result":false,...}  (핸들러 도달)
+```
+
+프론트가 안내하는 `/v2/` URL 은 정상 동작한다. 엣지에서 프리픽스 리라이트가 일어나는 것으로 보이며,
+그 설정 위치는 두 repo 밖이라 미확인이다. BE-1 은 라우트 경로를 건드리지 않았으므로 배포해도 이 동작은 유지된다.
 
 ## 미결 / 사용자 결정 필요
 
