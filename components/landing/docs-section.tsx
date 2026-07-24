@@ -100,18 +100,18 @@ export function DocsSection() {
 
           {/* Main Tabs - Level 1 */}
           <Tabs defaultValue="holidays" className="w-full">
-            <div className="flex border-b border-border">
-              <TabsList className="flex w-full bg-transparent p-0 h-auto">
+            <div className="flex overflow-x-auto border-b border-border">
+              <TabsList className="flex w-full min-w-max bg-transparent p-0 h-auto">
                 <TabsTrigger
                   value="holidays"
-                  className="flex-1 rounded-none border-b-2 border-transparent py-4 text-sm font-medium text-muted-foreground transition-colors data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-primary/5 data-[state=active]:shadow-none"
+                  className="flex-1 shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent px-4 py-4 text-sm font-medium text-muted-foreground transition-colors data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-primary/5 data-[state=active]:shadow-none"
                 >
                   <Calendar className="mr-2 h-4 w-4" />
                   공휴일 조회
                 </TabsTrigger>
                 <TabsTrigger
                   value="business-days"
-                  className="flex-1 rounded-none border-b-2 border-transparent py-4 text-sm font-medium text-muted-foreground transition-colors data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-primary/5 data-[state=active]:shadow-none"
+                  className="flex-1 shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent px-4 py-4 text-sm font-medium text-muted-foreground transition-colors data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-primary/5 data-[state=active]:shadow-none"
                 >
                   <Calculator className="mr-2 h-4 w-4" />
                   영업일 계산
@@ -119,14 +119,14 @@ export function DocsSection() {
                 </TabsTrigger>
                 <TabsTrigger
                   value="mcp"
-                  className="flex-1 rounded-none border-b-2 border-transparent py-4 text-sm font-medium text-muted-foreground transition-colors data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-primary/5 data-[state=active]:shadow-none"
+                  className="flex-1 shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent px-4 py-4 text-sm font-medium text-muted-foreground transition-colors data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-primary/5 data-[state=active]:shadow-none"
                 >
                   <Cpu className="mr-2 h-4 w-4" />
                   MCP 연동
                 </TabsTrigger>
                 <TabsTrigger
                   value="sdk"
-                  className="flex-1 rounded-none border-b-2 border-transparent py-4 text-sm font-medium text-muted-foreground transition-colors data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-primary/5 data-[state=active]:shadow-none"
+                  className="flex-1 shrink-0 whitespace-nowrap rounded-none border-b-2 border-transparent px-4 py-4 text-sm font-medium text-muted-foreground transition-colors data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-primary/5 data-[state=active]:shadow-none"
                 >
                   <Package className="mr-2 h-4 w-4" />
                   SDK
