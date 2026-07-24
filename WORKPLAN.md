@@ -67,7 +67,7 @@ DDL은 실행 모델에게 위임하지 않는다. 아래는 **적용 및 검증
 
 파일 겹침이 없도록 분할했다. FE-1 / FE-2 / FE-3 은 서로 다른 파일만 만지므로 병렬 실행 가능.
 
-- [ ] **FE-1** — `app/dashboard/page.tsx` 전면 수정 + `lib/date.ts`·`lib/plan.ts` 신설
+- [x] **FE-1** — `app/dashboard/page.tsx` 전면 수정 + `lib/date.ts`·`lib/plan.ts` 신설
       (차트 30일 필터 / overflow / 스케일, 월 사용량 KST, 쿼터 상수 분리, 테이블 정리)
       지시서: `docs/work-orders/FE-1.md`
 - [x] **FE-2** — `app/dashboard/api-keys/page.tsx` 를 `issue_api_key`/`rotate_api_key` RPC 호출로 전환
@@ -111,3 +111,4 @@ DDL은 실행 모델에게 위임하지 않는다. 아래는 **적용 및 검증
 
 - 2026-07-24: 아키텍트 세션. Supabase 크로스체크 완료, DB 하드닝 3개 마이그레이션 적용·검증. 원장 및 지시서 4건 작성.
 - 2026-07-24: FE-2 완료. `app/dashboard/api-keys/page.tsx` 를 `issue_api_key`/`rotate_api_key` RPC 호출로 전환. `pnpm build` 통과, `tsc --noEmit` 해당 파일 에러 없음.
+- 2026-07-24: FE-1 완료. `lib/date.ts`·`lib/plan.ts` 신설, `app/dashboard/page.tsx` 차트 30일 필터/overflow 처리/KST 월집계/쿼터 상수화. `pnpm build` 통과, `tsc --noEmit` 해당 파일 에러 없음.
