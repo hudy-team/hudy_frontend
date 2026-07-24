@@ -8,6 +8,13 @@ import { Button } from "@/components/ui/button"
 import { createClient } from "@/lib/supabase/client"
 import { Activity, ArrowDown, ArrowUp, BarChart3 } from "lucide-react"
 import { useMemo } from "react"
+import { kstDaysAgoString, kstMonthPrefix } from "@/lib/date"
+import {
+  FREE_MONTHLY_QUOTA,
+  PRO_MONTHLY_QUOTA,
+  USAGE_CHART_DAYS,
+  USAGE_TABLE_ROWS,
+} from "@/lib/plan"
 
 type ApiKey = {
   id: string
@@ -33,7 +40,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [hasPro, setHasPro] = useState(false)
 
-  const monthlyQuota = hasPro ? 5000 : 100
+  const monthlyQuota = hasPro ? PRO_MONTHLY_QUOTA : FREE_MONTHLY_QUOTA
 
   useEffect(() => {
     async function fetchData() {
@@ -51,10 +58,11 @@ export default function DashboardPage() {
         setApiKeys(keys || [])
       }
 
-      // Get daily API usage data for user's keys
+      // Get daily API usage data for user's keys (최근 USAGE_CHART_DAYS 일)
       const { data: usage, error: usageError } = await supabase
         .from("api_usage_daily")
         .select("*, api_keys!inner(user_id)")
+        .gte("date", kstDaysAgoString(USAGE_CHART_DAYS - 1))
         .order("date", { ascending: true })
 
       if (usageError) {
@@ -79,14 +87,8 @@ export default function DashboardPage() {
     fetchData()
   }, [])
 
-  // Compute stats from real data
-  const totalCalls = useMemo(() => {
-    return usageData.reduce((sum, u) => sum + u.call_count, 0)
-  }, [usageData])
-
   const monthlyUsage = useMemo(() => {
-    const now = new Date()
-    const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`
+    const yearMonth = kstMonthPrefix()
     return usageData
       .filter((u) => u.date.startsWith(yearMonth))
       .reduce((sum, u) => sum + u.call_count, 0)
@@ -96,21 +98,27 @@ export default function DashboardPage() {
     return apiKeys.filter((k) => k.is_active).length
   }, [apiKeys])
 
-  // 일별 총 사용량 (데이터가 있는 날짜만)
+  // 일별 총 사용량 (최근 USAGE_CHART_DAYS 일, 데이터 없는 날은 0)
   const chartData = useMemo(() => {
     const dateMap = new Map<string, number>()
     for (const u of usageData) {
       dateMap.set(u.date, (dateMap.get(u.date) || 0) + u.call_count)
     }
-    return Array.from(dateMap.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, calls]) => ({ date, calls }))
+    return Array.from({ length: USAGE_CHART_DAYS }, (_, i) => {
+      const date = kstDaysAgoString(USAGE_CHART_DAYS - 1 - i)
+      return { date, calls: dateMap.get(date) || 0 }
+    })
   }, [usageData])
 
   const maxCalls = useMemo(() => {
     const max = Math.max(...chartData.map((d) => d.calls), 0)
     return max > 0 ? max : 1
   }, [chartData])
+
+  const totalChartCalls = useMemo(
+    () => chartData.reduce((sum, d) => sum + d.calls, 0),
+    [chartData]
+  )
 
   // Format number with commas
   const formatNumber = (num: number) => {
@@ -185,31 +193,42 @@ export default function DashboardPage() {
       <div className="mb-8">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">일별 API 사용량</CardTitle>
+            <CardTitle className="text-base">
+              일별 API 사용량{" "}
+              <span className="text-xs font-normal text-muted-foreground">
+                (최근 {USAGE_CHART_DAYS}일)
+              </span>
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            {chartData.length === 0 ? (
+            {totalChartCalls === 0 ? (
               <p className="py-8 text-center text-sm text-muted-foreground">
-                아직 사용량 데이터가 없습니다.
+                최근 {USAGE_CHART_DAYS}일간 사용량 데이터가 없습니다.
               </p>
             ) : (
-              <div className="flex items-end gap-2" style={{ height: 180 }}>
-                {chartData.map((d) => (
-                  <div key={d.date} className="group flex flex-1 flex-col items-center gap-2 max-w-[60px]">
-                    <span className="text-[10px] tabular-nums text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-                      {formatNumber(d.calls)}
-                    </span>
+              <div className="-mx-2 overflow-x-auto px-2 pb-1">
+                <div className="flex items-end gap-1.5" style={{ height: 180 }}>
+                  {chartData.map((d) => (
                     <div
-                      className="w-full rounded-t-md bg-primary/70 group-hover:bg-primary transition-all"
-                      style={{
-                        height: `${Math.max((d.calls / maxCalls) * 140, 8)}px`,
-                      }}
-                    />
-                    <span className="text-[10px] text-muted-foreground">
-                      {d.date.slice(5)}
-                    </span>
-                  </div>
-                ))}
+                      key={d.date}
+                      className="group flex w-7 shrink-0 flex-col items-center gap-2"
+                      title={`${d.date} · ${formatNumber(d.calls)}회`}
+                    >
+                      <span className="text-[10px] tabular-nums text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
+                        {formatNumber(d.calls)}
+                      </span>
+                      <div
+                        className="w-full rounded-t-md bg-primary/70 transition-all group-hover:bg-primary"
+                        style={{
+                          height: `${d.calls === 0 ? 2 : Math.max((d.calls / maxCalls) * 140, 6)}px`,
+                        }}
+                      />
+                      <span className="whitespace-nowrap text-[9px] text-muted-foreground">
+                        {d.date.slice(5)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </CardContent>
@@ -218,7 +237,12 @@ export default function DashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">API Usage Summary</CardTitle>
+          <CardTitle className="text-base">
+            API Usage Summary{" "}
+            <span className="text-xs font-normal text-muted-foreground">
+              (최근 {USAGE_TABLE_ROWS}건)
+            </span>
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {usageData.length === 0 ? (
@@ -238,10 +262,10 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {usageData.slice(-10).reverse().map((usage, i) => {
+                  {usageData.slice(-USAGE_TABLE_ROWS).reverse().map((usage) => {
                     const apiKey = apiKeys.find((k) => k.id === usage.api_key_id)
                     return (
-                      <tr key={i} className="border-b border-border last:border-0">
+                      <tr key={usage.id} className="border-b border-border last:border-0">
                         <td className="py-3 pr-4 text-sm text-foreground">
                           {apiKey?.name || "Unknown Key"}
                         </td>

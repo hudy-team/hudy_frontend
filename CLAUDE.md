@@ -60,6 +60,16 @@ components/
 - `lib/utils.ts` — `cn()` (clsx + tailwind-merge)
 - `hooks/use-mobile.tsx` — 모바일 감지
 - `hooks/use-toast.ts` — 토스트 알림
+- `lib/supabase/client.ts` — 브라우저 Supabase 클라이언트 (anon 키)
+- `lib/date.ts` — KST 기준 날짜 헬퍼 (`kstDateString`, `kstMonthPrefix`, `kstDaysAgoString`)
+- `lib/plan.ts` — 플랜별 월 쿼터 및 대시보드 표시 상수
+
+### 데이터베이스
+
+Supabase PostgreSQL. 스키마 원본은 코어 API 서버 repo(`hudy_backend/migrations/`)에 있고,
+프론트에서 적용한 보안/RLS 관련 마이그레이션만 `supabase/migrations/` 에 기록한다.
+
+전 테이블 RLS 활성. 정책은 `(select auth.uid()) = user_id` 형태이며 `authenticated` 역할에 한정된다.
 
 ### Import alias
 
@@ -75,6 +85,11 @@ components/
 ## Key Notes
 
 - `next.config.mjs`에 `ignoreBuildErrors: true` 설정됨 — TypeScript 에러가 빌드를 막지 않음
-- 현재 **백엔드 미연동** 상태 — 대시보드 데이터는 모두 목업/로컬 state
+- **Supabase 연동 완료** — 대시보드는 `api_keys` / `api_usage_daily` / `subscriptions` 를 직접 조회한다 (목업 아님)
+- **API 키 발급은 서버측 RPC 전용** — `issue_api_key(key_name)` / `rotate_api_key(p_key_id)`.
+  `api_keys` 테이블에 대한 클라이언트 INSERT 권한은 없고 UPDATE 는 `name`/`is_active` 컬럼만 허용된다
+- **타임존은 KST(UTC+9) 고정** — 날짜 계산에는 `lib/date.ts` 의 헬퍼를 쓴다. `new Date().getMonth()` 같은
+  로컬 타임존 의존 코드를 쓰지 말 것
+- **플랜 쿼터는 `lib/plan.ts`** — 백엔드 `hudy_backend/src/middleware/api_key_auth.rs` 상수와 동기화 필요
 - 테스트 프레임워크 미설정
 - 한국어 UI, 기술 용어는 영문 유지
