@@ -1,5 +1,6 @@
 "use server";
 
+import * as Sentry from "@sentry/nextjs";
 import { createClient } from "@/lib/supabase/server";
 import { getPaddleInstance } from "./get-paddle-instance";
 
@@ -40,6 +41,7 @@ export async function cancelSubscription(subscriptionId: string) {
     return { success: true };
   } catch (error) {
     console.error("Failed to cancel subscription:", error);
+    Sentry.captureException(error, { tags: { area: "paddle-cancel-subscription" } });
     return { error: "Failed to cancel subscription" };
   }
 }

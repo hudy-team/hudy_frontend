@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client"
 import { Activity, ArrowDown, ArrowUp, BarChart3 } from "lucide-react"
 import { useMemo } from "react"
 import { kstDaysAgoString, kstMonthPrefix } from "@/lib/date"
+import { getActiveSubscription } from "@/lib/subscription"
 import {
   FREE_MONTHLY_QUOTA,
   PRO_MONTHLY_QUOTA,
@@ -46,38 +47,32 @@ export default function DashboardPage() {
     async function fetchData() {
       const supabase = createClient()
 
-      // Get user's API keys
-      const { data: keys, error: keysError } = await supabase
-        .from("api_keys")
-        .select("*")
-        .order("created_at", { ascending: false })
+      // 세 쿼리는 서로 독립이므로 병렬로 실행한다
+      const [keysResult, usageResult, subData] = await Promise.all([
+        supabase
+          .from("api_keys")
+          .select("*")
+          .order("created_at", { ascending: false }),
+        // 일별 API 사용량 (최근 USAGE_CHART_DAYS 일)
+        supabase
+          .from("api_usage_daily")
+          .select("*, api_keys!inner(user_id)")
+          .gte("date", kstDaysAgoString(USAGE_CHART_DAYS - 1))
+          .order("date", { ascending: true }),
+        getActiveSubscription(supabase),
+      ])
 
-      if (keysError) {
-        console.error("Error fetching API keys:", keysError)
+      if (keysResult.error) {
+        console.error("Error fetching API keys:", keysResult.error)
       } else {
-        setApiKeys(keys || [])
+        setApiKeys(keysResult.data || [])
       }
 
-      // Get daily API usage data for user's keys (최근 USAGE_CHART_DAYS 일)
-      const { data: usage, error: usageError } = await supabase
-        .from("api_usage_daily")
-        .select("*, api_keys!inner(user_id)")
-        .gte("date", kstDaysAgoString(USAGE_CHART_DAYS - 1))
-        .order("date", { ascending: true })
-
-      if (usageError) {
-        console.error("Error fetching usage data:", usageError)
+      if (usageResult.error) {
+        console.error("Error fetching usage data:", usageResult.error)
       } else {
-        setUsageData(usage || [])
+        setUsageData(usageResult.data || [])
       }
-
-      // Get subscription status
-      const { data: subData } = await supabase
-        .from("subscriptions")
-        .select("id, status")
-        .eq("status", "active")
-        .limit(1)
-        .maybeSingle()
 
       setHasPro(!!subData)
 

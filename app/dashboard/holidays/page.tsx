@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, CreditCard, Pencil, Plus, Trash2, X } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { getActiveSubscription } from "@/lib/subscription"
 import { toast } from "sonner"
 
 interface PublicHoliday {
@@ -46,7 +47,7 @@ export default function HolidaysPage() {
     const supabase = createClient()
 
     try {
-      const [pubResult, custResult, subResult] = await Promise.all([
+      const [pubResult, custResult, subData] = await Promise.all([
         supabase
           .from('public_holidays')
           .select('*')
@@ -56,12 +57,7 @@ export default function HolidaysPage() {
           .from('custom_holidays')
           .select('*')
           .order('date', { ascending: true }),
-        supabase
-          .from('subscriptions')
-          .select('id')
-          .eq('status', 'active')
-          .limit(1)
-          .maybeSingle(),
+        getActiveSubscription(supabase),
       ])
 
       if (pubResult.error) {
@@ -78,7 +74,7 @@ export default function HolidaysPage() {
         setCustomHolidays(custResult.data || [])
       }
 
-      setHasSubscription(!!subResult.data)
+      setHasSubscription(!!subData)
     } finally {
       setLoading(false)
     }

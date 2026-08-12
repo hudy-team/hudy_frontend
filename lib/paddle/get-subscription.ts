@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { getActiveSubscription } from "@/lib/subscription";
 
 export async function getSubscription() {
   const supabase = await createClient();
@@ -8,15 +9,5 @@ export async function getSubscription() {
 
   if (!user) return null;
 
-  const { data, error } = await supabase
-    .from("subscriptions")
-    .select("*")
-    .eq("user_id", user.id)
-    .eq("status", "active")
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .single();
-
-  if (error || !data) return null;
-  return data;
+  return await getActiveSubscription(supabase, "*");
 }

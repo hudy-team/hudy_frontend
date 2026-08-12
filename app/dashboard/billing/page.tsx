@@ -30,6 +30,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { getBillingData, type BillingData } from "@/lib/paddle/get-billing-data"
+import { getInvoiceUrl } from "@/lib/paddle/get-invoice-url"
 import { cancelSubscription } from "@/lib/paddle/cancel-subscription"
 import { HUDY_PRO_PLAN, HUDY_FREE_PLAN } from "@/lib/paddle/pricing-config"
 
@@ -37,6 +38,7 @@ export default function BillingPage() {
   const [billingData, setBillingData] = useState<BillingData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isCanceling, setIsCanceling] = useState(false)
+  const [invoiceLoadingId, setInvoiceLoadingId] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadBillingData() {
@@ -74,6 +76,25 @@ export default function BillingPage() {
       toast.error("구독 취소에 실패했습니다. 다시 시도해주세요.")
     } finally {
       setIsCanceling(false)
+    }
+  }
+
+  // 인보이스 URL 은 클릭 시점에만 조회한다 (목록 로딩 시 전건 조회 = N+1)
+  const handleDownloadInvoice = async (transactionId: string) => {
+    setInvoiceLoadingId(transactionId)
+    try {
+      const result = await getInvoiceUrl(transactionId)
+      if (!result.url) {
+        toast.error("영수증을 불러오지 못했습니다")
+        return
+      }
+      // 팝업 차단을 피하기 위해 새 탭이 아닌 현재 탭에서 이동한다
+      window.location.assign(result.url)
+    } catch (error) {
+      console.error("Failed to load invoice:", error)
+      toast.error("영수증을 불러오지 못했습니다")
+    } finally {
+      setInvoiceLoadingId(null)
     }
   }
 
@@ -373,21 +394,20 @@ export default function BillingPage() {
                     </TableCell>
                     <TableCell>{getTransactionStatusBadge(transaction.status)}</TableCell>
                     <TableCell className="text-right">
-                      {transaction.invoiceUrl ? (
-                        <Button variant="ghost" size="sm" asChild>
-                          <a
-                            href={transaction.invoiceUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2"
-                          >
-                            다운로드
-                            <ExternalLink className="h-3 w-3" />
-                          </a>
-                        </Button>
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="inline-flex items-center gap-2"
+                        disabled={invoiceLoadingId === transaction.id}
+                        onClick={() => handleDownloadInvoice(transaction.id)}
+                      >
+                        다운로드
+                        {invoiceLoadingId === transaction.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <ExternalLink className="h-3 w-3" />
+                        )}
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
