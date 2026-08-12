@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from "node:async_hooks";
+import { createHash } from "node:crypto";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export interface AuthContext {
@@ -24,11 +25,14 @@ export async function validateApiKey(
 ): Promise<ValidateResult> {
   if (!apiKey) return { ok: false, reason: "invalid_key" };
 
+  // 키 평문은 DB 에 저장되지 않는다. sha256 hex 해시로만 조회한다.
+  const keyHash = createHash("sha256").update(apiKey).digest("hex");
+
   const supabase = createAdminClient();
   const { data, error } = await supabase
     .from("api_keys")
     .select("id, user_id, is_active")
-    .eq("key", apiKey)
+    .eq("key_hash", keyHash)
     .single();
 
   if (error || !data || !data.is_active)

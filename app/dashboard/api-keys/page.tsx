@@ -14,22 +14,29 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Copy, Eye, EyeOff, Key, Plus, RefreshCw, Power } from "lucide-react"
+import { Copy, Key, Plus, RefreshCw, Power } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 
 interface ApiKey {
   id: string
   name: string
-  key: string
+  key_prefix: string | null
   is_active: boolean
   created_at: string
   updated_at: string
 }
 
+// 전체 키는 발급/재발급 RPC 반환값으로 1회만 노출된다. DB 에는 해시만 저장된다.
+interface RevealedKey {
+  id: string | null
+  name: string
+  key: string
+}
+
 export default function ApiKeysPage() {
   const [keys, setKeys] = useState<ApiKey[]>([])
-  const [visibleKeys, setVisibleKeys] = useState<Set<string>>(new Set())
+  const [revealedKey, setRevealedKey] = useState<RevealedKey | null>(null)
   const [showCreate, setShowCreate] = useState(false)
   const [newKeyName, setNewKeyName] = useState("")
   const [loading, setLoading] = useState(true)
@@ -41,9 +48,10 @@ export default function ApiKeysPage() {
     setLoading(true)
     const supabase = createClient()
 
+    // key(평문) 컬럼은 조회하지 않는다 - 표시는 key_prefix 마스킹으로만 한다
     const keysResult = await supabase
       .from("api_keys")
-      .select("*")
+      .select("id, name, key_prefix, is_active, created_at, updated_at")
       .order("created_at", { ascending: false })
 
     if (keysResult.error) {
@@ -60,25 +68,11 @@ export default function ApiKeysPage() {
     fetchKeys()
   }, [fetchKeys])
 
-  const toggleVisibility = (id: string) => {
-    setVisibleKeys((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
-      } else {
-        next.add(id)
-      }
-      return next
-    })
-  }
+  const maskedKey = (apiKey: ApiKey) => `${apiKey.key_prefix ?? "hd_live_"}...`
 
-  const maskValue = (value: string) => {
-    const prefix = value.slice(0, 12)
-    return `${prefix}${"*".repeat(value.length - 12)}`
-  }
-
-  const copyKey = async (apiKey: ApiKey) => {
-    await navigator.clipboard.writeText(apiKey.key)
+  const copyRevealedKey = async () => {
+    if (!revealedKey) return
+    await navigator.clipboard.writeText(revealedKey.key)
     toast.success("API 키가 클립보드에 복사되었습니다.")
   }
 
@@ -99,8 +93,10 @@ export default function ApiKeysPage() {
 
     const supabase = createClient()
     // 키 생성은 서버측 RPC가 담당한다. 기존 키 삭제도 RPC 내부에서 원자적으로 처리된다.
-    const { error } = await supabase.rpc("issue_api_key", {
-      key_name: newKeyName.trim(),
+    // RPC 반환값이 전체 키를 볼 수 있는 유일한 기회다 (DB 에는 해시만 남는다).
+    const requestedName = newKeyName.trim()
+    const { data, error } = await supabase.rpc("issue_api_key", {
+      key_name: requestedName,
     })
 
     if (error) {
@@ -109,6 +105,11 @@ export default function ApiKeysPage() {
       setCreating(false)
       setShowReplaceDialog(false)
       return
+    }
+
+    const issued = Array.isArray(data) ? data[0] : data
+    if (issued?.key) {
+      setRevealedKey({ id: issued.id ?? null, name: issued.name ?? requestedName, key: issued.key })
     }
 
     toast.success("API 키가 생성되었습니다.")
@@ -123,18 +124,18 @@ export default function ApiKeysPage() {
     setRecyclingIds((prev) => new Set(prev).add(id))
 
     const supabase = createClient()
-    const { error } = await supabase.rpc("rotate_api_key", { p_key_id: id })
+    // rotate_api_key 는 새 전체 키를 반환한다 (이후에는 다시 조회할 수 없다).
+    const { data, error } = await supabase.rpc("rotate_api_key", { p_key_id: id })
 
     if (error) {
       toast.error("API 키 재생성 중 오류가 발생했습니다.")
       console.error(error)
     } else {
+      if (typeof data === "string" && data) {
+        const rotated = keys.find((k) => k.id === id)
+        setRevealedKey({ id, name: rotated?.name ?? "API Key", key: data })
+      }
       toast.success("API 키가 재생성되었습니다. 기존 키는 더 이상 사용할 수 없습니다.")
-      setVisibleKeys((prev) => {
-        const next = new Set(prev)
-        next.delete(id)
-        return next
-      })
       await fetchKeys()
     }
 
@@ -175,6 +176,9 @@ export default function ApiKeysPage() {
         <div>
           <h1 className="text-2xl font-bold text-foreground">API Keys</h1>
           <p className="mt-1 text-sm text-muted-foreground">{"API 키를 생성하고 관리하세요."}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {"전체 키는 발급/재발급 시에만 표시됩니다. 목록에는 키 앞부분만 표시됩니다."}
+          </p>
         </div>
         <Button className="gap-2" onClick={() => setShowCreate(true)}>
           <Plus className="h-4 w-4" />
@@ -253,7 +257,6 @@ export default function ApiKeysPage() {
       ) : (
         <div className="flex flex-col gap-4">
           {keys.map((apiKey) => {
-            const isVisible = visibleKeys.has(apiKey.id)
             const isRecycling = recyclingIds.has(apiKey.id)
 
             return (
@@ -291,29 +294,9 @@ export default function ApiKeysPage() {
                     </div>
 
                     <div className="flex items-center gap-2 rounded-lg border border-border bg-background p-3">
-                      <code className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap font-mono text-sm text-foreground" data-sentry-mask>
-                        {isVisible ? apiKey.key : maskValue(apiKey.key)}
+                      <code className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap font-mono text-sm text-muted-foreground">
+                        {maskedKey(apiKey)}
                       </code>
-                      <button
-                        type="button"
-                        onClick={() => toggleVisibility(apiKey.id)}
-                        className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                        aria-label={isVisible ? "키 숨기기" : "키 보기"}
-                      >
-                        {isVisible ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => copyKey(apiKey)}
-                        className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                        aria-label="키 복사"
-                      >
-                        <Copy className="h-4 w-4" />
-                      </button>
                       <button
                         type="button"
                         onClick={() => recycleKey(apiKey.id)}
@@ -332,6 +315,42 @@ export default function ApiKeysPage() {
           })}
         </div>
       )}
+
+      <AlertDialog
+        open={revealedKey !== null}
+        onOpenChange={(open) => {
+          if (!open) setRevealedKey(null)
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{"API 키가 발급되었습니다"}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {"전체 키는 지금 이 화면에서만 확인할 수 있습니다. 창을 닫거나 페이지를 벗어나면 다시 볼 수 없으니 안전한 곳에 보관하세요."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex items-center gap-2 rounded-lg border border-primary/40 bg-primary/5 p-3">
+            <code
+              className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap font-mono text-sm text-foreground"
+              data-sentry-mask
+            >
+              {revealedKey?.key}
+            </code>
+            <button
+              type="button"
+              onClick={copyRevealedKey}
+              className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              aria-label="키 복사"
+              title="키 복사"
+            >
+              <Copy className="h-4 w-4" />
+            </button>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setRevealedKey(null)}>{"복사했습니다"}</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={showReplaceDialog} onOpenChange={setShowReplaceDialog}>
         <AlertDialogContent>

@@ -87,6 +87,12 @@ Supabase PostgreSQL. 스키마 원본은 코어 API 서버 repo(`hudy_backend/mi
 - **Supabase 연동 완료** — 대시보드는 `api_keys` / `api_usage_daily` / `subscriptions` 를 직접 조회한다 (목업 아님)
 - **API 키 발급은 서버측 RPC 전용** — `issue_api_key(key_name)` / `rotate_api_key(p_key_id)`.
   `api_keys` 테이블에 대한 클라이언트 INSERT 권한은 없고 UPDATE 는 `name`/`is_active` 컬럼만 허용된다
+- **API 키 평문은 저장/표시하지 않는다** — `api_keys` 는 `key_hash`(sha256 hex) 와 `key_prefix`(예: `hd_live_a1b2`) 만 쓴다.
+  평문 `key` 컬럼은 곧 드롭되므로 **어디서도 SELECT 하거나 표시에 쓰지 말 것**.
+  - 목록 표시는 `key_prefix + "..."` 마스킹. 전체 키는 `issue_api_key`/`rotate_api_key` 반환값으로 **발급 직후 1회만** 다이얼로그에 노출한다
+    (노출 요소에는 `data-sentry-mask` 유지). 이후에는 재조회 불가 — 분실 시 재발급뿐이다
+  - MCP 설정 스니펫(`app/dashboard/mcp/page.tsx`)은 `key_prefix` 기반 플레이스홀더만 넣는다
+  - MCP 서버 인증(`lib/mcp/auth.ts`)은 수신한 `x-api-key` 를 Node `crypto.createHash("sha256")` hex 로 해시해 `key_hash` 로 조회한다
 - **타임존은 KST(UTC+9) 고정** — 날짜 계산에는 `lib/date.ts` 의 헬퍼를 쓴다. `new Date().getMonth()` 같은
   로컬 타임존 의존 코드를 쓰지 말 것
 - **플랜 쿼터는 `lib/plan.ts`** — 백엔드 `hudy_backend/src/middleware/api_key_auth.rs` 상수와 동기화 필요
