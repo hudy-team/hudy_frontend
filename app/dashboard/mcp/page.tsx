@@ -4,13 +4,13 @@ import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { Copy, Cpu, Eye, EyeOff } from "lucide-react"
+import { Copy, Cpu } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 
 interface ApiKey {
   id: string
-  key: string
+  key_prefix: string | null
   is_active: boolean
 }
 
@@ -32,13 +32,13 @@ const proTools = [
 export default function McpPage() {
   const [keys, setKeys] = useState<ApiKey[]>([])
   const [loading, setLoading] = useState(true)
-  const [showApiKey, setShowApiKey] = useState(false)
 
   const fetchKeys = useCallback(async () => {
     const supabase = createClient()
+    // 평문 key 는 DB 에 없다(해시만 저장). 스니펫에는 prefix 기반 플레이스홀더를 넣는다.
     const { data } = await supabase
       .from("api_keys")
-      .select("id, key, is_active")
+      .select("id, key_prefix, is_active")
       .order("created_at", { ascending: false })
     setKeys(data || [])
     setLoading(false)
@@ -48,15 +48,9 @@ export default function McpPage() {
     fetchKeys()
   }, [fetchKeys])
 
-  const apiKey = keys.length > 0 ? keys[0].key : "YOUR_API_KEY"
-
-  const maskApiKey = (key: string) => {
-    if (key === "YOUR_API_KEY") return key
-    const prefix = key.slice(0, 12)
-    return `${prefix}${"*".repeat(key.length - 12)}`
-  }
-
-  const displayApiKey = showApiKey ? apiKey : maskApiKey(apiKey)
+  // 스니펫에 넣는 값은 항상 플레이스홀더다. 사용자가 발급 시 저장해 둔 전체 키로 교체해야 한다.
+  const keyPrefix = keys.length > 0 ? keys[0].key_prefix : null
+  const apiKey = keyPrefix ? `${keyPrefix}xxxx...` : "YOUR_API_KEY"
 
   const copyToClipboard = async (text: string, label: string) => {
     await navigator.clipboard.writeText(text)
@@ -84,6 +78,9 @@ export default function McpPage() {
               <p className="mt-1 text-sm text-muted-foreground">
                 MCP를 지원하는 AI 도구에서 아래 설정을 추가하세요.
               </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {"아래 스니펫의 x-api-key 값은 플레이스홀더입니다. API 키 페이지에서 발급/재발급 시 1회 표시된 전체 키로 교체하세요."}
+              </p>
             </div>
           </div>
 
@@ -102,18 +99,10 @@ export default function McpPage() {
                 <div className="relative rounded-lg border border-border bg-muted/30">
                   <pre className="overflow-x-auto p-4 text-xs">
                     <code className="font-mono text-foreground" data-sentry-mask>
-{`claude mcp add --transport http hudy https://www.hudy.co.kr/api/mcp -H "x-api-key: ${displayApiKey}"`}
+{`claude mcp add --transport http hudy https://www.hudy.co.kr/api/mcp -H "x-api-key: ${apiKey}"`}
                     </code>
                   </pre>
                   <div className="absolute right-2 top-2 flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => setShowApiKey(!showApiKey)}
-                      className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                      aria-label={showApiKey ? "API 키 숨기기" : "API 키 보기"}
-                    >
-                      {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
                     <button
                       type="button"
                       onClick={() => copyToClipboard(
@@ -138,7 +127,7 @@ export default function McpPage() {
     "hudy": {
       "url": "https://www.hudy.co.kr/api/mcp",
       "headers": {
-        "x-api-key": "${displayApiKey}"
+        "x-api-key": "${apiKey}"
       }
     }
   }
@@ -146,14 +135,6 @@ export default function McpPage() {
                     </code>
                   </pre>
                   <div className="absolute right-2 top-2 flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => setShowApiKey(!showApiKey)}
-                      className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                      aria-label={showApiKey ? "API 키 숨기기" : "API 키 보기"}
-                    >
-                      {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
                     <button
                       type="button"
                       onClick={() => copyToClipboard(
@@ -185,7 +166,7 @@ export default function McpPage() {
     "hudy": {
       "url": "https://www.hudy.co.kr/api/mcp",
       "headers": {
-        "x-api-key": "${displayApiKey}"
+        "x-api-key": "${apiKey}"
       }
     }
   }
@@ -193,14 +174,6 @@ export default function McpPage() {
                     </code>
                   </pre>
                   <div className="absolute right-2 top-2 flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() => setShowApiKey(!showApiKey)}
-                      className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
-                      aria-label={showApiKey ? "API 키 숨기기" : "API 키 보기"}
-                    >
-                      {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
                     <button
                       type="button"
                       onClick={() => copyToClipboard(

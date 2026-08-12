@@ -20,7 +20,6 @@ import {
 type ApiKey = {
   id: string
   user_id: string
-  key: string
   name: string
   is_active: boolean
   created_at: string
@@ -49,9 +48,10 @@ export default function DashboardPage() {
 
       // 세 쿼리는 서로 독립이므로 병렬로 실행한다
       const [keysResult, usageResult, subData] = await Promise.all([
+        // 평문 key 컬럼은 조회하지 않는다 (DB 에는 해시만 저장된다)
         supabase
           .from("api_keys")
-          .select("*")
+          .select("id, user_id, name, is_active, created_at, updated_at")
           .order("created_at", { ascending: false }),
         // 일별 API 사용량 (최근 USAGE_CHART_DAYS 일)
         supabase
