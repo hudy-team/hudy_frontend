@@ -3,13 +3,19 @@ import { createClient } from "@/lib/supabase/server"
 import { validateAndGetPriceId } from "@/lib/paddle/validate-price-id"
 import { CheckoutClient } from "./checkout-client"
 import { getSubscription } from "@/lib/paddle/get-subscription"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "결제",
+  robots: { index: false, follow: false },
+}
 
 export default async function CheckoutPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect("/login")
+    redirect("/login?next=/checkout")
   }
 
   // Prevent duplicate subscriptions

@@ -6,7 +6,44 @@ export const alt = 'HuDy - 대한민국 공휴일 API'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-export default function OgImage() {
+// edge runtime 에는 시스템 한글 폰트가 없으므로 렌더링 시점에 subset 폰트를 주입한다.
+// text 파라미터로 실제 사용하는 글자만 요청해 폰트 용량을 최소화한다.
+const FONT_TEXT = 'HuDy대한민국공휴일API조회영업계산커스텀MCP서버·hudy.co.kr'
+
+async function loadNotoSansKR(text: string): Promise<ArrayBuffer | null> {
+  try {
+    const cssUrl = `https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@700&text=${encodeURIComponent(text)}`
+    const css = await fetch(cssUrl, {
+      headers: {
+        // woff2 대신 truetype 을 받기 위해 구형 UA 를 사용한다 (satori 는 ttf/otf/woff 만 지원).
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.85 Safari/537.36',
+      },
+    }).then((res) => (res.ok ? res.text() : null))
+
+    if (!css) return null
+
+    const match = css.match(/src:\s*url\((https:\/\/[^)]+)\)/)
+    if (!match) return null
+
+    const font = await fetch(match[1])
+    if (!font.ok) return null
+
+    return await font.arrayBuffer()
+  } catch {
+    return null
+  }
+}
+
+export default async function OgImage() {
+  const fontData = await loadNotoSansKR(FONT_TEXT)
+
+  // 한글 폰트를 못 받아온 경우 글자가 깨지므로 영문 카피로 폴백한다.
+  const headline = fontData ? '대한민국 공휴일 API' : 'Korean Holiday API'
+  const subline = fontData
+    ? '공휴일 조회 · 영업일 계산 · 커스텀 공휴일 · MCP 서버'
+    : 'Holidays · Business days · Custom holidays · MCP server'
+
   return new ImageResponse(
     (
       <div
@@ -19,6 +56,7 @@ export default function OgImage() {
           justifyContent: 'center',
           backgroundColor: '#0a0a0a',
           position: 'relative',
+          fontFamily: fontData ? 'Noto Sans KR' : 'sans-serif',
         }}
       >
         <div
@@ -44,7 +82,7 @@ export default function OgImage() {
           <div
             style={{
               fontSize: 72,
-              fontWeight: 800,
+              fontWeight: 700,
               color: '#fafafa',
               letterSpacing: '-2px',
             }}
@@ -54,11 +92,11 @@ export default function OgImage() {
           <div
             style={{
               fontSize: 32,
-              fontWeight: 600,
+              fontWeight: 700,
               color: '#d44038',
             }}
           >
-            대한민국 공휴일 API
+            {headline}
           </div>
           <div
             style={{
@@ -69,7 +107,7 @@ export default function OgImage() {
               maxWidth: 600,
             }}
           >
-            공휴일 조회 · 영업일 계산 · 커스텀 공휴일 · MCP 서버
+            {subline}
           </div>
         </div>
         <div
@@ -87,6 +125,11 @@ export default function OgImage() {
         </div>
       </div>
     ),
-    { ...size },
+    {
+      ...size,
+      fonts: fontData
+        ? [{ name: 'Noto Sans KR', data: fontData, weight: 700 as const, style: 'normal' as const }]
+        : undefined,
+    },
   )
 }

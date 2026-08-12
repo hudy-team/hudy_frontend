@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/dashboard/', '/auth/', '/api/', '/checkout/success'],
+        disallow: ['/dashboard/', '/auth/', '/api/', '/checkout/success', '/monitoring'],
       },
       {
         userAgent: 'Yeti',

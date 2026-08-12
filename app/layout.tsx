@@ -6,8 +6,8 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
-const _inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const _jetbrainsMono = JetBrains_Mono({
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-jetbrains",
 });
@@ -26,24 +26,15 @@ export const metadata: Metadata = {
   description: SITE_DESCRIPTION,
   keywords: [
     "공휴일 API",
-    "대한민국 공휴일",
     "대한민국 공휴일 API",
     "한국 공휴일 API",
-    "Korean holidays API",
+    "대체공휴일",
     "영업일 계산",
     "영업일 계산 API",
-    "공휴일 조회",
-    "공휴일 조회 API",
-    "REST API",
+    "법정 공휴일",
     "커스텀 공휴일",
-    "business day calculator",
-    "holiday API Korea",
     "MCP 서버",
-    "MCP 공휴일",
-    "공휴일 달력 API",
-    "근무일 계산",
-    "법정 공휴일 API",
-    "대체 공휴일 API",
+    "Korean holidays API",
   ],
   authors: [{ name: "HuDy" }],
   creator: "HuDy",
@@ -58,20 +49,11 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: "HuDy - 대한민국 공휴일 API",
     description: SITE_DESCRIPTION,
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "HuDy - 대한민국 공휴일 API 서비스",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "HuDy - 대한민국 공휴일 API",
     description: SITE_DESCRIPTION,
-    images: ["/og-image.png"],
   },
   alternates: {
     canonical: SITE_URL,
@@ -108,7 +90,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className="font-sans antialiased">
+      <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
         {children}
         <Toaster />
         <Analytics />

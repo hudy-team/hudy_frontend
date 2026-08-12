@@ -1,6 +1,12 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { CheckCircle } from "lucide-react"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "결제 완료",
+  robots: { index: false, follow: false },
+}
 
 export default function CheckoutSuccessPage() {
   return (

@@ -59,7 +59,11 @@ export default function BillingPage() {
 
     setIsCanceling(true)
     try {
-      await cancelSubscription(billingData.subscription.id)
+      const result = await cancelSubscription(billingData.subscription.id)
+      if (result?.error) {
+        toast.error("구독 취소에 실패했습니다. 다시 시도해주세요.")
+        return
+      }
       toast.success("구독이 취소되었습니다. 현재 결제 기간이 끝나면 자동으로 종료됩니다.")
 
       // Reload billing data
