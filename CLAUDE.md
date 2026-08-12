@@ -23,8 +23,7 @@ pnpm lint         # ESLint
 - **Tailwind CSS 3** + **shadcn/ui** (Radix UI primitives)
 - **Icons**: lucide-react
 - **Forms**: react-hook-form + zod
-- **Charts**: recharts
-- **Dates**: date-fns + react-day-picker
+- **Dates**: date-fns
 - **Toasts**: sonner
 
 ## Architecture
@@ -84,7 +83,7 @@ Supabase PostgreSQL. 스키마 원본은 코어 API 서버 repo(`hudy_backend/mi
 
 ## Key Notes
 
-- `next.config.mjs`에 `ignoreBuildErrors: true` 설정됨 — TypeScript 에러가 빌드를 막지 않음
+- `next.config.mjs`의 `ignoreBuildErrors`는 **false** — TypeScript 에러가 빌드를 막는다 (2026-08-12부터)
 - **Supabase 연동 완료** — 대시보드는 `api_keys` / `api_usage_daily` / `subscriptions` 를 직접 조회한다 (목업 아님)
 - **API 키 발급은 서버측 RPC 전용** — `issue_api_key(key_name)` / `rotate_api_key(p_key_id)`.
   `api_keys` 테이블에 대한 클라이언트 INSERT 권한은 없고 UPDATE 는 `name`/`is_active` 컬럼만 허용된다
