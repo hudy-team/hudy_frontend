@@ -107,7 +107,7 @@ export default function HolidaysPage() {
       return
     }
 
-    const dateObj = new Date(form.date)
+    const dateObj = new Date(form.date + "T00:00:00")
     const dayNames = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일']
 
     const holidayData = {

@@ -87,9 +87,9 @@ export function DocsSection() {
         <div className="mx-auto max-w-3xl overflow-hidden rounded-xl border border-border bg-card">
           {/* Authentication Section - Shared at top */}
           <div className="border-b border-border px-6 py-4">
-            <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Authentication
-            </h4>
+            </h3>
             <div className="flex items-center gap-3 rounded-lg bg-secondary/50 px-4 py-3">
               <span className="font-mono text-sm text-primary">x-api-key</span>
               <span className="text-sm text-muted-foreground">
@@ -135,7 +135,7 @@ export function DocsSection() {
             </div>
 
             {/* Holidays API */}
-            <TabsContent value="holidays" className="mt-0">
+            <TabsContent forceMount value="holidays" className="mt-0">
               <EndpointHeader method="GET" url="https://api.hudy.co.kr/v2/holidays" />
 
               <div className="px-6 py-4">
@@ -195,7 +195,7 @@ export function DocsSection() {
             </TabsContent>
 
             {/* MCP Integration */}
-            <TabsContent value="mcp" className="mt-0">
+            <TabsContent forceMount value="mcp" className="mt-0">
               {/* MCP Server URL */}
               <div className="border-b border-border bg-secondary/50 px-6 py-4">
                 <div className="flex items-center gap-3">
@@ -285,7 +285,7 @@ export function DocsSection() {
             </TabsContent>
 
             {/* Business Days API - Level 2 Sub-tabs */}
-            <TabsContent value="business-days" className="mt-0">
+            <TabsContent forceMount value="business-days" className="mt-0">
               <Tabs defaultValue="check" className="w-full">
                 <div className="px-6 py-4">
                   <TabsList className="grid h-10 w-full grid-cols-4 rounded-lg bg-secondary p-1">
@@ -309,7 +309,7 @@ export function DocsSection() {
                 </div>
 
                 {/* Check Business Day */}
-                <TabsContent value="check" className="mt-0">
+                <TabsContent forceMount value="check" className="mt-0">
                   <EndpointHeader
                     method="GET"
                     url="https://api.hudy.co.kr/v2/business-days/check"
@@ -355,7 +355,7 @@ export function DocsSection() {
                 </TabsContent>
 
                 {/* Count Business Days */}
-                <TabsContent value="count" className="mt-0">
+                <TabsContent forceMount value="count" className="mt-0">
                   <EndpointHeader
                     method="GET"
                     url="https://api.hudy.co.kr/v2/business-days/count"
@@ -413,7 +413,7 @@ export function DocsSection() {
                 </TabsContent>
 
                 {/* Add Business Days */}
-                <TabsContent value="add" className="mt-0">
+                <TabsContent forceMount value="add" className="mt-0">
                   <EndpointHeader
                     method="GET"
                     url="https://api.hudy.co.kr/v2/business-days/add"
@@ -465,7 +465,7 @@ export function DocsSection() {
                 </TabsContent>
 
                 {/* Subtract Business Days */}
-                <TabsContent value="subtract" className="mt-0">
+                <TabsContent forceMount value="subtract" className="mt-0">
                   <EndpointHeader
                     method="GET"
                     url="https://api.hudy.co.kr/v2/business-days/subtract"
@@ -519,7 +519,7 @@ export function DocsSection() {
             </TabsContent>
 
             {/* SDK */}
-            <TabsContent value="sdk" className="mt-0">
+            <TabsContent forceMount value="sdk" className="mt-0">
               <Tabs defaultValue="npm" className="w-full">
                 <div className="px-6 py-4">
                   <TabsList className="grid h-10 w-full grid-cols-2 rounded-lg bg-secondary p-1">
@@ -532,7 +532,7 @@ export function DocsSection() {
                   </TabsList>
                 </div>
 
-                <TabsContent value="npm" className="mt-0">
+                <TabsContent forceMount value="npm" className="mt-0">
                   <div className="border-t border-border px-6 py-4">
                     <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       Installation
@@ -610,7 +610,7 @@ export function DocsSection() {
                   </div>
                 </TabsContent>
 
-                <TabsContent value="pypi" className="mt-0">
+                <TabsContent forceMount value="pypi" className="mt-0">
                   <div className="border-t border-border px-6 py-4">
                     <h4 className="mb-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       Installation

@@ -15,7 +15,7 @@ const PUBLIC_PATHS = [
 
 // 검색엔진 봇 User-Agent 패턴
 const BOT_UA_PATTERN =
-  /Yeti|Googlebot|Bingbot|Slurp|DuckDuckBot|Baiduspider|YandexBot|facebookexternalhit|Twitterbot|LinkedInBot|crawler|spider|bot/i
+  /Yeti|Googlebot|Google-InspectionTool|Bingbot|Slurp|DuckDuckBot|Baiduspider|YandexBot|Applebot|facebookexternalhit|Twitterbot|LinkedInBot|Discordbot|TelegramBot|WhatsApp|Naverbot|Daumoa|AhrefsBot|SemrushBot/i
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -25,14 +25,25 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // 검색엔진 봇은 세션 체크 없이 바로 통과
-  const userAgent = request.headers.get('user-agent') ?? ''
-  if (BOT_UA_PATTERN.test(userAgent)) {
+  // API 라우트는 자체적으로 인증을 처리하므로 세션 체크 없이 통과
+  if (pathname.startsWith('/api/')) {
     return NextResponse.next()
   }
 
+  // 인증이 필요한 보호 경로
+  const isProtectedPath = pathname.startsWith('/dashboard')
+
+  // 검색엔진 봇은 공개 영역에 한해 세션 체크 없이 통과
+  // (보호 경로는 UA와 무관하게 항상 세션을 검사한다)
+  if (!isProtectedPath) {
+    const userAgent = request.headers.get('user-agent') ?? ''
+    if (BOT_UA_PATTERN.test(userAgent)) {
+      return NextResponse.next()
+    }
+  }
+
   // 공개 경로는 세션 체크 없이 통과
-  if (PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith('/api/'))) {
+  if (PUBLIC_PATHS.includes(pathname)) {
     return NextResponse.next()
   }
 

@@ -1,6 +1,12 @@
 import { FileQuestion } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { HuDyLogo } from "@/components/hudy-logo"
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "페이지를 찾을 수 없습니다",
+  robots: { index: false, follow: false },
+}
 
 export default function NotFound() {
   return (

@@ -29,11 +29,6 @@ function JsonLd() {
         url: 'https://www.hudy.co.kr',
         description: '대한민국 공휴일 조회, 영업일 계산, 커스텀 공휴일 관리를 위한 REST API.',
         inLanguage: 'ko',
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: 'https://www.hudy.co.kr/#docs',
-          'query-input': 'required name=search_term_string',
-        },
       },
       {
         '@type': 'SoftwareApplication',
@@ -47,7 +42,15 @@ function JsonLd() {
           price: '3',
           priceCurrency: 'USD',
           description: '월 $3 단일 요금제, 30일 무료 체험',
-          priceValidUntil: '2026-12-31',
+          priceValidUntil: '2027-12-31',
+          priceSpecification: {
+            '@type': 'UnitPriceSpecification',
+            price: '3',
+            priceCurrency: 'USD',
+            billingIncrement: 1,
+            unitCode: 'MON',
+            billingDuration: 1,
+          },
         },
         featureList: [
           '대한민국 법정 공휴일 조회',
@@ -59,11 +62,6 @@ function JsonLd() {
           'REST API / JSON 응답',
           '100ms 이내 응답 속도',
         ],
-        aggregateRating: {
-          '@type': 'AggregateRating',
-          ratingValue: '4.8',
-          ratingCount: '50',
-        },
       },
       {
         '@type': 'Organization',
@@ -73,17 +71,6 @@ function JsonLd() {
         sameAs: [
           'https://www.npmjs.com/package/@hudy-sdk/sdk',
           'https://pypi.org/project/hudy-sdk/',
-        ],
-      },
-      {
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            name: '홈',
-            item: 'https://www.hudy.co.kr',
-          },
         ],
       },
       {

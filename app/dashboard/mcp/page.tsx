@@ -14,7 +14,7 @@ interface ApiKey {
   is_active: boolean
 }
 
-const freeTools = [
+const basicTools = [
   { name: "get_holidays", desc: "공휴일 조회" },
 ]
 
@@ -68,7 +68,7 @@ export default function McpPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-foreground">MCP</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          AI Agent에서 HuDy API를 바로 사용하세요.
+          AI Agent에서 HuDy API를 바로 사용하세요. MCP는 구독(무료체험 포함) 전용 기능입니다.
         </p>
       </div>
 
@@ -235,11 +235,11 @@ export default function McpPage() {
           {/* Free */}
           <div className="mb-4">
             <div className="mb-2 flex items-center gap-2">
-              <Badge variant="secondary" className="text-xs">Free</Badge>
-              <span className="text-xs text-muted-foreground">모든 플랜에서 사용 가능</span>
+              <Badge variant="secondary" className="text-xs">기본</Badge>
+              <span className="text-xs text-muted-foreground">구독(무료체험 포함) 시 사용 가능</span>
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
-              {freeTools.map((tool) => (
+              {basicTools.map((tool) => (
                 <div key={tool.name} className="flex items-start gap-2 text-sm">
                   <span className="text-primary">•</span>
                   <div>
@@ -257,7 +257,7 @@ export default function McpPage() {
           <div>
             <div className="mb-2 flex items-center gap-2">
               <Badge className="bg-primary text-primary-foreground text-xs">Pro</Badge>
-              <span className="text-xs text-muted-foreground">Pro 플랜 전용</span>
+              <span className="text-xs text-muted-foreground">유료 구독 전용 (무료체험 기간 포함)</span>
             </div>
             <div className="grid gap-2 sm:grid-cols-2">
               {proTools.map((tool) => (

@@ -28,21 +28,30 @@ function GoogleIcon({ className }: { className?: string }) {
   )
 }
 
+function safeNext(value: string | null): string {
+  // open redirect 방지: 내부 절대경로만 허용
+  return value && value.startsWith("/") && !value.startsWith("//") ? value : "/dashboard"
+}
+
 export default function LoginPage() {
   const router = useRouter()
+  const [next, setNext] = useState("/dashboard")
   const [email, setEmail] = useState("")
   const [isLoadingOAuth, setIsLoadingOAuth] = useState<"google" | "github" | null>(null)
   const [isLoadingMagicLink, setIsLoadingMagicLink] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const target = safeNext(urlParams.get("next"))
+    setNext(target)
+
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) router.push("/dashboard")
+      if (user) router.push(target)
     })
 
     // Check for error in URL params
-    const urlParams = new URLSearchParams(window.location.search)
     const errorParam = urlParams.get("error")
     if (errorParam === "auth") {
       setError("인증에 실패했습니다. 다시 시도해주세요.")
@@ -56,7 +65,9 @@ export default function LoginPage() {
       const supabase = createClient()
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        },
       })
       if (error) throw error
     } catch (err) {
@@ -76,7 +87,9 @@ export default function LoginPage() {
       const supabase = createClient()
       const { error } = await supabase.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+        },
       })
       if (error) throw error
       toast.success("매직 링크가 이메일로 전송되었습니다.")

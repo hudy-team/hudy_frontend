@@ -1,7 +1,8 @@
 import Link from "next/link"
+import type { Metadata } from "next"
 import { HuDyLogo } from "@/components/hudy-logo"
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "이용약관",
   description: "HuDy 서비스 이용약관. 대한민국 공휴일 API 서비스의 이용 조건을 확인하세요.",
   alternates: { canonical: 'https://www.hudy.co.kr/terms' },
@@ -14,12 +15,13 @@ export default function TermsPage() {
         <div className="mx-auto flex max-w-3xl items-center gap-4 px-6 py-4">
           <HuDyLogo size="sm" href="/" />
           <div className="h-5 w-px bg-border" />
-          <h1 className="text-sm font-medium text-muted-foreground">이용약관</h1>
+          <span className="text-sm font-medium text-muted-foreground">이용약관</span>
         </div>
       </header>
 
       <main className="mx-auto max-w-3xl px-6 py-12">
         <div className="prose prose-invert max-w-none text-sm leading-relaxed text-muted-foreground [&_h2]:mb-4 [&_h2]:mt-10 [&_h2]:text-lg [&_h2]:font-semibold [&_h2]:text-foreground [&_h3]:mb-2 [&_h3]:mt-6 [&_h3]:text-base [&_h3]:font-medium [&_h3]:text-foreground [&_p]:mb-3 [&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_li]:mb-1">
+          <h1 className="mb-8 text-2xl font-bold text-foreground">HuDy 이용약관</h1>
           <h2>제1조 (목적)</h2>
           <p>
             이 약관은 HuDy(이하 &quot;회사&quot; 또는 &quot;운영자&quot;)가 제공하는 HuDy 서비스(이하 &quot;서비스&quot;)를 이용하는 이용자(이하 &quot;이용자&quot;) 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.
