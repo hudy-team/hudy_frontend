@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { NextRequest } from "next/server";
 import { getPaddleInstance } from "@/lib/paddle/get-paddle-instance";
 import { processWebhookEvent } from "@/lib/paddle/process-webhook";
@@ -17,6 +18,10 @@ export async function POST(request: NextRequest) {
 
     if (!privateKey) {
       console.error("PADDLE_NOTIFICATION_WEBHOOK_SECRET not configured");
+      Sentry.captureException(
+        new Error("PADDLE_NOTIFICATION_WEBHOOK_SECRET not configured"),
+        { tags: { area: "paddle-webhook-config" } }
+      );
       return Response.json(
         { error: "Webhook secret not configured" },
         { status: 500 }
@@ -46,6 +51,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ status: 200, eventName });
   } catch (e) {
     console.error("[webhook] Error:", e);
+    Sentry.captureException(e, { tags: { area: "paddle-webhook" } });
     return Response.json(
       {
         error: "Internal server error",

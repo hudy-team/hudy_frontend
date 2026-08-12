@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/nextjs";
 import { EventEntity, EventName } from "@paddle/paddle-node-sdk";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { getPaddleInstance } from "./get-paddle-instance";
@@ -26,6 +27,7 @@ async function logWebhookEvent(
     });
   } catch (e) {
     console.error("[webhook-log] Failed to log event:", e);
+    Sentry.captureException(e, { tags: { area: "paddle-webhook-log" } });
   }
 }
 
@@ -105,6 +107,7 @@ async function cancelDuplicateSubscriptions(
 
   if (error) {
     console.error("[duplicate-check] Query failed:", error);
+    Sentry.captureException(error, { tags: { area: "paddle-duplicate-check" } });
     throw error;
   }
 
@@ -135,6 +138,9 @@ async function cancelDuplicateSubscriptions(
         `[duplicate-cancel] Failed to cancel ${dup.paddle_subscription_id}:`,
         cancelError
       );
+      Sentry.captureException(cancelError, {
+        tags: { area: "paddle-duplicate-cancel" },
+      });
       // Continue cancelling other duplicates even if one fails
     }
   }
@@ -198,6 +204,7 @@ async function handleSubscriptionEvent(eventData: EventEntity) {
 
   if (error) {
     console.error("[subscription] Upsert failed:", error);
+    Sentry.captureException(error, { tags: { area: "paddle-subscription-upsert" } });
     throw error;
   }
 
@@ -215,6 +222,9 @@ async function handleSubscriptionEvent(eventData: EventEntity) {
 
     if (keyError) {
       console.error(`[subscription] API key activate failed:`, keyError);
+      Sentry.captureException(keyError, {
+        tags: { area: "paddle-api-key-activate" },
+      });
     } else {
       console.log(`[subscription] API keys activated for user ${userId}`);
     }
@@ -234,6 +244,9 @@ async function handleSubscriptionEvent(eventData: EventEntity) {
         "[subscription] Duplicate cancellation failed (non-fatal):",
         dupError
       );
+      Sentry.captureException(dupError, {
+        tags: { area: "paddle-duplicate-cancel" },
+      });
       // Don't throw - let the main subscription creation succeed
     }
   }
@@ -267,6 +280,7 @@ async function handleCustomerEvent(eventData: EventEntity) {
 
   if (error) {
     console.error("[customer] Upsert failed:", error);
+    Sentry.captureException(error, { tags: { area: "paddle-customer-upsert" } });
     throw error;
   }
 
@@ -330,6 +344,10 @@ async function handleTransactionCompleted(eventData: EventEntity) {
     console.error(
       `[transaction.completed] No email for customer ${customerId}`
     );
+    Sentry.captureException(
+      new Error(`No email found for customer ${customerId}`),
+      { tags: { area: "paddle-transaction-completed" } }
+    );
     throw new Error(`No email found for customer ${customerId}`);
   }
 
@@ -355,6 +373,9 @@ async function handleTransactionCompleted(eventData: EventEntity) {
       "[transaction.completed] Customer upsert failed:",
       customerUpsertError
     );
+    Sentry.captureException(customerUpsertError, {
+      tags: { area: "paddle-transaction-completed" },
+    });
     throw customerUpsertError;
   }
 
@@ -382,6 +403,9 @@ async function handleTransactionCompleted(eventData: EventEntity) {
             `[transaction.completed] Failed to link subscription ${sub.id}:`,
             linkError
           );
+          Sentry.captureException(linkError, {
+            tags: { area: "paddle-subscription-link" },
+          });
           throw linkError;
         }
 
@@ -430,6 +454,7 @@ async function recordTrialUsage(
 
   if (error) {
     console.error(`[trial-record] Failed to record trial usage for ${customerId}:`, error);
+    Sentry.captureException(error, { tags: { area: "paddle-trial-record" } });
   } else {
     console.log(`[trial-record] Recorded trial usage for customer ${customerId}`);
   }

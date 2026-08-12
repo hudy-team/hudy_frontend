@@ -1,7 +1,12 @@
 "use server"
 
+import * as Sentry from "@sentry/nextjs"
 import { createClient } from "@/lib/supabase/server"
+import { getActiveSubscription } from "@/lib/subscription"
 import { getPaddleInstance } from "./get-paddle-instance"
+
+/** 결제 내역 목록에 표시할 최근 트랜잭션 건수 */
+const TRANSACTION_LIMIT = 12
 
 export interface BillingTransaction {
   id: string
@@ -9,7 +14,6 @@ export interface BillingTransaction {
   amount: string
   currency: string
   createdAt: string
-  invoiceUrl: string | null
 }
 
 export interface BillingSubscription {
@@ -38,22 +42,15 @@ export async function getBillingData(): Promise<BillingData> {
     return { subscription: null, transactions: [], customerId: null }
   }
 
-  // 1. Get active subscription from DB (filter by status to avoid canceled duplicates)
-  const { data: subData } = await supabase
-    .from("subscriptions")
-    .select("*")
-    .eq("user_id", user.id)
-    .eq("status", "active")
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .single()
-
-  // 2. Get customer from DB
-  const { data: customerData } = await supabase
-    .from("customers")
-    .select("customer_id")
-    .eq("user_id", user.id)
-    .single()
+  // 1~2. 활성 구독과 customer 는 서로 독립이므로 병렬로 조회한다
+  const [subData, { data: customerData }] = await Promise.all([
+    getActiveSubscription(supabase, "*"),
+    supabase
+      .from("customers")
+      .select("customer_id")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+  ])
 
   const customerId = customerData?.customer_id || null
 
@@ -83,6 +80,7 @@ export async function getBillingData(): Promise<BillingData> {
       }
     } catch (e) {
       console.error("[billing] Failed to fetch Paddle subscription:", e)
+      Sentry.captureException(e, { tags: { area: "paddle-billing-subscription" } })
       // Fallback to DB data only
       subscription = {
         id: subData.id,
@@ -111,27 +109,19 @@ export async function getBillingData(): Promise<BillingData> {
   }
 
   // 4. Get transactions from Paddle API if customer exists
+  //    인보이스 PDF 는 여기서 조회하지 않는다 (전건 순차 조회 = N+1).
+  //    사용자가 다운로드를 누를 때 getInvoiceUrl 서버 액션으로 지연 조회한다.
   if (customerId) {
     try {
       const paddle = getPaddleInstance()
       const txCollection = await paddle.transactions.list({
         customerId: [customerId],
         status: ["completed", "paid"],
+        perPage: TRANSACTION_LIMIT,
       })
 
-      // Iterate through transactions
       for await (const tx of txCollection) {
-        let invoiceUrl: string | null = null
-
-        // Try to get invoice PDF
-        try {
-          if (tx.id && tx.status === "completed") {
-            const invoice = await paddle.transactions.getInvoicePDF(tx.id)
-            invoiceUrl = (invoice as any)?.url || null
-          }
-        } catch {
-          // Invoice might not be available
-        }
+        if (transactions.length >= TRANSACTION_LIMIT) break
 
         const details = (tx as any).details
         const total = details?.totals?.total || "0"
@@ -143,11 +133,11 @@ export async function getBillingData(): Promise<BillingData> {
           amount: (parseInt(total) / 100).toFixed(2),
           currency: currencyCode,
           createdAt: (tx as any).createdAt || new Date().toISOString(),
-          invoiceUrl,
         })
       }
     } catch (e) {
       console.error("[billing] Failed to fetch transactions:", e)
+      Sentry.captureException(e, { tags: { area: "paddle-billing-transactions" } })
     }
   }
 

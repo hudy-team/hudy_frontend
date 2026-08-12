@@ -291,7 +291,7 @@ export default function ApiKeysPage() {
                     </div>
 
                     <div className="flex items-center gap-2 rounded-lg border border-border bg-background p-3">
-                      <code className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap font-mono text-sm text-foreground">
+                      <code className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap font-mono text-sm text-foreground" data-sentry-mask>
                         {isVisible ? apiKey.key : maskValue(apiKey.key)}
                       </code>
                       <button

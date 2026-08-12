@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Calendar, Check, Copy, CreditCard, ExternalLink, RefreshCw, Loader2 } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import { getActiveSubscription } from "@/lib/subscription"
 import { toast } from "sonner"
 import {
   type CalendarToken,
@@ -40,17 +41,12 @@ export default function CalendarPage() {
     setLoading(true)
     try {
       const supabase = createClient()
-      const [tokenResult, subResult] = await Promise.all([
+      const [tokenResult, subData] = await Promise.all([
         getCalendarToken(),
-        supabase
-          .from("subscriptions")
-          .select("id")
-          .eq("status", "active")
-          .limit(1)
-          .maybeSingle(),
+        getActiveSubscription(supabase),
       ])
       setToken(tokenResult)
-      setHasSubscription(!!subResult.data)
+      setHasSubscription(!!subData)
     } catch {
       toast.error("데이터를 불러오는 중 오류가 발생했습니다.")
     } finally {

@@ -101,7 +101,7 @@ export default function McpPage() {
                 <p className="mb-2 text-xs text-muted-foreground">터미널에서 아래 명령어를 실행하세요.</p>
                 <div className="relative rounded-lg border border-border bg-muted/30">
                   <pre className="overflow-x-auto p-4 text-xs">
-                    <code className="font-mono text-foreground">
+                    <code className="font-mono text-foreground" data-sentry-mask>
 {`claude mcp add --transport http hudy https://www.hudy.co.kr/api/mcp -H "x-api-key: ${displayApiKey}"`}
                     </code>
                   </pre>
@@ -132,7 +132,7 @@ export default function McpPage() {
               <TabsContent value="claude-desktop">
                 <div className="relative rounded-lg border border-border bg-muted/30">
                   <pre className="overflow-x-auto p-4 text-xs">
-                    <code className="font-mono text-foreground">
+                    <code className="font-mono text-foreground" data-sentry-mask>
 {`{
   "mcpServers": {
     "hudy": {
@@ -179,7 +179,7 @@ export default function McpPage() {
               <TabsContent value="cursor">
                 <div className="relative rounded-lg border border-border bg-muted/30">
                   <pre className="overflow-x-auto p-4 text-xs">
-                    <code className="font-mono text-foreground">
+                    <code className="font-mono text-foreground" data-sentry-mask>
 {`{
   "mcpServers": {
     "hudy": {
