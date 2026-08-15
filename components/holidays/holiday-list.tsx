@@ -59,18 +59,18 @@ export function HolidayList({ holidays, todayKst }: HolidayListProps) {
                     isPast ? "opacity-45" : ""
                   }`}
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex min-w-0 items-center gap-3 sm:gap-4">
                     <span
-                      className={`font-mono text-sm ${
+                      className={`shrink-0 whitespace-nowrap font-mono text-sm ${
                         isWeekend ? "text-primary" : "text-muted-foreground"
                       }`}
                     >
-                      {formatMmDd(holiday.date)} {holiday.dayOfWeek}
+                      {formatMmDd(holiday.date)} {holiday.dayOfWeek.charAt(0)}
                     </span>
-                    <span className="font-semibold text-foreground">{holiday.name}</span>
+                    <span className="min-w-0 break-keep font-semibold text-foreground">{holiday.name}</span>
                   </div>
                   {holiday.isSubstitute && (
-                    <Badge className="border-primary/30 bg-primary/10 text-primary" variant="outline">
+                    <Badge className="shrink-0 whitespace-nowrap border-primary/30 bg-primary/10 text-primary" variant="outline">
                       대체
                     </Badge>
                   )}

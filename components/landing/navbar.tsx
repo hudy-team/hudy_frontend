@@ -28,7 +28,7 @@ export function Navbar() {
             FAQ
           </Link>
           <Link href="/holidays" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-            공휴일 조회
+            Holidays
           </Link>
         </div>
 
@@ -67,7 +67,7 @@ export function Navbar() {
               FAQ
             </Link>
             <Link href="/holidays" className="text-sm text-muted-foreground" onClick={() => setMobileOpen(false)}>
-              공휴일 조회
+              Holidays
             </Link>
             <div className="flex gap-3 pt-2">
               <Button variant="ghost" size="sm" asChild>
