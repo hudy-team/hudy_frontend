@@ -1,152 +1,87 @@
-# HuDy 대시보드 이슈 수정 작업 원장
+# HuDy 공개 공휴일 페이지 작업 원장
 
 > 단일 진실원본(single source of truth). 어떤 세션이 죽어도 이 문서 + git log 만으로 이어받는다.
-> 작성: 2026-07-24 (아키텍트 세션). 실행 모델: Sonnet.
+> 작성: 2026-08-15 (아키텍트 세션). 실행 모델: Sonnet. 브랜치: `feat/public-holiday-pages` (worktree `hudy_frontend-loop`).
+> 이전 원장(대시보드 이슈, 완료)은 `docs/WORKPLAN-2026-07-dashboard.md` 로 아카이브.
 
-## 배경
+## 배경 / 목적
 
-프로덕션(hudy.co.kr) 대시보드 스크린샷에서 "일별 API 사용량" 차트가 카드 밖으로 넘치는 현상이 발견되어
-전체 점검을 수행했다. Supabase MCP로 실 DB를 크로스체크한 결과 UI 결함 외에 **보안 결함 2건**이 확인됐다.
+로그인 없이 볼 수 있는 공휴일 콘텐츠 페이지가 없어 검색 유입이 랜딩에서 끝난다.
+`/holidays/[year]` 공개 페이지를 만들어 "2026년 공휴일" 류 검색 트래픽을 받고,
+페이지 안의 영업일 계산기(제품 데모)와 API CTA 로 가입 퍼널을 만든다.
 
-### DB에서 실측 확인된 사실 (2026-07-24)
+### 아키텍트가 실측 확인한 사실 (2026-08-15)
 
-| 항목 | 실측값 |
-|---|---|
-| `api_usage_daily` 데이터 범위 | 2026-02-14 ~ 2026-07-24, distinct date **118개**, 총 192콜 |
-| 이번 달(7월) 사용량 | 18 (스크린샷 "18 / 100"과 일치) |
-| RLS | 전 테이블 활성 + 정책 존재 (최초 우려는 오탐) |
-| `api_keys` 컬럼 권한 (수정 전) | `authenticated`가 `key` 컬럼에 INSERT/UPDATE 보유 → **임의 키 삽입 가능** |
-| `get_user_id_by_email` (수정 전) | `anon` 실행 가능 → **이메일→user_id 오라클** |
-| 백엔드 quota 상수 | FREE=100, PRO=5000 (`api_key_auth.rs:12-13`) — 프론트 하드코딩과 일치 |
+- DB `public_holidays`: 2025년 20건 / 2026년 21건 / 2027년 21건 존재 (Supabase MCP 실측)
+- 테이블 컬럼: `id, name(varchar), date(date), year(int), month(int), day(int), day_of_week(varchar), created_at, updated_at`
+- RLS 는 authenticated 한정이므로 **공개 페이지는 서버 컴포넌트에서 `createAdminClient()`(`lib/supabase/admin.ts`) 로 조회**한다. anon 키로는 못 읽는다.
+- 인증 미들웨어(`proxy.ts` matcher)는 `/dashboard`, `/checkout` 만 가드 → `/holidays` 는 추가 작업 없이 공개다.
+- 디자인 목업(아키텍트 확정)은 각 지시서의 "레이아웃 명세" 절에 텍스트로 옮겨 두었다. 기존 다크 테마·primary(빨강)·JetBrains Mono 토큰을 그대로 쓴다.
 
-차트가 넘친 직접 원인: 쿼리에 기간 필터가 없어 118개 날짜를 전부 렌더 + `overflow` 미처리.
-부수 효과로 2월 15일 대량 호출이 `maxCalls` 기준이 되어 최근 데이터가 전부 바닥에 깔림.
+## 골 게이트 (전부 검증되어야 완료)
 
-## 이미 완료된 작업 (아키텍트가 Supabase MCP로 직접 적용)
+- [x] G1. `/holidays/2026` 이 로그인 없이 정적 렌더되고 DB 실데이터(공휴일 이름·날짜)가 표시된다. 2025·2027 도 동일.
+- [x] G2. `/holidays` 접속 시 KST 기준 현재 연도 페이지로 redirect 된다.
+- [x] G3. 영업일 계산기 로직이 검증 스크립트(`scripts/verify-business-days.ts`)의 전 케이스를 통과한다 (KST·대체공휴일 포함).
+- [x] G4. 연도별 `generateMetadata`(title/description) + JSON-LD + `sitemap.ts` 에 연도 페이지 포함.
+- [x] G5. 랜딩 navbar·footer 에서 공개 페이지로 진입 가능하고, 페이지 안에 API 가입 CTA 가 있다.
+- [x] G6. `pnpm build` 성공 (기존 페이지 영향 없음). lint 게이트는 D5 로 제거.
+- [x] G7. `CLAUDE.md` 라우팅/주의사항이 실제 구현 상태를 반영한다.
 
-DDL은 실행 모델에게 위임하지 않는다. 아래는 **적용 및 검증 완료**.
-
-- `migration: harden_functions_and_server_side_key_issuance`
-  - `get_user_id_by_email` EXECUTE를 `service_role` 전용으로 회수 (이메일 오라클 차단)
-  - 트리거 함수 4종(`auto_create_api_key`, `notify_*`)의 REST RPC 노출 회수
-  - `notify_new_signup`/`notify_new_subscription` `search_path` 고정
-  - `issue_api_key(text)` / `rotate_api_key(uuid)` SECURITY DEFINER RPC 신설 (서버측 키 생성)
-- `migration: lock_api_key_column_writes_and_rls_initplan`
-  - `api_keys`의 INSERT 권한/정책 제거, UPDATE는 `(name, is_active)` 컬럼만 허용
-  - 전 테이블 RLS 정책을 `(select auth.uid())` + `to authenticated` 로 재작성 (initplan 최적화)
-- `migration: fix_issue_api_key_return_types` (varchar→text 캐스팅 수정)
-
-검증 결과 (authenticated 역할 시뮬레이션, 롤백 트랜잭션):
-
-```
-[1 INSERT_ARBITRARY_KEY = BLOCKED: permission denied for table api_keys]
-[2 UPDATE_KEY_COL       = BLOCKED: permission denied for table api_keys]
-[3 UPDATE_IS_ACTIVE     = ALLOWED ok]          <- 회귀 없음
-[4 EMAIL_ORACLE         = BLOCKED]
-[5 CROSS_USER_ROWS_VISIBLE = 0]
-[6 OWN_ROWS_VISIBLE     = 1]
-[rotate ok len=40 prefix=hd_live_] [rotate_foreign BLOCKED ok]
-[issue ok name=Production len=40] [blank BLOCKED ok] [toolong BLOCKED ok]
-```
-
-프로덕션 데이터 무결성 확인: `api_keys` 4행 / 4유저 유지, 테스트 잔여물 0.
-
-> **중요**: DB는 이미 잠겼다. 따라서 FE-2(프론트 RPC 전환)를 배포하기 전까지
-> **현재 프로덕션의 API 키 생성/재생성 UI는 동작하지 않는다.** FE-2가 최우선 태스크다.
-
-## 골 정의 (DoD 게이트)
-
-- [ ] G1. 대시보드 차트가 모바일 폭(375px)에서 카드 경계를 넘지 않는다
-- [ ] G2. 차트가 최근 30일만 표시하고, 스케일이 최근 데이터를 판독 가능하게 보여준다
-- [ ] G3. API 키 생성/재생성이 서버측 RPC를 통해서만 이루어진다 (클라이언트가 키 값을 결정하지 않는다)
-- [ ] G4. 월 사용량 집계가 KST 기준으로 계산된다 (백엔드 쿼터 판정과 월 경계 일치)
-- [ ] G5. `pnpm build` 성공
-- [ ] G6. 문서(CLAUDE.md)가 실제 구현 상태를 반영한다
+**골에서 제외 (사용자 액션)**: PR 생성·머지, 프로덕션 배포, Search Console 등록.
 
 ## 태스크
 
-파일 겹침이 없도록 분할했다. FE-1 / FE-2 / FE-3 은 서로 다른 파일만 만지므로 병렬 실행 가능.
-
-- [x] **FE-1** — `app/dashboard/page.tsx` 전면 수정 + `lib/date.ts`·`lib/plan.ts` 신설
-      (차트 30일 필터 / overflow / 스케일, 월 사용량 KST, 쿼터 상수 분리, 테이블 정리)
-      지시서: `docs/work-orders/FE-1.md`
-- [x] **FE-2** — `app/dashboard/api-keys/page.tsx` 를 `issue_api_key`/`rotate_api_key` RPC 호출로 전환
-      지시서: `docs/work-orders/FE-2.md`  **[최우선 — 배포 전까지 키 발급 UI 장애]**
-- [x] **FE-3** — `CLAUDE.md` 갱신 + 적용된 DB 마이그레이션을 `supabase/migrations/` 에 기록
-      지시서: `docs/work-orders/FE-3.md`
-- [x] **BE-1** — (별도 repo `hudy_backend`) UTC→KST 전환. 지시서: `hudy_backend/docs/work-orders/BE-1.md`
-- [x] **FE-4** — 캘린더 구독 토큰도 서버측 RPC로 전환 (`lib/calendar.ts`).
-      FE-1~3 검증 중 아키텍트가 추가 발견해 직접 수행. 지시서 없이 진행했으므로 아래 근거를 남긴다.
+- [x] **PH-1** — 데이터 레이어 `lib/holidays.ts` (지시서: `docs/work-orders/PH-1.md`)
+- [x] **PH-2** — 영업일 계산 로직 `lib/business-day.ts` + 검증 스크립트 (지시서: `docs/work-orders/PH-2.md`)
+- [x] **PH-3** — `/holidays/[year]` 페이지 + `/holidays` redirect (지시서: `docs/work-orders/PH-3.md`)
+- [x] **PH-4** — 영업일 계산기 클라이언트 컴포넌트 (지시서: `docs/work-orders/PH-4.md`)
+- [x] **PH-5** — SEO: metadata·JSON-LD·sitemap (지시서: `docs/work-orders/PH-5.md`)
+- [x] **PH-6** — navbar/footer 링크 + CLAUDE.md 갱신 + 전체 게이트 재검증 (지시서: `docs/work-orders/PH-6.md`)
 
 ## 루프 프로토콜
 
 1. 매 반복마다 이 문서를 먼저 읽는다. 미완료(`[ ]`) 태스크 중 위에서부터 하나를 고른다.
-2. 해당 `docs/work-orders/<ID>.md` 를 읽고 **그대로** 구현한다. 지시서에 없는 설계 판단을 임의로 하지 않는다.
-3. 지시서가 없거나 지시서로 판단이 안 서면 태스크에 `BLOCKED: <사유>` 를 적고 다음 태스크로 넘어간다.
-4. 지시서의 "수용 기준" 검증 명령을 **실제로 실행**하고 통과했을 때만 체크박스를 채운다. 자기 승인 금지.
-5. 태스크 1개 = 커밋 1개. 커밋 메시지는 `fix: <한국어 요약>` 또는 `refactor: <한국어 요약>`.
-6. 진행 로그에 한 줄 추가한다.
+2. `docs/work-orders/<ID>.md` 지시서를 읽고 그대로 구현한다. 지시서에 없는 설계 판단 금지.
+3. 지시서가 없거나 3회 실패하면 해당 태스크에 `BLOCKED: 사유` 를 적고 다음으로 넘어간다.
+4. 지시서의 수용 기준 검증 명령을 **실제 실행해 통과했을 때만** 체크박스를 `[x]` 로 바꾼다. 자기 승인 금지.
+5. 태스크 1개 = 커밋 1개. 체크박스·진행 로그 갱신을 같은 커밋에 포함한다. main 직접 커밋 금지 (이 worktree 는 `feat/public-holiday-pages`).
+6. 골 게이트는 태스크가 전부 끝난 뒤 PH-6 에서 일괄 재검증하고 체크한다.
 
-## 코드 밖 부수 작업 체크리스트 (지시서 스코프 누락 방어)
+### 상시 규칙 (모든 태스크 공통)
 
-실행 모델은 지시서에 없는 일을 하지 않으므로, 아래는 아키텍트가 매 태스크에서 점검한다.
+- 타임존은 KST 고정. `new Date()` 의 로컬 타임존에 의존하는 날짜 계산 금지 — `lib/date.ts` 헬퍼를 쓴다.
+- `createAdminClient()` 는 서버 컴포넌트/서버 전용 모듈에서만 import 한다. 클라이언트 번들에 `SUPABASE_SECRET_KEY` 가 새면 안 된다 (`server-only` import 로 방어).
+- 다크 테마 전용 프로젝트다. 새 색상 하드코딩 금지, 기존 CSS 변수 토큰(`bg-background`, `bg-card`, `border-border`, `text-muted-foreground`, `text-primary` 등)만 사용.
+- 역검증: 로직 버그를 고쳤다고 판단되면 수정을 되돌려 검증이 실패하는지 확인 후 원복한다.
 
-- [ ] 새 환경변수 추가 여부 → 없음 (이번 작업 범위에 env 변경 없음)
-- [ ] DB 마이그레이션 → 아키텍트가 MCP로 적용 완료, FE-3에서 repo 기록만
-- [ ] 배포 순서 의존성 → **DB(적용됨) → FE-2 → 나머지**. FE-2 미배포 상태가 길어지면 키 발급 장애 지속
-- [ ] 백엔드 재빌드 필요 여부 → BE-1은 Rust 재빌드/재배포 필요
+### 코드 밖 부수 작업 체크리스트 (지시서 스코프 누락 방어)
+
+- [ ] 새 환경변수 → 없음 (기존 `SUPABASE_SECRET_KEY` 재사용). 추가되면 `.env.example` 갱신 필수.
+- [ ] DB 마이그레이션 → 없음 (읽기 전용 작업).
+- [ ] 미들웨어/인증 → `/holidays` 는 이미 공개. `proxy.ts` matcher 를 건드리지 말 것.
+- [ ] 배포 → 골 제외. 단 PH-6 에서 `pnpm build` 산출물 기준으로 검증한다.
 
 ## 결정 로그
 
-- **D1**: 키 생성을 Edge Function이 아닌 **Postgres SECURITY DEFINER RPC**로 구현. 이유: Edge Function이 이 프로젝트에 하나도 없어(=배포 파이프라인 부재) 신규 인프라 도입 비용이 크고, 키 생성은 순수 DB 연산이라 RPC로 충분하다.
-- **D2**: `issue_api_key` 는 기존 키를 **삭제 후 재발급**하는 기존 UX(1유저 1키)를 그대로 유지한다. 정책 변경은 이번 범위 밖.
-- **D3**: 차트 기간을 30일로 고정한다. 기간 선택 UI는 범위 밖(별도 기능).
-- **D4**: 타임존 기준을 **KST(UTC+9) 고정**으로 통일한다. 한국 공휴일 API 서비스이므로 사용자 로컬 타임존이 아니라 KST가 도메인 기준이다.
-- **D5**: `webhook_events` 의 "RLS 활성 + 정책 없음" 은 **의도된 상태**로 판단해 유지한다 (service_role 전용 테이블). advisor INFO는 무시.
-
-## FE-4 상세 (검증 중 추가 발견)
-
-FE-1~3 완료 후 리드 검증(`grep -rn 'getRandomValues' app/ lib/`)에서 `lib/calendar.ts` 가 걸렸다.
-캘린더 구독 토큰도 API 키와 **동일한 구조적 결함**을 갖고 있었다: 클라이언트가 토큰 값을 생성해 직접 INSERT.
-
-실증한 공격 경로 (`calendar_tokens.token` 은 UNIQUE):
-피해자가 토큰을 회전한 직후 공격자가 **옛 토큰 문자열을 자기 계정으로 선점**하면,
-그 구독 URL 을 등록해 둔 캘린더 앱들이 이후 공격자의 공휴일 데이터를 받는다.
-구독 URL 은 인증 없이 토큰만으로 접근되므로(백엔드가 `/v*/calendar/` 를 인증 예외로 둔다) 성립한다.
-
-조치: `issue_calendar_token(boolean)` / `rotate_calendar_token()` RPC 신설,
-`calendar_tokens` 의 INSERT 권한·정책 제거, UPDATE 는 `(include_custom, updated_at)` 컬럼만 허용.
-`lib/calendar.ts` 를 RPC 호출로 전환.
-
-검증 (authenticated 시뮬레이션, 롤백 트랜잭션):
-
-```
-[1 INSERT_ARBITRARY_TOKEN = BLOCKED ok] [2 UPDATE_TOKEN_COL = BLOCKED ok]
-[3 UPDATE_INCLUDE_CUSTOM  = ALLOWED ok]   <- 회귀 없음
-[4 issue ok len=64 include=true] [5 rotate ok len=64] [6 CROSS_USER_VISIBLE=0]
-```
-
-## 프로덕션 관측 사실 (2026-07-24, 코드 변경 아님)
-
-백엔드 소스의 핸들러는 전부 `/v1/...` 인데 **프로덕션 `api.hudy.co.kr` 은 `/v2/...` 로 노출된다.**
-
-```
-GET /v2/health   -> 200 {"result":true,"data":{"status":"healthy","version":"0.1.0"}}
-GET /v1/health   -> 404 (엣지의 HTML 404, 핸들러 미도달)
-GET /v2/calendar/<bad-token>.ics -> 404 {"result":false,...}  (핸들러 도달)
-```
-
-프론트가 안내하는 `/v2/` URL 은 정상 동작한다. 엣지에서 프리픽스 리라이트가 일어나는 것으로 보이며,
-그 설정 위치는 두 repo 밖이라 미확인이다. BE-1 은 라우트 경로를 건드리지 않았으므로 배포해도 이 동작은 유지된다.
-
-## 미결 / 사용자 결정 필요
-
-- `pg_net` 확장이 `public` 스키마에 설치됨 (advisor WARN). 이동 시 `notify_*` 트리거 함수의 `net.http_post` 참조가 깨질 수 있어 **보류**. 별도 작업으로 분리 권장.
-- Supabase Auth의 "Leaked password protection" 비활성 (advisor WARN). 대시보드 토글이라 코드 변경 불가 — 사용자가 직접 켜야 한다.
+- D1 (2026-08-15, 아키텍트): 공개 페이지 데이터는 백엔드 API 가 아니라 Supabase admin client 직조회. 이유: API 호출은 키·쿼터 관리가 필요하고, 프론트는 이미 대시보드에서 같은 DB를 직접 읽는 구조다.
+- D2: 영업일 계산기는 API 호출 없이 **동일 로직을 로컬 계산**한다. 이유: 익명 트래픽에 키를 노출할 수 없고, 로직이 순수 함수라 복제 비용이 낮다. 페이지에는 "API 와 동일한 계산" 문구로 제품 데모임을 명시.
+- D3: 대체공휴일 판정은 `name` 에 "대체" 포함 여부로 한다 (DB 에 별도 플래그 없음, 실데이터 확인됨).
+- D4: 노출 연도는 DB `distinct year` 로 동적 결정 (하드코딩 금지). 새 연도 sync 시 자동 확장.
+- D5 (2026-08-15, 아키텍트): lint 게이트 전면 제거. `pnpm lint`(`next lint`)는 Next 16 에서 명령 자체가 제거되어 이 작업과 무관하게 사전 실패 상태. ESLint CLI 마이그레이션은 이 원장 범위 밖의 별도 백로그로 넘긴다. 이 작업의 품질 게이트는 `pnpm build`(strict TS) + grep 검증으로 충분.
+- D6 (2026-08-15, 아키텍트): PH-3 수용 기준 4번의 "성탄절"은 아키텍트 오기 — DB 실측값은 "기독탄신일"이다. 지시서를 DB 값 기준으로 수정했다. DB 값을 페이지에서 임의 변경하지 않는다는 금지사항이 옳았고, 루프가 BLOCKED 를 건 판단이 맞다.
+- 참고: 2026-08-15 admin sync 재실행으로 DB 가 2025/2026/2027/2028 = 20/22/24/19건으로 갱신됨(노동절 신설 반영, 2028 추가). D4 에 따라 페이지·sitemap 은 자동 확장되므로 코드 수정 불요. PH-6 게이트의 연도 루프(2025~2027)에 2028 이 추가로 생성되는 것은 정상.
 
 ## 진행 로그
 
-- 2026-07-24: 아키텍트 세션. Supabase 크로스체크 완료, DB 하드닝 3개 마이그레이션 적용·검증. 원장 및 지시서 4건 작성.
-- 2026-07-24: FE-2 완료. `app/dashboard/api-keys/page.tsx` 를 `issue_api_key`/`rotate_api_key` RPC 호출로 전환. `pnpm build` 통과, `tsc --noEmit` 해당 파일 에러 없음.
-- 2026-07-24: FE-1 완료. `lib/date.ts`·`lib/plan.ts` 신설, `app/dashboard/page.tsx` 차트 30일 필터/overflow 처리/KST 월집계/쿼터 상수화. `pnpm build` 통과, `tsc --noEmit` 해당 파일 에러 없음.
-- 2026-07-24: FE-3 완료. DB 하드닝 마이그레이션 2건을 `supabase/migrations/` 에 기록, `CLAUDE.md` 실제 구현 상태 반영. 수용 기준 grep 전부 통과.
+- 2026-08-15: 원장·지시서 작성, worktree `feat/public-holiday-pages` 생성 (아키텍트).
+- 2026-08-15: PH-1 완료 — `lib/holidays.ts` 추가 (`getAvailableYears`, `getHolidaysByYear`), `server-only` 패키지 설치. `pnpm build` 통과 확인.
+- 2026-08-15: PH-2 완료 — `lib/business-day.ts`(순수 함수) + `scripts/verify-business-days.ts` 추가. `node --experimental-strip-types scripts/verify-business-days.ts` ALL PASS(exit 0) 확인. `tsconfig.json` exclude 에 `scripts` 추가(Next 타입체크에서 스크립트 제외, `.ts` 확장자 상대 import 허용 목적) 후 `pnpm build` 통과. 역검증: 주말 판정(`getUTCDay() === 0 || 6`)을 일시적으로 무력화하니 7케이스 중 4건 실패 확인 후 원복, 재검증 ALL PASS.
+- 2026-08-15: PH-3 BLOCKED — `app/holidays/page.tsx`(redirect), `app/holidays/[year]/page.tsx`(SSG, revalidate 3600), `components/holidays/holiday-list.tsx` 구현. `pnpm build` 성공, `.next/server/app/holidays` 에 2025/2026/2027.html 생성 확인, 검증 3번(광복절+대체 in 2026) PASS. 검증 4번(성탄절 in 2027) FAIL — Supabase 실측 결과 2027-12-25 실제 `name` 은 "기독탄신일"("성탄절" 아님). `pnpm lint` 는 이 태스크와 무관하게 사전부터 실패 상태(Next 16 에서 `next lint` 명령 제거됨, stash 로 확인). 부수적으로 worktree 에 남아있던 무관 stash(`stash@{0}`, main 브랜치의 `app/layout.tsx` 변경분)를 실수로 pop 했다가 충돌 확인 후 `git checkout --ours` 로 즉시 원복, stash 는 손상 없이 보존됨.
+- 2026-08-15: PH-4 완료 — `components/holidays/business-day-calculator.tsx` 추가(클라이언트, fetch 없이 `lib/business-day.ts` 로컬 계산). PH-3 페이지에서 `year`+`year+1` 공휴일 날짜를 합쳐 `holidays` prop 으로 전달하도록 수정, `{/* PH-4 */}` 자리 표시 주석을 실제 컴포넌트로 교체. `pnpm build` 성공(정적 페이지 2025~2028 재생성 확인), `grep "use client"`/`grep "server-only"` PASS. `pnpm lint` 는 PH-3 에서 이미 확인된 사전 장애(Next 16 `next lint` 제거)로 이 태스크와 무관하게 실패.
+- 2026-08-15: PH-6 BLOCKED — 지시서 선행 조건(PH-1~PH-5 전부 완료) 미충족. PH-3 이 여전히 BLOCKED 상태라 착수 불가. 구현/검증 시도 없음. 아키텍트가 PH-3 블로커(수용 기준 4번 지문 vs 실제 DB 데이터 불일치)를 해소한 뒤 재개 필요.
+- 2026-08-15: PH-5 완료 — `app/holidays/[year]/page.tsx` 에 `generateMetadata`(title/description/canonical/OG/twitter, 지시서 문안 그대로) + JSON-LD(`ItemList`>`Event`, `<` 이스케이프) 추가. `app/sitemap.ts` 를 async 로 바꾸고 `getAvailableYears()` 로 `/holidays/{year}` 항목 동적 생성(monthly, priority 0.8). `app/robots.ts` 확인 결과 `/holidays` 차단 없음 — 수정 불필요. `pnpm build` 성공, `grep "application/ld+json" .next/server/app/holidays/2026.html` PASS, `grep "2026년 대한민국 공휴일" .next/server/app/holidays/2026.html` PASS, `.next/server/app/sitemap.xml.body` 에서 `holidays/2026` 확인 PASS(지시서 대체 절차 사용 — route.js 직접 import 대신 빌드 산출물 body 파일 grep 으로 검증, 그 사실을 여기 명시). `pnpm lint` 는 PH-3/PH-4 와 동일한 사전 장애(Next 16 `next lint` 제거)로 이 태스크와 무관하게 실패.
+- 2026-08-15: 아키텍트 개입 — PH-3 수용 기준 오기(성탄절→기독탄신일) 수정, lint 게이트 제거(D5), PH-3/PH-6 블로커 해소. 루프 재개.
+- 2026-08-15: PH-3 완료 — 구현은 기존 상태 그대로(수정 없음), 수정된 수용 기준으로 재검증만 수행. `pnpm build` 성공, `ls .next/server/app/holidays` 에 2025/2026/2027(+2028).html 존재 확인, `grep 광복절/대체 2026.html` PASS, `grep 기독탄신일 2027.html` PASS.
+- 2026-08-15: PH-6 완료 — `components/landing/navbar.tsx`(데스크톱+모바일 메뉴)에 "공휴일 조회" → `/holidays` 링크 추가. `components/landing/footer.tsx`에 `lib/date.ts` `kstDateString()` 으로 KST 올해 연도를 구해 "{올해}년 공휴일" → `/holidays/{올해}` 링크 추가. `CLAUDE.md` 라우팅 트리에 `app/holidays/`(redirect)·`app/holidays/[year]/`(SSG+revalidate 3600, admin client) 추가, Key Notes 에 공개 페이지 DB 직조회 주의사항 1줄 추가. 골 게이트 전부 재검증: G1(`pnpm build` 후 2025/2026/2027.html grep) PASS, G2(`app/holidays/page.tsx` redirect 구현 확인) PASS, G3(`node --experimental-strip-types scripts/verify-business-days.ts`) ALL PASS, G4(JSON-LD·title·sitemap grep) PASS, G5(navbar/footer `/holidays` + 2026.html "무료로 시작하기") PASS, G6(`pnpm build` 성공, lint 게이트 D5 로 제거) PASS, G7(CLAUDE.md 갱신 내용 위 기록으로 갈음) PASS. WORKPLAN.md G1~G7 및 PH-6 체크 완료.
+- 2026-08-15: 아키텍트 독립 검수 — 클린 빌드 + 전체 게이트 재실행 ALL PASS. 결함 1건 발견·수정: 페이지 title 이 루트 layout 의 title.template(%s | HuDy) 과 중복되어 '| HuDy | HuDy' 로 렌더 → 페이지 title 에서 접미 제거. 스모크: /holidays 307→/holidays/2026, /holidays/2028 200.
