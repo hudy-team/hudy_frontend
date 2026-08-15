@@ -32,7 +32,7 @@
 
 ## 태스크
 
-- [ ] **PH-1** — 데이터 레이어 `lib/holidays.ts` (지시서: `docs/work-orders/PH-1.md`)
+- [x] **PH-1** — 데이터 레이어 `lib/holidays.ts` (지시서: `docs/work-orders/PH-1.md`)
 - [ ] **PH-2** — 영업일 계산 로직 `lib/business-day.ts` + 검증 스크립트 (지시서: `docs/work-orders/PH-2.md`)
 - [ ] **PH-3** — `/holidays/[year]` 페이지 + `/holidays` redirect (지시서: `docs/work-orders/PH-3.md`)
 - [ ] **PH-4** — 영업일 계산기 클라이언트 컴포넌트 (지시서: `docs/work-orders/PH-4.md`)
@@ -72,3 +72,4 @@
 ## 진행 로그
 
 - 2026-08-15: 원장·지시서 작성, worktree `feat/public-holiday-pages` 생성 (아키텍트).
+- 2026-08-15: PH-1 완료 — `lib/holidays.ts` 추가 (`getAvailableYears`, `getHolidaysByYear`), `server-only` 패키지 설치. `pnpm build` 통과 확인.
