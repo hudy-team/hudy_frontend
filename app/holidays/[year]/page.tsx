@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const holidays = await getHolidaysByYear(year)
-  const title = `${year}년 대한민국 공휴일 · 대체공휴일 총정리 | HuDy`
+  const title = `${year}년 대한민국 공휴일 · 대체공휴일 총정리`
   const description = `${year}년 법정공휴일 ${holidays.length}일 전체 목록과 대체공휴일, 영업일 계산기. 임시공휴일 지정 즉시 반영되는 공휴일 API 데이터 기준.`
   const canonical = `https://www.hudy.co.kr/holidays/${year}`
 
