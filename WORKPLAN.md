@@ -25,7 +25,7 @@
 - [ ] G3. 영업일 계산기 로직이 검증 스크립트(`scripts/verify-business-days.ts`)의 전 케이스를 통과한다 (KST·대체공휴일 포함).
 - [ ] G4. 연도별 `generateMetadata`(title/description) + JSON-LD + `sitemap.ts` 에 연도 페이지 포함.
 - [ ] G5. 랜딩 navbar·footer 에서 공개 페이지로 진입 가능하고, 페이지 안에 API 가입 CTA 가 있다.
-- [ ] G6. `pnpm build` 성공 + `pnpm lint` 통과 (기존 페이지 영향 없음).
+- [ ] G6. `pnpm build` 성공 (기존 페이지 영향 없음). lint 게이트는 D5 로 제거.
 - [ ] G7. `CLAUDE.md` 라우팅/주의사항이 실제 구현 상태를 반영한다.
 
 **골에서 제외 (사용자 액션)**: PR 생성·머지, 프로덕션 배포, Search Console 등록.
@@ -34,10 +34,10 @@
 
 - [x] **PH-1** — 데이터 레이어 `lib/holidays.ts` (지시서: `docs/work-orders/PH-1.md`)
 - [x] **PH-2** — 영업일 계산 로직 `lib/business-day.ts` + 검증 스크립트 (지시서: `docs/work-orders/PH-2.md`)
-- [ ] **PH-3** — `/holidays/[year]` 페이지 + `/holidays` redirect (지시서: `docs/work-orders/PH-3.md`) — BLOCKED: 수용 기준 4번(`grep "성탄절" 2027.html`)이 실제 DB 데이터와 불일치. Supabase 실측 결과 2027-12-25 공휴일의 실제 `name` 은 "기독탄신일"이며 "성탄절"이 아니다. PH-3 금지사항("DB `day_of_week`/데이터를 그대로 표시, 임의 변경 금지")과 D3 원칙상 DB 값을 임의로 바꿀 수 없어 이 기준만 통과 불가. 구현 자체(페이지·redirect·SSG·레이아웃)는 완료했고 나머지 검증(1~3, build)은 모두 통과함. 아키텍트 확인 후 수용 기준 문구 수정 필요.
+- [ ] **PH-3** — `/holidays/[year]` 페이지 + `/holidays` redirect (지시서: `docs/work-orders/PH-3.md`) — 블로커 해소됨(D5·D6): 수정된 수용 기준(기독탄신일)으로 재검증 후 체크할 것. 구현은 이미 완료 상태.
 - [x] **PH-4** — 영업일 계산기 클라이언트 컴포넌트 (지시서: `docs/work-orders/PH-4.md`)
 - [x] **PH-5** — SEO: metadata·JSON-LD·sitemap (지시서: `docs/work-orders/PH-5.md`)
-- [ ] **PH-6** — navbar/footer 링크 + CLAUDE.md 갱신 + 전체 게이트 재검증 (지시서: `docs/work-orders/PH-6.md`) — BLOCKED: 지시서 선행 조건("선행: PH-1~PH-5 전부. 미완료면 BLOCKED")을 충족하지 못함. PH-3 이 아직 BLOCKED(체크 안 됨) 상태라 PH-6 을 시작할 수 없음. PH-3 의 블로커(수용 기준 4번 "성탄절" vs 실제 DB 값 "기독탄신일" 불일치)를 아키텍트가 먼저 해소해야 함.
+- [ ] **PH-6** — navbar/footer 링크 + CLAUDE.md 갱신 + 전체 게이트 재검증 (지시서: `docs/work-orders/PH-6.md`) — PH-3 블로커 해소됨. PH-3 체크 후 착수.
 
 ## 루프 프로토콜
 
@@ -68,6 +68,9 @@
 - D2: 영업일 계산기는 API 호출 없이 **동일 로직을 로컬 계산**한다. 이유: 익명 트래픽에 키를 노출할 수 없고, 로직이 순수 함수라 복제 비용이 낮다. 페이지에는 "API 와 동일한 계산" 문구로 제품 데모임을 명시.
 - D3: 대체공휴일 판정은 `name` 에 "대체" 포함 여부로 한다 (DB 에 별도 플래그 없음, 실데이터 확인됨).
 - D4: 노출 연도는 DB `distinct year` 로 동적 결정 (하드코딩 금지). 새 연도 sync 시 자동 확장.
+- D5 (2026-08-15, 아키텍트): lint 게이트 전면 제거. `pnpm lint`(`next lint`)는 Next 16 에서 명령 자체가 제거되어 이 작업과 무관하게 사전 실패 상태. ESLint CLI 마이그레이션은 이 원장 범위 밖의 별도 백로그로 넘긴다. 이 작업의 품질 게이트는 `pnpm build`(strict TS) + grep 검증으로 충분.
+- D6 (2026-08-15, 아키텍트): PH-3 수용 기준 4번의 "성탄절"은 아키텍트 오기 — DB 실측값은 "기독탄신일"이다. 지시서를 DB 값 기준으로 수정했다. DB 값을 페이지에서 임의 변경하지 않는다는 금지사항이 옳았고, 루프가 BLOCKED 를 건 판단이 맞다.
+- 참고: 2026-08-15 admin sync 재실행으로 DB 가 2025/2026/2027/2028 = 20/22/24/19건으로 갱신됨(노동절 신설 반영, 2028 추가). D4 에 따라 페이지·sitemap 은 자동 확장되므로 코드 수정 불요. PH-6 게이트의 연도 루프(2025~2027)에 2028 이 추가로 생성되는 것은 정상.
 
 ## 진행 로그
 
@@ -78,3 +81,4 @@
 - 2026-08-15: PH-4 완료 — `components/holidays/business-day-calculator.tsx` 추가(클라이언트, fetch 없이 `lib/business-day.ts` 로컬 계산). PH-3 페이지에서 `year`+`year+1` 공휴일 날짜를 합쳐 `holidays` prop 으로 전달하도록 수정, `{/* PH-4 */}` 자리 표시 주석을 실제 컴포넌트로 교체. `pnpm build` 성공(정적 페이지 2025~2028 재생성 확인), `grep "use client"`/`grep "server-only"` PASS. `pnpm lint` 는 PH-3 에서 이미 확인된 사전 장애(Next 16 `next lint` 제거)로 이 태스크와 무관하게 실패.
 - 2026-08-15: PH-6 BLOCKED — 지시서 선행 조건(PH-1~PH-5 전부 완료) 미충족. PH-3 이 여전히 BLOCKED 상태라 착수 불가. 구현/검증 시도 없음. 아키텍트가 PH-3 블로커(수용 기준 4번 지문 vs 실제 DB 데이터 불일치)를 해소한 뒤 재개 필요.
 - 2026-08-15: PH-5 완료 — `app/holidays/[year]/page.tsx` 에 `generateMetadata`(title/description/canonical/OG/twitter, 지시서 문안 그대로) + JSON-LD(`ItemList`>`Event`, `<` 이스케이프) 추가. `app/sitemap.ts` 를 async 로 바꾸고 `getAvailableYears()` 로 `/holidays/{year}` 항목 동적 생성(monthly, priority 0.8). `app/robots.ts` 확인 결과 `/holidays` 차단 없음 — 수정 불필요. `pnpm build` 성공, `grep "application/ld+json" .next/server/app/holidays/2026.html` PASS, `grep "2026년 대한민국 공휴일" .next/server/app/holidays/2026.html` PASS, `.next/server/app/sitemap.xml.body` 에서 `holidays/2026` 확인 PASS(지시서 대체 절차 사용 — route.js 직접 import 대신 빌드 산출물 body 파일 grep 으로 검증, 그 사실을 여기 명시). `pnpm lint` 는 PH-3/PH-4 와 동일한 사전 장애(Next 16 `next lint` 제거)로 이 태스크와 무관하게 실패.
+- 2026-08-15: 아키텍트 개입 — PH-3 수용 기준 오기(성탄절→기독탄신일) 수정, lint 게이트 제거(D5), PH-3/PH-6 블로커 해소. 루프 재개.

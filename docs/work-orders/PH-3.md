@@ -47,5 +47,5 @@
   1. `pnpm build` 성공
   2. `ls .next/server/app/holidays` 에 `2025.html 2026.html 2027.html` 존재
   3. `grep -q "광복절" .next/server/app/holidays/2026.html && grep -q "대체" .next/server/app/holidays/2026.html && echo PASS`
-  4. `grep -q "성탄절" .next/server/app/holidays/2027.html && echo PASS`
-- `pnpm lint` 통과.
+  4. `grep -q "기독탄신일" .next/server/app/holidays/2027.html && echo PASS`
+- (lint 게이트 제거 — D5 참조)

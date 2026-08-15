@@ -26,4 +26,4 @@
   - `grep -q "application/ld+json" .next/server/app/holidays/2026.html && echo PASS`
   - `grep -q "2026년 대한민국 공휴일" .next/server/app/holidays/2026.html && echo PASS`
   - `grep -q "holidays/2026" .next/server/app/sitemap.xml.* 2>/dev/null || node -e "import('./.next/server/app/sitemap.xml/route.js').catch(()=>process.exit(0))"` — sitemap 빌드 산출 검증이 어려우면 `pnpm build` 성공 + sitemap.ts 코드 리뷰로 갈음하고 그 사실을 진행 로그에 명시.
-- `pnpm lint` 통과.
+- (lint 게이트 제거 — D5 참조)

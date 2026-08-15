@@ -18,7 +18,7 @@
 - G3: `node --experimental-strip-types scripts/verify-business-days.ts`
 - G4: PH-5 수용 기준 명령 재실행.
 - G5: `grep -q "/holidays" components/landing/navbar.tsx && grep -q "/holidays" components/landing/footer.tsx && grep -q "무료로 시작하기" .next/server/app/holidays/2026.html`
-- G6: `pnpm build && pnpm lint`
+- G6: `pnpm build` (lint 게이트는 D5 로 제거됨)
 - G7: CLAUDE.md diff 육안 확인, 갱신 내용 진행 로그에 요약.
 
 ## 금지사항

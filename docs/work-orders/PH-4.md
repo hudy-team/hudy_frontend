@@ -28,7 +28,7 @@
 
 ## 수용 기준
 
-- `pnpm build` 성공, `pnpm lint` 통과.
+- `pnpm build` 성공. (lint 게이트 제거 — D5 참조)
 - `grep -q "use client" components/holidays/business-day-calculator.tsx && echo PASS`
 - 클라이언트 번들에 admin 키 유출 없음: `grep -rL "server-only" lib/holidays.ts || true` 가 아니라 → `grep -q "server-only" lib/holidays.ts && echo PASS` 로 확인.
 - PH-3 페이지의 자리 표시 주석을 실제 컴포넌트로 교체하고 빌드 재확인.
