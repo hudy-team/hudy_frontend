@@ -36,6 +36,9 @@ app/
 ├── page.tsx                # 랜딩 페이지
 ├── globals.css             # CSS 변수 기반 다크 테마 (HSL)
 ├── login/page.tsx          # 로그인 (Google/GitHub OAuth, magic link)
+├── holidays/
+│   ├── page.tsx             # KST 기준 현재 연도로 redirect
+│   └── [year]/page.tsx      # 공개 공휴일 페이지 (로그인 불필요, SSG + revalidate 3600, admin client 로 DB 조회)
 └── dashboard/
     ├── layout.tsx           # 사이드바 + 모바일 네비게이션 래퍼
     ├── page.tsx             # API 통계, 사용량 차트
@@ -85,6 +88,7 @@ Supabase PostgreSQL. 스키마 원본은 코어 API 서버 repo(`hudy_backend/mi
 
 - `next.config.mjs`의 `ignoreBuildErrors`는 **false** — TypeScript 에러가 빌드를 막는다 (2026-08-12부터)
 - **Supabase 연동 완료** — 대시보드는 `api_keys` / `api_usage_daily` / `subscriptions` 를 직접 조회한다 (목업 아님)
+- **공개 페이지(`/holidays`)는 `lib/holidays.ts`(server-only, admin client) 로 DB 를 직조회한다** — anon 키로는 못 읽는다
 - **API 키 발급은 서버측 RPC 전용** — `issue_api_key(key_name)` / `rotate_api_key(p_key_id)`.
   `api_keys` 테이블에 대한 클라이언트 INSERT 권한은 없고 UPDATE 는 `name`/`is_active` 컬럼만 허용된다
 - **API 키 평문은 저장/표시하지 않는다** — `api_keys` 는 `key_hash`(sha256 hex) 와 `key_prefix`(예: `hd_live_a1b2`) 만 쓴다.

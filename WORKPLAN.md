@@ -20,13 +20,13 @@
 
 ## 골 게이트 (전부 검증되어야 완료)
 
-- [ ] G1. `/holidays/2026` 이 로그인 없이 정적 렌더되고 DB 실데이터(공휴일 이름·날짜)가 표시된다. 2025·2027 도 동일.
-- [ ] G2. `/holidays` 접속 시 KST 기준 현재 연도 페이지로 redirect 된다.
-- [ ] G3. 영업일 계산기 로직이 검증 스크립트(`scripts/verify-business-days.ts`)의 전 케이스를 통과한다 (KST·대체공휴일 포함).
-- [ ] G4. 연도별 `generateMetadata`(title/description) + JSON-LD + `sitemap.ts` 에 연도 페이지 포함.
-- [ ] G5. 랜딩 navbar·footer 에서 공개 페이지로 진입 가능하고, 페이지 안에 API 가입 CTA 가 있다.
-- [ ] G6. `pnpm build` 성공 (기존 페이지 영향 없음). lint 게이트는 D5 로 제거.
-- [ ] G7. `CLAUDE.md` 라우팅/주의사항이 실제 구현 상태를 반영한다.
+- [x] G1. `/holidays/2026` 이 로그인 없이 정적 렌더되고 DB 실데이터(공휴일 이름·날짜)가 표시된다. 2025·2027 도 동일.
+- [x] G2. `/holidays` 접속 시 KST 기준 현재 연도 페이지로 redirect 된다.
+- [x] G3. 영업일 계산기 로직이 검증 스크립트(`scripts/verify-business-days.ts`)의 전 케이스를 통과한다 (KST·대체공휴일 포함).
+- [x] G4. 연도별 `generateMetadata`(title/description) + JSON-LD + `sitemap.ts` 에 연도 페이지 포함.
+- [x] G5. 랜딩 navbar·footer 에서 공개 페이지로 진입 가능하고, 페이지 안에 API 가입 CTA 가 있다.
+- [x] G6. `pnpm build` 성공 (기존 페이지 영향 없음). lint 게이트는 D5 로 제거.
+- [x] G7. `CLAUDE.md` 라우팅/주의사항이 실제 구현 상태를 반영한다.
 
 **골에서 제외 (사용자 액션)**: PR 생성·머지, 프로덕션 배포, Search Console 등록.
 
@@ -37,7 +37,7 @@
 - [x] **PH-3** — `/holidays/[year]` 페이지 + `/holidays` redirect (지시서: `docs/work-orders/PH-3.md`)
 - [x] **PH-4** — 영업일 계산기 클라이언트 컴포넌트 (지시서: `docs/work-orders/PH-4.md`)
 - [x] **PH-5** — SEO: metadata·JSON-LD·sitemap (지시서: `docs/work-orders/PH-5.md`)
-- [ ] **PH-6** — navbar/footer 링크 + CLAUDE.md 갱신 + 전체 게이트 재검증 (지시서: `docs/work-orders/PH-6.md`) — PH-3 블로커 해소됨. PH-3 체크 후 착수.
+- [x] **PH-6** — navbar/footer 링크 + CLAUDE.md 갱신 + 전체 게이트 재검증 (지시서: `docs/work-orders/PH-6.md`)
 
 ## 루프 프로토콜
 
@@ -83,3 +83,4 @@
 - 2026-08-15: PH-5 완료 — `app/holidays/[year]/page.tsx` 에 `generateMetadata`(title/description/canonical/OG/twitter, 지시서 문안 그대로) + JSON-LD(`ItemList`>`Event`, `<` 이스케이프) 추가. `app/sitemap.ts` 를 async 로 바꾸고 `getAvailableYears()` 로 `/holidays/{year}` 항목 동적 생성(monthly, priority 0.8). `app/robots.ts` 확인 결과 `/holidays` 차단 없음 — 수정 불필요. `pnpm build` 성공, `grep "application/ld+json" .next/server/app/holidays/2026.html` PASS, `grep "2026년 대한민국 공휴일" .next/server/app/holidays/2026.html` PASS, `.next/server/app/sitemap.xml.body` 에서 `holidays/2026` 확인 PASS(지시서 대체 절차 사용 — route.js 직접 import 대신 빌드 산출물 body 파일 grep 으로 검증, 그 사실을 여기 명시). `pnpm lint` 는 PH-3/PH-4 와 동일한 사전 장애(Next 16 `next lint` 제거)로 이 태스크와 무관하게 실패.
 - 2026-08-15: 아키텍트 개입 — PH-3 수용 기준 오기(성탄절→기독탄신일) 수정, lint 게이트 제거(D5), PH-3/PH-6 블로커 해소. 루프 재개.
 - 2026-08-15: PH-3 완료 — 구현은 기존 상태 그대로(수정 없음), 수정된 수용 기준으로 재검증만 수행. `pnpm build` 성공, `ls .next/server/app/holidays` 에 2025/2026/2027(+2028).html 존재 확인, `grep 광복절/대체 2026.html` PASS, `grep 기독탄신일 2027.html` PASS.
+- 2026-08-15: PH-6 완료 — `components/landing/navbar.tsx`(데스크톱+모바일 메뉴)에 "공휴일 조회" → `/holidays` 링크 추가. `components/landing/footer.tsx`에 `lib/date.ts` `kstDateString()` 으로 KST 올해 연도를 구해 "{올해}년 공휴일" → `/holidays/{올해}` 링크 추가. `CLAUDE.md` 라우팅 트리에 `app/holidays/`(redirect)·`app/holidays/[year]/`(SSG+revalidate 3600, admin client) 추가, Key Notes 에 공개 페이지 DB 직조회 주의사항 1줄 추가. 골 게이트 전부 재검증: G1(`pnpm build` 후 2025/2026/2027.html grep) PASS, G2(`app/holidays/page.tsx` redirect 구현 확인) PASS, G3(`node --experimental-strip-types scripts/verify-business-days.ts`) ALL PASS, G4(JSON-LD·title·sitemap grep) PASS, G5(navbar/footer `/holidays` + 2026.html "무료로 시작하기") PASS, G6(`pnpm build` 성공, lint 게이트 D5 로 제거) PASS, G7(CLAUDE.md 갱신 내용 위 기록으로 갈음) PASS. WORKPLAN.md G1~G7 및 PH-6 체크 완료.

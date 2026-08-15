@@ -1,13 +1,22 @@
 import Link from "next/link"
 import { HuDyLogo } from "@/components/hudy-logo"
+import { kstDateString } from "@/lib/date"
 
 export function Footer() {
+  const currentYear = kstDateString().slice(0, 4)
+
   return (
     <footer className="border-t border-border px-6 py-12">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 md:flex-row">
         <HuDyLogo size="sm" href="/" />
 
         <nav aria-label="푸터 내비게이션" className="flex flex-wrap items-center justify-center gap-6">
+          <Link
+            href={`/holidays/${currentYear}`}
+            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            {currentYear}년 공휴일
+          </Link>
           <Link href="/terms" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
             이용약관
           </Link>
