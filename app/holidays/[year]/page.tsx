@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { Navbar } from "@/components/landing/navbar"
@@ -17,6 +18,42 @@ interface PageProps {
 export async function generateStaticParams() {
   const years = await getAvailableYears()
   return years.map((year) => ({ year: String(year) }))
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { year: yearParam } = await params
+  const year = Number(yearParam)
+
+  if (!Number.isInteger(year) || String(year) !== yearParam) {
+    return {}
+  }
+
+  const availableYears = await getAvailableYears()
+  if (!availableYears.includes(year)) {
+    return {}
+  }
+
+  const holidays = await getHolidaysByYear(year)
+  const title = `${year}년 대한민국 공휴일 · 대체공휴일 총정리 | HuDy`
+  const description = `${year}년 법정공휴일 ${holidays.length}일 전체 목록과 대체공휴일, 영업일 계산기. 임시공휴일 지정 즉시 반영되는 공휴일 API 데이터 기준.`
+  const canonical = `https://www.hudy.co.kr/holidays/${year}`
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical,
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+    },
+    twitter: {
+      title,
+      description,
+    },
+  }
 }
 
 function dateToUtcMs(date: string): number {
@@ -46,6 +83,24 @@ export default async function HolidayYearPage({ params }: PageProps) {
 
   const substituteCount = holidays.filter((h) => h.isSubstitute).length
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    itemListElement: holidays.map((h, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: {
+        "@type": "Event",
+        name: h.name,
+        startDate: h.date,
+        location: {
+          "@type": "Country",
+          name: "대한민국",
+        },
+      },
+    })),
+  }
+
   const upcoming = holidays.find((h) => h.date >= todayKst)
   let nextHolidayText = "올해 공휴일 종료"
   if (upcoming) {
@@ -59,6 +114,12 @@ export default async function HolidayYearPage({ params }: PageProps) {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       <main>
         <Navbar />
 
