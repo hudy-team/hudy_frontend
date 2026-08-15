@@ -4,6 +4,7 @@ import { Navbar } from "@/components/landing/navbar"
 import { Footer } from "@/components/landing/footer"
 import { Button } from "@/components/ui/button"
 import { HolidayList } from "@/components/holidays/holiday-list"
+import { BusinessDayCalculator } from "@/components/holidays/business-day-calculator"
 import { getAvailableYears, getHolidaysByYear } from "@/lib/holidays"
 import { kstDateString } from "@/lib/date"
 
@@ -37,6 +38,10 @@ export default async function HolidayYearPage({ params }: PageProps) {
   }
 
   const holidays = await getHolidaysByYear(year)
+  const nextYearHolidays = availableYears.includes(year + 1)
+    ? await getHolidaysByYear(year + 1)
+    : []
+  const calculatorHolidays = [...holidays, ...nextYearHolidays].map((h) => h.date)
   const todayKst = kstDateString()
 
   const substituteCount = holidays.filter((h) => h.isSubstitute).length
@@ -110,7 +115,9 @@ export default async function HolidayYearPage({ params }: PageProps) {
             <HolidayList holidays={holidays} todayKst={todayKst} />
           </div>
 
-          <div className="mt-16">{/* PH-4 */}</div>
+          <div className="mt-16">
+            <BusinessDayCalculator holidays={calculatorHolidays} initialDate={todayKst} />
+          </div>
 
           <div className="mt-16 grid grid-cols-1 gap-8 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-card to-card p-8 md:grid-cols-2">
             <div className="flex flex-col justify-center gap-4">
