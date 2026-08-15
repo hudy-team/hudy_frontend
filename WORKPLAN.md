@@ -34,7 +34,7 @@
 
 - [x] **PH-1** — 데이터 레이어 `lib/holidays.ts` (지시서: `docs/work-orders/PH-1.md`)
 - [x] **PH-2** — 영업일 계산 로직 `lib/business-day.ts` + 검증 스크립트 (지시서: `docs/work-orders/PH-2.md`)
-- [ ] **PH-3** — `/holidays/[year]` 페이지 + `/holidays` redirect (지시서: `docs/work-orders/PH-3.md`)
+- [ ] **PH-3** — `/holidays/[year]` 페이지 + `/holidays` redirect (지시서: `docs/work-orders/PH-3.md`) — BLOCKED: 수용 기준 4번(`grep "성탄절" 2027.html`)이 실제 DB 데이터와 불일치. Supabase 실측 결과 2027-12-25 공휴일의 실제 `name` 은 "기독탄신일"이며 "성탄절"이 아니다. PH-3 금지사항("DB `day_of_week`/데이터를 그대로 표시, 임의 변경 금지")과 D3 원칙상 DB 값을 임의로 바꿀 수 없어 이 기준만 통과 불가. 구현 자체(페이지·redirect·SSG·레이아웃)는 완료했고 나머지 검증(1~3, build)은 모두 통과함. 아키텍트 확인 후 수용 기준 문구 수정 필요.
 - [ ] **PH-4** — 영업일 계산기 클라이언트 컴포넌트 (지시서: `docs/work-orders/PH-4.md`)
 - [ ] **PH-5** — SEO: metadata·JSON-LD·sitemap (지시서: `docs/work-orders/PH-5.md`)
 - [ ] **PH-6** — navbar/footer 링크 + CLAUDE.md 갱신 + 전체 게이트 재검증 (지시서: `docs/work-orders/PH-6.md`)
@@ -74,3 +74,4 @@
 - 2026-08-15: 원장·지시서 작성, worktree `feat/public-holiday-pages` 생성 (아키텍트).
 - 2026-08-15: PH-1 완료 — `lib/holidays.ts` 추가 (`getAvailableYears`, `getHolidaysByYear`), `server-only` 패키지 설치. `pnpm build` 통과 확인.
 - 2026-08-15: PH-2 완료 — `lib/business-day.ts`(순수 함수) + `scripts/verify-business-days.ts` 추가. `node --experimental-strip-types scripts/verify-business-days.ts` ALL PASS(exit 0) 확인. `tsconfig.json` exclude 에 `scripts` 추가(Next 타입체크에서 스크립트 제외, `.ts` 확장자 상대 import 허용 목적) 후 `pnpm build` 통과. 역검증: 주말 판정(`getUTCDay() === 0 || 6`)을 일시적으로 무력화하니 7케이스 중 4건 실패 확인 후 원복, 재검증 ALL PASS.
+- 2026-08-15: PH-3 BLOCKED — `app/holidays/page.tsx`(redirect), `app/holidays/[year]/page.tsx`(SSG, revalidate 3600), `components/holidays/holiday-list.tsx` 구현. `pnpm build` 성공, `.next/server/app/holidays` 에 2025/2026/2027.html 생성 확인, 검증 3번(광복절+대체 in 2026) PASS. 검증 4번(성탄절 in 2027) FAIL — Supabase 실측 결과 2027-12-25 실제 `name` 은 "기독탄신일"("성탄절" 아님). `pnpm lint` 는 이 태스크와 무관하게 사전부터 실패 상태(Next 16 에서 `next lint` 명령 제거됨, stash 로 확인). 부수적으로 worktree 에 남아있던 무관 stash(`stash@{0}`, main 브랜치의 `app/layout.tsx` 변경분)를 실수로 pop 했다가 충돌 확인 후 `git checkout --ours` 로 즉시 원복, stash 는 손상 없이 보존됨.
