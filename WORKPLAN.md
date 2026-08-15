@@ -34,7 +34,7 @@
 
 - [x] **PH-1** — 데이터 레이어 `lib/holidays.ts` (지시서: `docs/work-orders/PH-1.md`)
 - [x] **PH-2** — 영업일 계산 로직 `lib/business-day.ts` + 검증 스크립트 (지시서: `docs/work-orders/PH-2.md`)
-- [ ] **PH-3** — `/holidays/[year]` 페이지 + `/holidays` redirect (지시서: `docs/work-orders/PH-3.md`) — 블로커 해소됨(D5·D6): 수정된 수용 기준(기독탄신일)으로 재검증 후 체크할 것. 구현은 이미 완료 상태.
+- [x] **PH-3** — `/holidays/[year]` 페이지 + `/holidays` redirect (지시서: `docs/work-orders/PH-3.md`)
 - [x] **PH-4** — 영업일 계산기 클라이언트 컴포넌트 (지시서: `docs/work-orders/PH-4.md`)
 - [x] **PH-5** — SEO: metadata·JSON-LD·sitemap (지시서: `docs/work-orders/PH-5.md`)
 - [ ] **PH-6** — navbar/footer 링크 + CLAUDE.md 갱신 + 전체 게이트 재검증 (지시서: `docs/work-orders/PH-6.md`) — PH-3 블로커 해소됨. PH-3 체크 후 착수.
@@ -82,3 +82,4 @@
 - 2026-08-15: PH-6 BLOCKED — 지시서 선행 조건(PH-1~PH-5 전부 완료) 미충족. PH-3 이 여전히 BLOCKED 상태라 착수 불가. 구현/검증 시도 없음. 아키텍트가 PH-3 블로커(수용 기준 4번 지문 vs 실제 DB 데이터 불일치)를 해소한 뒤 재개 필요.
 - 2026-08-15: PH-5 완료 — `app/holidays/[year]/page.tsx` 에 `generateMetadata`(title/description/canonical/OG/twitter, 지시서 문안 그대로) + JSON-LD(`ItemList`>`Event`, `<` 이스케이프) 추가. `app/sitemap.ts` 를 async 로 바꾸고 `getAvailableYears()` 로 `/holidays/{year}` 항목 동적 생성(monthly, priority 0.8). `app/robots.ts` 확인 결과 `/holidays` 차단 없음 — 수정 불필요. `pnpm build` 성공, `grep "application/ld+json" .next/server/app/holidays/2026.html` PASS, `grep "2026년 대한민국 공휴일" .next/server/app/holidays/2026.html` PASS, `.next/server/app/sitemap.xml.body` 에서 `holidays/2026` 확인 PASS(지시서 대체 절차 사용 — route.js 직접 import 대신 빌드 산출물 body 파일 grep 으로 검증, 그 사실을 여기 명시). `pnpm lint` 는 PH-3/PH-4 와 동일한 사전 장애(Next 16 `next lint` 제거)로 이 태스크와 무관하게 실패.
 - 2026-08-15: 아키텍트 개입 — PH-3 수용 기준 오기(성탄절→기독탄신일) 수정, lint 게이트 제거(D5), PH-3/PH-6 블로커 해소. 루프 재개.
+- 2026-08-15: PH-3 완료 — 구현은 기존 상태 그대로(수정 없음), 수정된 수용 기준으로 재검증만 수행. `pnpm build` 성공, `ls .next/server/app/holidays` 에 2025/2026/2027(+2028).html 존재 확인, `grep 광복절/대체 2026.html` PASS, `grep 기독탄신일 2027.html` PASS.
