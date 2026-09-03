@@ -167,7 +167,7 @@ export default function BillingPage() {
                   {getStatusBadge(subscription)}
                 </CardTitle>
                 <CardDescription className="mt-1.5">
-                  <span className="text-2xl font-bold text-foreground">$3</span>
+                  <span className="text-2xl font-bold text-foreground">${HUDY_PRO_PLAN.price}</span>
                   <span className="text-muted-foreground">/월</span>
                 </CardDescription>
               </div>
@@ -333,7 +333,7 @@ export default function BillingPage() {
                 </div>
                 <div>
                   <div className="flex items-baseline justify-center gap-1">
-                    <span className="text-5xl font-bold tracking-tight text-foreground">$3</span>
+                    <span className="text-5xl font-bold tracking-tight text-foreground">${HUDY_PRO_PLAN.price}</span>
                     <span className="text-lg text-muted-foreground">/월</span>
                   </div>
                   <p className="mt-1.5 text-sm text-muted-foreground">30일 무료 체험 포함</p>

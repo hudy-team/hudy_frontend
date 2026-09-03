@@ -22,7 +22,7 @@ export const HUDY_PRO_PLAN = {
     month: "pri_01khznxcxjy7tzfrqrrhgjxgv6",        // 무료체험 포함
     monthNoTrial: "pri_01khe32kbr9f7270tdf08wedyb",  // 무료체험 없음
   },
-  price: 3,
+  price: 1,
   currency: "USD",
   interval: "month" as const,
   monthlyQuota: 5000,

@@ -33,7 +33,7 @@ export default async function CheckoutPage() {
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold text-foreground">HuDy Pro 구독</h1>
           <p className="mt-2 text-muted-foreground">
-            월 $3으로 모든 기능을 이용하세요
+            월 $1으로 모든 기능을 이용하세요
           </p>
         </div>
         <CheckoutClient

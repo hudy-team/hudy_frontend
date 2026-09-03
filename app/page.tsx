@@ -39,13 +39,13 @@ function JsonLd() {
         description: '대한민국 공휴일 조회 및 영업일 계산 REST API. 커스텀 공휴일 등록, MCP 서버 지원.',
         offers: {
           '@type': 'Offer',
-          price: '3',
+          price: '1',
           priceCurrency: 'USD',
-          description: '월 $3 단일 요금제, 30일 무료 체험',
+          description: '월 $1 단일 요금제, 30일 무료 체험',
           priceValidUntil: '2027-12-31',
           priceSpecification: {
             '@type': 'UnitPriceSpecification',
-            price: '3',
+            price: '1',
             priceCurrency: 'USD',
             billingIncrement: 1,
             unitCode: 'MON',
